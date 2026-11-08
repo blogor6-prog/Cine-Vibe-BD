@@ -285,7 +285,7 @@
     }
     .movie-poster-wrap {
       width: 100%;
-      height: 150px;
+      height: 145px;
       background: #0f172a;
       position: relative;
       overflow: hidden;
@@ -308,6 +308,8 @@
       border-radius: 3px;
       z-index: 2;
     }
+
+    /* মুভি ইনফো ও L, M, N কলাম ডিজাইন */
     .movie-info {
       padding: 6px;
       flex-grow: 1;
@@ -319,7 +321,7 @@
       font-size: 11px;
       font-weight: bold;
       color: #ffffff;
-      margin-bottom: 3px;
+      margin-bottom: 2px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -328,11 +330,27 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 9.5px;
-      margin-bottom: 4px;
+      font-size: 9px;
+      margin-bottom: 3px;
     }
     .movie-rating { color: var(--accent-yellow); font-weight: 700; }
     .movie-date { color: var(--text-muted); }
+
+    /* L, M, N তথ্যের লাইন */
+    .card-extra-text {
+      font-size: 8.5px;
+      color: #94a3b8;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 1px;
+      line-height: 1.2;
+    }
+    .card-extra-text span {
+      color: #38bdf8;
+      font-weight: 600;
+    }
+
     .dl-trigger-btn {
       background: var(--primary-hover);
       color: #fff;
@@ -343,6 +361,7 @@
       font-weight: bold;
       cursor: pointer;
       text-align: center;
+      margin-top: 5px;
     }
 
     /* ডেডিকেটেড পেজ হেডার (Back to Home) */
@@ -478,7 +497,16 @@
       overflow-y: auto;
     }
     .modal-content h3 { font-size: 16px; color: var(--primary); margin-bottom: 4px; }
-    .modal-sub-details { font-size: 11.5px; color: #94a3b8; margin-bottom: 8px; line-height: 1.4; }
+    .modal-sub-details {
+      font-size: 11.5px;
+      color: #cbd5e1;
+      margin-bottom: 10px;
+      line-height: 1.5;
+      background: #0f172a;
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
     .share-link-btn {
       background: #334155;
       color: #38bdf8;
@@ -550,7 +578,7 @@
 </head>
 <body>
 
-  <!-- ভাইরাল ভিডিও বাটন -->
+  <!-- ১. ভাইরাল ভিডিও বাটন -->
   <div class="viral-btn-wrap">
     <a href="https://t.me/supersp49" target="_blank" class="viral-btn" onclick="openSafeUrl('https://t.me/supersp49'); return false;">
       🔥 Viral Video Link (এখানে ক্লিক করুন) 🔞
@@ -594,7 +622,7 @@
   <!-- হোমপেজ সেকশন কনটেইনার -->
   <div id="homeSectionsContainer">
     
-    <!-- ১. পিন করা মুভি সেকশন (সর্বোচ্চ ৪টি) -->
+    <!-- ১. পিন করা মুভি সেকশন (হোমপেজে ৬টি থাকবে) -->
     <div id="pinnedSectionBlock" style="display: none;">
       <div class="section-header">
         <span class="section-title">📌 Pinned Movies</span>
@@ -603,7 +631,7 @@
       <div class="movies-grid" id="pinnedMoviesGrid"></div>
     </div>
 
-    <!-- ২. বাংলা মুভি সেকশন (সর্বোচ্চ ৬টি) -->
+    <!-- ২. বাংলা মুভি সেকশন (হোমপেজে ৬টি থাকবে) -->
     <div id="banglaSectionBlock" style="display: none;">
       <div class="section-header">
         <span class="section-title">🇧🇩 Bangla Movies</span>
@@ -612,7 +640,7 @@
       <div class="movies-grid" id="banglaMoviesGrid"></div>
     </div>
 
-    <!-- ৩. Recently Added মুভি সেকশন (২১টি + পেজ) -->
+    <!-- ৩. Recently Added মুভি সেকশন (২১টি করে পেজ) -->
     <div id="recentSectionBlock">
       <div class="section-header">
         <span class="section-title">🆕 Recently Added</span>
@@ -643,7 +671,6 @@
       <p><span>SPONSOR</span> স্পন্সরড অফার দেখতে এখানে ক্লিক করুন 🎁</p>
     </div>
 
-    <!-- Adsterra ব্যানার অ্যাড -->
     <div style="margin-bottom: 15px; width: 100%; overflow: hidden; display: flex; justify-content: center; border-radius: 8px;">
       <script async="async" data-cfasync="false" src="https://bancadeltempoidea.org/21/ae890ff8c15af92741885bc6b17aa434"></script>
       <div id="container-ae890ff8c15af92741885bc6b17aa434"></div>
@@ -660,6 +687,8 @@
   <div class="modal-overlay" id="downloadModal" onclick="checkOverlayClick(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
       <h3 id="modalTitle">মুভির নাম</h3>
+      
+      <!-- L, M, N কলামের বিস্তারিত তথ্য -->
       <div class="modal-sub-details" id="modalSubDetails"></div>
 
       <button class="share-link-btn" onclick="copyMovieShareLink()">
@@ -726,7 +755,7 @@
     let timerInterval = null;
     let activeCategory = 'All';
 
-    // পেজিনেশন
+    // ২১টি করে পেজিনেশন
     const itemsPerPage = 21;
     let homePage = 1;
     let fullListPage = 1;
@@ -780,9 +809,12 @@
             const qBest = parseQualityData(getCellVal(c, 9), "Download [Best Quality 🔥 • 4.3 GB]");
 
             const badgeTag = getCellVal(c, 10) || 'WEB-DL';
-            const releaseDate = getCellVal(c, 11);
-            const genreVal = getCellVal(c, 12);
-            const langVal = getCellVal(c, 13);
+            
+            // কলাম L, M, N
+            const releaseDate = getCellVal(c, 11); // L: Release Date
+            const genreVal = getCellVal(c, 12);    // M: Genre
+            const langVal = getCellVal(c, 13);     // N: Language
+
             const isPinned = (getCellVal(c, 14).toLowerCase() === 'yes');
             const isTrending = categoryVal.toLowerCase().includes('trending') || badgeTag.toLowerCase().includes('trending');
 
@@ -807,11 +839,9 @@
           rawMovies.reverse();
           allMovies = rawMovies;
 
-          // ফিল্টার করা তালিকা
           pinnedMovies = allMovies.filter(m => m.pinned);
           banglaMovies = allMovies.filter(m => m.category.toLowerCase().includes('bangla'));
 
-          // ট্রেন্ডিং ও হোম সেকশন রেন্ডার
           renderTrendingSlider(allMovies);
           renderHomeSections();
 
@@ -824,7 +854,7 @@
         });
     }
 
-    // মুভি কার্ড এইচটিএমএল জেনারেটর
+    // মুভি কার্ড এইচটিএমএল (L, M, N যুক্ত করা হয়েছে)
     function createMovieCardHTML(m) {
       const pinTag = m.pinned ? '<div class="pin-badge">📌</div>' : '';
       return `
@@ -836,10 +866,15 @@
           </div>
           <div class="movie-info">
             <div class="movie-title" title="${m.title}">${m.title}</div>
+            
             <div class="movie-meta">
               <span class="movie-rating">${m.rating}</span>
-              <span class="movie-date">${m.date ? m.date.slice(-4) : ''}</span>
+              <span class="movie-date">${m.date ? m.date : ''}</span>
             </div>
+
+            ${m.genre ? `<div class="card-extra-text">🎭 ${m.genre}</div>` : ''}
+            ${m.language ? `<div class="card-extra-text">🔊 ${m.language}</div>` : ''}
+
             <button class="dl-trigger-btn" onclick="event.stopPropagation(); openModal(${m.id})">ডাউনলোড</button>
           </div>
         </div>
@@ -848,17 +883,17 @@
 
     // হোমপেজ সেকশনগুলো রেন্ডার
     function renderHomeSections() {
-      // ১. পিন করা মুভি (টপ ৪টি)
+      // ১. পিন করা মুভি (হোমপেজে ৬টি থাকবে)
       const pinnedBlock = document.getElementById('pinnedSectionBlock');
       const pinnedGrid = document.getElementById('pinnedMoviesGrid');
       if (pinnedMovies.length > 0) {
         pinnedBlock.style.display = 'block';
-        pinnedGrid.innerHTML = pinnedMovies.slice(0, 4).map(createMovieCardHTML).join('');
+        pinnedGrid.innerHTML = pinnedMovies.slice(0, 6).map(createMovieCardHTML).join('');
       } else {
         pinnedBlock.style.display = 'none';
       }
 
-      // ২. বাংলা মুভি (টপ ৬টি)
+      // ২. বাংলা মুভি (হোমপেজে ৬টি থাকবে)
       const banglaBlock = document.getElementById('banglaSectionBlock');
       const banglaGrid = document.getElementById('banglaMoviesGrid');
       if (banglaMovies.length > 0) {
@@ -868,25 +903,43 @@
         banglaBlock.style.display = 'none';
       }
 
-      // ৩. Recently Added মুভি (২১টি করে পেজ)
+      // ৩. Recently Added মুভি
       renderRecentMovies();
     }
 
+    // Recently Added রেন্ডার (পেজ ২-এ গেলে উপরের সেকশন হাইড হবে)
     function renderRecentMovies() {
       const recentGrid = document.getElementById('recentMoviesGrid');
+      const pinnedBlock = document.getElementById('pinnedSectionBlock');
+      const banglaBlock = document.getElementById('banglaSectionBlock');
+      const trendingSec = document.getElementById('trendingSection');
+
+      // ২ নম্বর পেজে বা পরের পেজগুলোতে গেলে উপরের বাংলা, পিন ও ট্রেন্ডিং হাইড হবে
+      if (homePage > 1) {
+        if (pinnedBlock) pinnedBlock.style.display = 'none';
+        if (banglaBlock) banglaBlock.style.display = 'none';
+        if (trendingSec) trendingSec.style.display = 'none';
+      } else {
+        // ১ নম্বর পেজে আসলে আবার যথারীতি ফিরে আসবে
+        if (pinnedMovies.length > 0) pinnedBlock.style.display = 'block';
+        if (banglaMovies.length > 0) banglaBlock.style.display = 'block';
+        if (allMovies.some(m => m.trending || m.pinned)) trendingSec.style.display = 'block';
+      }
+
       const start = (homePage - 1) * itemsPerPage;
       const end = start + itemsPerPage;
       const paged = allMovies.slice(start, end);
 
       recentGrid.innerHTML = paged.map(createMovieCardHTML).join('');
+
       renderPagination(allMovies.length, homePage, 'homePaginationBar', (p) => {
         homePage = p;
         renderRecentMovies();
-        document.getElementById('recentSectionBlock').scrollIntoView({ behavior: 'smooth' });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       });
     }
 
-    // SEE ALL বাটন হ্যান্ডলার (ডেডিকেটেড পেজ ওপেন)
+    // SEE ALL পেজ ওপেন
     function openSeeAll(type) {
       document.getElementById('homeSectionsContainer').style.display = 'none';
       document.getElementById('trendingSection').style.display = 'none';
@@ -935,15 +988,14 @@
     function goHome() {
       document.getElementById('fullListViewBlock').style.display = 'none';
       document.getElementById('homeSectionsContainer').style.display = 'block';
-      if (allMovies.some(m => m.trending || m.pinned)) {
-        document.getElementById('trendingSection').style.display = 'block';
-      }
+      homePage = 1;
+      renderRecentMovies();
       document.getElementById('searchInput').value = '';
       selectCategoryPill('All');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // সার্বজনীন পেজিনেশন বার জেনারেটর
+    // সার্বজনীন পেজিনেশন বার
     function renderPagination(totalItems, currentPage, barId, onPageChange) {
       const bar = document.getElementById(barId);
       const totalPages = Math.ceil(totalItems / itemsPerPage);
@@ -956,7 +1008,6 @@
       bar.style.display = 'flex';
       bar.innerHTML = '';
 
-      // Prev বাটন
       const prev = document.createElement('button');
       prev.className = 'page-btn';
       prev.innerText = '◀ Prev';
@@ -964,7 +1015,6 @@
       prev.onclick = () => onPageChange(currentPage - 1);
       bar.appendChild(prev);
 
-      // সংখ্যা বাটন
       for (let i = 1; i <= totalPages; i++) {
         const btn = document.createElement('button');
         btn.className = `page-btn ${i === currentPage ? 'active' : ''}`;
@@ -973,7 +1023,6 @@
         bar.appendChild(btn);
       }
 
-      // Next বাটন
       const next = document.createElement('button');
       next.className = 'page-btn';
       next.innerText = 'Next ▶';
@@ -982,7 +1031,7 @@
       bar.appendChild(next);
     }
 
-    // ট্রেন্ডিং স্লাইডার রেন্ডার
+    // ট্রেন্ডিং স্লাইডার
     function renderTrendingSlider(list) {
       const container = document.getElementById('trendingList');
       const section = document.getElementById('trendingSection');
@@ -1009,7 +1058,7 @@
       });
     }
 
-    // ক্যাটাগরি ও সার্চ হ্যান্ডলার
+    // ক্যাটাগরি ও সার্চ
     function selectCategory(cat, event) {
       if (event) event.stopPropagation();
       activeCategory = cat;
@@ -1074,7 +1123,7 @@
       if (menu) menu.style.display = 'none';
     });
 
-    // ১০০% গ্যারান্টিড মুভি লিংক কপি
+    // মুভি লিংক শেয়ার
     function copyMovieShareLink() {
       if (!currentMovie) return;
       const shareUrl = window.location.origin + window.location.pathname + '?id=' + currentMovie.id;
@@ -1123,6 +1172,7 @@
       if (alertBox) alertBox.classList.remove('show');
     }
 
+    // ডাউনলোড মডাল (L, M, N কলামের বিস্তারিত বিবরণসহ)
     function openModal(id) {
       currentMovie = allMovies.find(m => m.id === id);
       if (!currentMovie) return;
@@ -1132,12 +1182,14 @@
 
       document.getElementById('modalTitle').innerText = currentMovie.title;
 
-      let subDetailsText = [];
-      if (currentMovie.rating) subDetailsText.push(currentMovie.rating);
-      if (currentMovie.date) subDetailsText.push(currentMovie.date);
-      if (currentMovie.genre) subDetailsText.push(`Genre: ${currentMovie.genre}`);
-      if (currentMovie.language) subDetailsText.push(`Audio: ${currentMovie.language}`);
-      document.getElementById('modalSubDetails').innerHTML = subDetailsText.join(' • ');
+      // কলাম L, M, N-এর পরিষ্কার তালিকা
+      let detailsList = [];
+      if (currentMovie.rating) detailsList.push(`⭐ রেটিং: ${currentMovie.rating}`);
+      if (currentMovie.date) detailsList.push(`📅 রিলিজ: ${currentMovie.date}`);
+      if (currentMovie.genre) detailsList.push(`🎭 জনরা: ${currentMovie.genre}`);
+      if (currentMovie.language) detailsList.push(`🔊 ভাষা: ${currentMovie.language}`);
+      
+      document.getElementById('modalSubDetails').innerHTML = detailsList.join(' &nbsp;•&nbsp; ');
 
       document.getElementById('modalStatus').innerHTML = "ডাউনলোড আনলক করতে <b>১ম বিজ্ঞাপনটি</b> দেখুন।";
       
