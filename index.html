@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>CineVibeBD - HD Movies</title>
+  <title>CineVibeBD - HD Movies & Series</title>
   
   <meta name="theme-color" content="#0b0f19">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -11,9 +11,9 @@
   
   <!-- Telegram Web App SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-  <!-- সোশ্যাল বার অ্যাড (Adsterra-র আসল কোড, কোনো পরিবর্তন ছাড়া) -->
-  <script type="text/javascript" data-cfasync="false" src="https://bancadeltempoidea.org/14/6ec3380071a63409857caac0c1180d7e"></script>
+  
+  <!-- Social Bar Ad -->
+  <script data-cfasync="false" src="https://bancadeltempoidea.org/14/6ec3380071a63409857caac0c1180d7e"></script>
 
   <style>
     :root {
@@ -46,6 +46,7 @@
       min-height: 100vh;
     }
 
+    /* ১. ভাইরাল ভিডিও বাটন */
     .viral-btn-wrap {
       margin-bottom: 12px;
     }
@@ -72,6 +73,7 @@
       50% { transform: scale(1.02); }
     }
 
+    /* হেডার বার */
     .header-bar {
       display: flex;
       align-items: center;
@@ -126,6 +128,7 @@
     }
     .dropdown-menu div:active { background: var(--primary-hover); }
 
+    /* সার্চ বক্স */
     .search-box {
       margin-bottom: 12px;
     }
@@ -140,6 +143,7 @@
       outline: none;
     }
 
+    /* ২. TRENDING / FEATURED সেকশন */
     .section-title {
       font-size: 14px;
       font-weight: 800;
@@ -175,7 +179,6 @@
       height: 150px;
       object-fit: cover;
       display: block;
-      background: #1e293b;
     }
     .featured-badge {
       position: absolute;
@@ -200,6 +203,7 @@
       color: #fff;
     }
 
+    /* ক্যাটাগরি চিপস */
     .category-pills {
       display: flex;
       gap: 8px;
@@ -226,12 +230,12 @@
       font-weight: 700;
     }
 
+    /* ৩. ৩ কলামের মুভি গ্রিড */
     .movies-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 8px;
       margin-bottom: 20px;
-      min-height: 200px;
     }
     .movie-card {
       background: var(--card-bg);
@@ -324,6 +328,7 @@
       text-align: center;
     }
 
+    /* ৪. পেজিনেশন (Pagination) */
     .pagination-bar {
       display: flex;
       justify-content: center;
@@ -352,7 +357,7 @@
       cursor: not-allowed;
     }
 
-    /* নিচের বিজ্ঞাপন এরিয়া */
+    /* ৫. নিচের বিজ্ঞাপন সেকশন */
     .bottom-ad-section {
       margin-top: 25px;
       padding-top: 15px;
@@ -378,7 +383,7 @@
       margin-right: 5px;
     }
 
-    /* সোস্যাল বার অ্যালার্ট বক্স */
+    /* ৬. সোস্যাল বার অটো মেসেজ পপ-আপ ডিজাইন */
     .social-ad-alert {
       position: fixed;
       bottom: -100px;
@@ -394,8 +399,8 @@
       gap: 10px;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 15px rgba(250, 204, 21, 0.4);
       z-index: 99999;
-      transition: bottom 0.5s ease;
-      font-size: 12px;
+      transition: bottom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      font-size: 12.5px;
       font-weight: bold;
       white-space: nowrap;
     }
@@ -416,6 +421,7 @@
       justify-content: center;
     }
 
+    /* মডাল */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -517,7 +523,7 @@
 </head>
 <body>
 
-  <!-- ভাইরাল ভিডিও বাটন -->
+  <!-- ১. ভাইরাল ভিডিও বাটন -->
   <div class="viral-btn-wrap">
     <a href="https://t.me/supersp49" target="_blank" class="viral-btn" onclick="openSafeUrl('https://t.me/supersp49'); return false;">
       🔥 Viral Video Link (এখানে ক্লিক করুন) 🔞
@@ -542,7 +548,7 @@
     <input type="text" id="searchInput" placeholder="মুভির নাম খুঁজুন..." onkeyup="filterMovies()">
   </div>
 
-  <!-- TRENDING স্লাইডার -->
+  <!-- ২. TRENDING / FEATURED স্লাইডার -->
   <div id="trendingSection" style="display: none;">
     <div class="section-title">🔥 Trending & Featured</div>
     <div class="trending-scroll-container" id="trendingList"></div>
@@ -558,30 +564,29 @@
     <div class="pill" onclick="selectCategory('Hollywood', event)">Hollywood</div>
   </div>
 
-  <!-- ৩ কলামের মুভি গ্রিড -->
+  <!-- ৩. ৩ কলামের মুভি গ্রিড -->
   <div class="movies-grid" id="moviesList">
-    <div style="grid-column: span 3; text-align: center; padding: 40px 10px; color: var(--primary); font-size: 14px;">
-      মুভি লোড হচ্ছে... অনুগ্রহ করে একটু অপেক্ষা করুন ⏳
+    <div style="grid-column: span 3; text-align: center; padding: 40px 10px; color: var(--primary); font-size: 13px;">
+      মুভি লোড হচ্ছে... অনুগ্রহ করে অপেক্ষা করুন ⏳
     </div>
   </div>
 
-  <!-- ২১ মুভি পেজিনেশন কন্ট্রোল -->
+  <!-- ৪. ২১ মুভি পেজিনেশন কন্ট্রোল -->
   <div class="pagination-bar" id="paginationBar" style="display: none;"></div>
 
-  <!-- নিচের বিজ্ঞাপন এরিয়া -->
+  <!-- ৫. নিচের অ্যাড সেকশন -->
   <div class="bottom-ad-section">
     <div class="entry-ad-banner" onclick="openEntryAd()">
       <p><span>SPONSOR</span> স্পন্সরড অফার দেখতে এখানে ক্লিক করুন 🎁</p>
     </div>
 
-    <!-- Adsterra ব্যানার অ্যাড কোড -->
-    <div style="margin-bottom: 15px; width: 100%; overflow: hidden; display: flex; justify-content: center; border-radius: 8px;">
+    <div style="width: 100%; overflow: hidden; display: flex; justify-content: center; border-radius: 8px;">
       <script async="async" data-cfasync="false" src="https://bancadeltempoidea.org/21/ae890ff8c15af92741885bc6b17aa434"></script>
       <div id="container-ae890ff8c15af92741885bc6b17aa434"></div>
     </div>
   </div>
 
-  <!-- সোস্যাল বার অটো মেসেজ পপ-আপ -->
+  <!-- ৬. সোস্যাল বার অটো মেসেজ পপ-আপ -->
   <div class="social-ad-alert" id="socialAdAlert">
     <span>⚠️ বিজ্ঞাপনে ক্লিক করে আবার ব্যাক আসুন</span>
     <button class="alert-close-btn" onclick="dismissAdAlert()">&times;</button>
@@ -593,6 +598,7 @@
       <h3 id="modalTitle">মুভির নাম</h3>
       <div class="modal-sub-details" id="modalSubDetails"></div>
 
+      <!-- সরাসরি লিংক শেয়ার বাটন -->
       <button class="share-link-btn" onclick="copyMovieShareLink()">
         🔗 এই মুভির লিংক কপি করুন
       </button>
@@ -655,6 +661,7 @@
     let timerInterval = null;
     let activeCategory = 'All';
 
+    // ২১টি করে মুভি পেজিনেশন
     let currentPage = 1;
     const itemsPerPage = 21;
 
@@ -688,7 +695,7 @@
 
           let rawMovies = [];
           for (let i = 0; i < rows.length; i++) {
-            const c = rows[i]?.c;
+            const c = rows[i].c;
             if (!c) continue;
 
             const titleStr = getCellVal(c, 0);
@@ -745,7 +752,6 @@
           checkDirectMovieLink();
         })
         .catch(err => {
-          console.error(err);
           document.getElementById('moviesList').innerHTML = 
             '<p style="grid-column: span 3; text-align: center; color: #ef4444; padding: 30px;">মুভি লোড হতে সমস্যা হয়েছে! শিটের পারমিশন চেক করুন।</p>';
         });
@@ -920,15 +926,16 @@
       }
     }
 
+    /* সোস্যাল বার অটো অ্যালার্ট মেসেজ হ্যান্ডলার */
     setTimeout(() => {
       const alertBox = document.getElementById('socialAdAlert');
       if (alertBox) {
         alertBox.classList.add('show');
         setTimeout(() => {
           alertBox.classList.remove('show');
-        }, 8000);
+        }, 8000); // ৮ সেকেন্ড পর নিজে থেকেই চলে যাবে
       }
-    }, 3500);
+    }, 3500); // ওয়েবসাইট লোড হওয়ার ৩.৫ সেকেন্ড পর ভেসে উঠবে
 
     function dismissAdAlert() {
       const alertBox = document.getElementById('socialAdAlert');
