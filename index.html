@@ -9,7 +9,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   
+  <!-- Telegram Web App SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <!-- সোশ্যাল বার অ্যাড -->
   <script type="text/javascript" data-cfasync="false" src="https://bancadeltempoidea.org/14/6ec3380071a63409857caac0c1180d7e"></script>
 
   <style>
@@ -42,9 +45,9 @@
       padding: 10px;
       padding-bottom: 80px;
       min-height: 100vh;
-      overflow-x: hidden;
     }
 
+    /* ভাইরাল ভিডিও বাটন */
     .viral-btn-wrap { margin-bottom: 12px; }
     .viral-btn {
       display: flex;
@@ -52,18 +55,24 @@
       justify-content: center;
       gap: 8px;
       width: 100%;
-      padding: 11px;
+      padding: 12px;
       background: linear-gradient(135deg, #ef4444, #f97316);
       color: #fff;
       font-weight: 800;
-      font-size: 13.5px;
-      border-radius: 8px;
+      font-size: 14px;
+      border-radius: 10px;
       text-decoration: none;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+      animation: pulse-viral 2s infinite;
+      border: 1px solid rgba(255, 255, 255, 0.3);
       cursor: pointer;
     }
+    @keyframes pulse-viral {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+    }
 
+    /* হেডার বার */
     .header-bar {
       display: flex;
       align-items: center;
@@ -119,6 +128,7 @@
     }
     .dropdown-menu div:active { background: var(--primary-hover); }
 
+    /* সার্চ, ভয়েস ও লাকি মুভি বাটন */
     .search-wrapper {
       position: relative;
       margin-bottom: 12px;
@@ -157,7 +167,7 @@
       border: none;
       padding: 10px 12px;
       border-radius: 8px;
-      font-size: 12px;
+      font-size: 12.5px;
       font-weight: 800;
       cursor: pointer;
       white-space: nowrap;
@@ -166,6 +176,7 @@
       gap: 4px;
     }
 
+    /* ট্রেন্ডিং স্লাইডার */
     .trending-scroll-container {
       display: flex;
       gap: 10px;
@@ -173,10 +184,12 @@
       padding-bottom: 10px;
       margin-bottom: 15px;
       scrollbar-width: none;
+      scroll-snap-type: x mandatory;
     }
     .trending-scroll-container::-webkit-scrollbar { display: none; }
     .trending-card {
       flex: 0 0 115px;
+      scroll-snap-align: start;
       background: var(--card-bg);
       border-radius: 8px;
       overflow: hidden;
@@ -189,7 +202,7 @@
       height: 150px;
       object-fit: cover;
       display: block;
-      background: #0f172a;
+      background: #1e293b;
     }
     .featured-badge {
       position: absolute;
@@ -214,6 +227,7 @@
       color: #fff;
     }
 
+    /* ক্যাটাগরি চিপস */
     .category-pills {
       display: flex;
       gap: 8px;
@@ -240,6 +254,7 @@
       font-weight: 700;
     }
 
+    /* সেকশন হেডার ও SEE ALL */
     .section-header {
       display: flex;
       justify-content: space-between;
@@ -269,7 +284,9 @@
       align-items: center;
       gap: 3px;
     }
+    .see-all-btn:active { background: var(--primary); color: #000; }
 
+    /* ৩ কলামের গ্রিড */
     .movies-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -285,7 +302,9 @@
       flex-direction: column;
       cursor: pointer;
       position: relative;
+      transition: transform 0.15s ease;
     }
+    .movie-card:active { transform: scale(0.97); }
     .movie-card.is-pinned { border: 1px solid #f59e0b; }
     .pin-badge {
       position: absolute;
@@ -328,6 +347,7 @@
       background: linear-gradient(135deg, #a855f7, #6366f1) !important;
     }
 
+    /* কার্ডের ভেতরের তথ্য */
     .movie-info {
       padding: 6px;
       flex-grow: 1;
@@ -376,6 +396,35 @@
       margin-top: 5px;
     }
 
+    /* শিমার স্কেলিটন */
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    .skeleton-card {
+      background: #1e293b;
+      border-radius: 8px;
+      height: 200px;
+      overflow: hidden;
+      border: 1px solid #334155;
+    }
+    .skeleton-img {
+      width: 100%;
+      height: 140px;
+      background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+    }
+    .skeleton-text {
+      height: 10px;
+      margin: 8px 6px;
+      border-radius: 4px;
+      background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+    }
+
+    /* ডেডিকেটেড পেজ হেডার */
     .full-view-header {
       display: flex;
       align-items: center;
@@ -396,6 +445,7 @@
       cursor: pointer;
     }
 
+    /* পেজিনেশন */
     .pagination-bar {
       display: flex;
       justify-content: center;
@@ -421,13 +471,15 @@
     }
     .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
+    /* বটম নেভিগেশন (ঘণ্টা আইকনসহ) */
     .bottom-nav {
       position: fixed;
       bottom: 0;
       left: 0;
       width: 100%;
       height: 60px;
-      background: #0f172a;
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(8px);
       border-top: 1px solid var(--border-color);
       display: flex;
       justify-content: space-around;
@@ -445,9 +497,10 @@
       cursor: pointer;
       gap: 3px;
     }
-    .nav-item.active { color: var(--primary); font-weight: bold; }
+    .nav-item.active, .nav-item:active { color: var(--primary); font-weight: bold; }
     .nav-icon { font-size: 18px; }
 
+    /* বিজ্ঞাপন ও অ্যালার্ট */
     .bottom-ad-section { margin-top: 25px; padding-top: 15px; border-top: 1px solid var(--border-color); }
     .entry-ad-banner {
       background: linear-gradient(135deg, #1e3a8a, #0284c7);
@@ -469,6 +522,39 @@
       margin-right: 5px;
     }
 
+    .social-ad-alert {
+      position: fixed;
+      bottom: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #0f172a;
+      border: 1.5px solid #facc15;
+      color: #ffffff;
+      padding: 10px 16px;
+      border-radius: 30px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 15px rgba(250, 204, 21, 0.4);
+      z-index: 99999;
+      transition: bottom 0.5s ease;
+      font-size: 12px;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+    .social-ad-alert.show { bottom: 70px; }
+    .alert-close-btn {
+      background: #334155;
+      color: #94a3b8;
+      border: none;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    /* মডাল ও পর্ব ডিজাইন */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -476,6 +562,7 @@
       width: 100%;
       height: 100%;
       background: rgba(0, 0, 0, 0.88);
+      backdrop-filter: blur(5px);
       display: none;
       align-items: center;
       justify-content: center;
@@ -527,6 +614,7 @@
     .btn-ad2 { background: var(--accent-orange); color: #fff; }
     .action-btn:disabled { background: #475569 !important; color: #cbd5e1 !important; cursor: not-allowed; }
 
+    /* ওয়েব সিরিজ পর্বের বাটন ডিজাইন */
     .episodes-title {
       font-size: 13px;
       font-weight: bold;
@@ -557,9 +645,19 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      transition: 0.2s;
     }
-    .episode-btn.disabled-ep { opacity: 0.4; border-color: #475569; cursor: not-allowed; }
+    .episode-btn:active {
+      background: #0284c7;
+      color: #000;
+    }
+    .episode-btn.disabled-ep {
+      opacity: 0.4;
+      border-color: #475569;
+      cursor: not-allowed;
+    }
 
+    /* সাধারণ মুভির কোয়ালিটি বাটন */
     .quality-options-list { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
     .quality-btn {
       display: flex;
@@ -579,8 +677,8 @@
     .quality-btn.disabled-btn { opacity: 0.5; cursor: not-allowed; border-color: rgba(239, 68, 68, 0.3); }
 
     .indicator-light { width: 10px; height: 10px; border-radius: 50%; }
-    .light-blue { background-color: #38bdf8; }
-    .light-red { background-color: #ef4444; }
+    .light-blue { background-color: #38bdf8; box-shadow: 0 0 8px 2px rgba(56, 189, 248, 0.9); }
+    .light-red { background-color: #ef4444; box-shadow: 0 0 6px 1px rgba(239, 68, 68, 0.7); }
     .close-btn {
       margin-top: 14px;
       background: transparent;
@@ -595,6 +693,7 @@
 </head>
 <body>
 
+  <!-- ভাইরাল ভিডিও বাটন -->
   <div class="viral-btn-wrap">
     <a href="https://t.me/supersp49" target="_blank" class="viral-btn" onclick="openSafeUrl('https://t.me/supersp49'); return false;">
       🔥 Viral Video Link (এখানে ক্লিক করুন) 🔞
@@ -615,6 +714,7 @@
     </div>
   </div>
 
+  <!-- সার্চ, ইংরেজি ভয়েস ও লাকি মুভি -->
   <div class="search-wrapper">
     <div class="search-box">
       <input type="text" id="searchInput" placeholder="Search movie or series..." onkeyup="handleSearch()">
@@ -625,11 +725,13 @@
     </button>
   </div>
 
+  <!-- ট্রেন্ডিং স্লাইডার -->
   <div id="trendingSection" style="display: none;">
     <div style="font-size: 14px; font-weight: 800; color: #facc15; margin-bottom: 8px;">🔥 Trending & Featured</div>
     <div class="trending-scroll-container" id="trendingList"></div>
   </div>
 
+  <!-- ক্যাটাগরি চিপস -->
   <div class="category-pills">
     <div class="pill active" onclick="selectCategory('All', event)">All</div>
     <div class="pill" onclick="selectCategory('Series', event)">📺 Series</div>
@@ -640,7 +742,10 @@
     <div class="pill" onclick="selectCategory('Hollywood', event)">Hollywood</div>
   </div>
 
+  <!-- হোমপেজ সেকশন কনটেইনার -->
   <div id="homeSectionsContainer">
+    
+    <!-- ১. পিন করা মুভি সেকশন (হোমপেজে ৬টি) -->
     <div id="pinnedSectionBlock" style="display: none;">
       <div class="section-header">
         <span class="section-title">📌 Pinned Movies</span>
@@ -649,6 +754,7 @@
       <div class="movies-grid" id="pinnedMoviesGrid"></div>
     </div>
 
+    <!-- ২. বাংলা মুভি সেকশন (হোমপেজে ৬টি) -->
     <div id="banglaSectionBlock" style="display: none;">
       <div class="section-header">
         <span class="section-title">🇧🇩 Bangla Movies</span>
@@ -657,19 +763,25 @@
       <div class="movies-grid" id="banglaMoviesGrid"></div>
     </div>
 
+    <!-- ৩. Recently Added সেকশন (২১টি করে পেজ) -->
     <div id="recentSectionBlock">
       <div class="section-header">
         <span class="section-title">🆕 Recently Added</span>
       </div>
       <div class="movies-grid" id="recentMoviesGrid">
-        <div style="grid-column: span 3; text-align: center; padding: 40px 10px; color: var(--primary); font-size: 14px;">
-          মুভি লোড হচ্ছে... অনুগ্রহ করে অপেক্ষা করুন ⏳
-        </div>
+        <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-text"></div></div>
+        <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-text"></div></div>
+        <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-text"></div></div>
+        <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-text"></div></div>
+        <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-text"></div></div>
+        <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-text"></div></div>
       </div>
       <div class="pagination-bar" id="homePaginationBar" style="display: none;"></div>
     </div>
+
   </div>
 
+  <!-- SEE ALL ও ফিল্টারের পেজ ভিউ -->
   <div id="fullListViewBlock" style="display: none;">
     <div class="full-view-header">
       <h2 id="fullViewTitle">সকল কালেকশন</h2>
@@ -679,6 +791,7 @@
     <div class="pagination-bar" id="fullListPaginationBar" style="display: none;"></div>
   </div>
 
+  <!-- নিচের বিজ্ঞাপন -->
   <div class="bottom-ad-section">
     <div class="entry-ad-banner" onclick="openEntryAd()">
       <p><span>SPONSOR</span> স্পন্সরড অফার দেখতে এখানে ক্লিক করুন 🎁</p>
@@ -690,9 +803,17 @@
     </div>
   </div>
 
+  <!-- সোস্যাল বার অ্যালার্ট -->
+  <div class="social-ad-alert" id="socialAdAlert">
+    <span>⚠️ বিজ্ঞাপনে ক্লিক করে আবার ব্যাক আসুন</span>
+    <button class="alert-close-btn" onclick="dismissAdAlert()">&times;</button>
+  </div>
+
+  <!-- ডাউনলোড / পর্ব মডাল -->
   <div class="modal-overlay" id="downloadModal" onclick="checkOverlayClick(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
       <h3 id="modalTitle">মুভি/সিরিজের নাম</h3>
+      
       <div class="modal-sub-details" id="modalSubDetails"></div>
 
       <div class="ad-status-box" id="modalStatus">আনলক করতে ১ম বিজ্ঞাপনটি দেখুন।</div>
@@ -701,8 +822,10 @@
         👉 ধাপ ১: ১ম অ্যাড চালু করুন (১০ সে.)
       </button>
 
+      <!-- সাধারণ মুভি কোয়ালিটি বাটন কন্টেইনার -->
       <div class="quality-options-list" id="qualityContainer" style="display: none;"></div>
 
+      <!-- ওয়েব সিরিজ পর্বের কন্টেইনার -->
       <div id="seriesContainer" style="display: none;">
         <div class="episodes-title">📺 পর্বসমূহ বেছে নিন (Episodes):</div>
         <div class="episodes-grid" id="episodesGrid"></div>
@@ -713,6 +836,7 @@
     </div>
   </div>
 
+  <!-- বটম নেভিগেশন বার (লাকির জায়গায় নোটিশ ঘণ্টা 🔔) -->
   <nav class="bottom-nav">
     <div class="nav-item active" onclick="goHome()">
       <span class="nav-icon">🏠</span>
@@ -789,6 +913,7 @@
     let fullListPage = 1;
     let fullListCurrentMovies = [];
 
+    // কমা ও নিউলাইন দিয়ে আলাদা করা পর্ব বা কোয়ালিটি লিংক পার্সার
     function parseMultipleLinks(cellValue, defaultLabel) {
       if (!cellValue) return [];
       const str = String(cellValue).trim();
@@ -799,9 +924,15 @@
         if (!clean) return;
         if (clean.includes('|')) {
           const parts = clean.split('|');
-          results.push({ link: parts[0].trim(), label: parts[1].trim() });
+          results.push({
+            link: parts[0].trim(),
+            label: parts[1].trim()
+          });
         } else if (clean.startsWith('http')) {
-          results.push({ link: clean, label: items.length > 1 ? `Episode ${idx + 1}` : defaultLabel });
+          results.push({
+            link: clean,
+            label: items.length > 1 ? `Episode ${idx + 1}` : defaultLabel
+          });
         }
       });
       return results;
@@ -839,16 +970,21 @@
             const ad1Val = getCellVal(c, 4) || ENTRY_AD_URL;
             const ad2Val = (getCellVal(c, 5).startsWith('http')) ? getCellVal(c, 5) : DEFAULT_AD2;
 
+            // ওয়েব সিরিজ কিনা চেক করা
             const isSeries = categoryVal.toLowerCase().includes('series') || 
                              titleStr.toLowerCase().includes('season') || 
                              titleStr.toLowerCase().includes('s01');
 
+            // G, H, I, J কলামের লিংক
             const linksG = parseMultipleLinks(getCellVal(c, 6), isSeries ? "Episode 1" : "Download [480p • 477 MB]");
             const linksH = parseMultipleLinks(getCellVal(c, 7), isSeries ? "Episode 2" : "Download [720p • 1.0 GB]");
             const linksI = parseMultipleLinks(getCellVal(c, 8), isSeries ? "Episode 3" : "Download [1080p • 2.2 GB]");
             const linksJ = parseMultipleLinks(getCellVal(c, 9), isSeries ? "Episode 4" : "Download [Best Quality 🔥 • 4.3 GB]");
+
+            // P নম্বর কলাম (Index 15) থেকে ১০টি বা তার বেশি পর্ব রিড করা
             const linksP = parseMultipleLinks(getCellVal(c, 15), "Episode");
 
+            // সব পর্ব বা লিংক একসাথে করা
             const allParsedLinks = [...linksG, ...linksH, ...linksI, ...linksJ, ...linksP];
 
             const badgeTag = getCellVal(c, 10) || (isSeries ? 'SERIES' : 'WEB-DL');
@@ -879,6 +1015,7 @@
 
           rawMovies.reverse();
           allMovies = rawMovies;
+
           pinnedMovies = allMovies.filter(m => m.pinned);
           banglaMovies = allMovies.filter(m => m.category.toLowerCase().includes('bangla'));
 
@@ -897,16 +1034,12 @@
     function createMovieCardHTML(m) {
       const pinTag = m.pinned ? '<div class="pin-badge">📌</div>' : '';
       const seriesBadgeClass = m.isSeries ? 'series-badge' : '';
-      
-      // ছবি না থাকলে সুন্দর ডার্ক পোস্টার
-      const posterSrc = m.image ? m.image : 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 140%22><rect width=%22100%22 height=%22140%22 fill=%22%231e293b%22/><text x=%2250%%22 y=%2250%%22 fill=%22%2364748b%22 font-size=%2211%22 font-weight=%22bold%22 text-anchor=%22middle%22 dy=%22.3em%22>CineVibeBD</text></svg>';
-
       return `
         <div class="movie-card ${m.pinned ? 'is-pinned' : ''}" onclick="openModal(${m.id})">
           ${pinTag}
           <div class="movie-poster-wrap">
             ${m.badge ? `<span class="quality-badge ${seriesBadgeClass}">${m.badge}</span>` : ''}
-            <img src="${posterSrc}" alt="${m.title}" loading="lazy" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 140%22><rect width=%22100%22 height=%22140%22 fill=%22%231e293b%22/><text x=%2250%%22 y=%2250%%22 fill=%22%2338bdf8%22 font-size=%2210%22 font-weight=%22bold%22 text-anchor=%22middle%22 dy=%22.3em%22>🎬 Movie</text></svg>'">
+            <img src="${m.image}" alt="${m.title}" loading="lazy" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 140%22><rect width=%22100%22 height=%22140%22 fill=%22%231e293b%22/></svg>'">
           </div>
           <div class="movie-info">
             <div class="movie-title" title="${m.title}">${m.title}</div>
@@ -1084,11 +1217,9 @@
         const item = document.createElement('div');
         item.className = 'trending-card';
         item.onclick = () => openModal(m.id);
-        const posterSrc = m.image ? m.image : 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 140%22><rect width=%22100%22 height=%22140%22 fill=%22%231e293b%22/><text x=%2250%%22 y=%2250%%22 fill=%22%2338bdf8%22 font-size=%2210%22 font-weight=%22bold%22 text-anchor=%22middle%22 dy=%22.3em%22>🎬 Movie</text></svg>';
-
         item.innerHTML = `
           <span class="featured-badge">FEATURED</span>
-          <img src="${posterSrc}" alt="${m.title}" loading="lazy" referrerpolicy="no-referrer">
+          <img src="${m.image}" alt="${m.title}" loading="lazy" referrerpolicy="no-referrer">
           <div class="trending-card-title">${m.title}</div>
         `;
         container.appendChild(item);
@@ -1102,6 +1233,7 @@
       if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
     }
 
+    /* ইংরেজি ভয়েস সার্চ (en-US) */
     function startVoiceSearch() {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SpeechRecognition) {
@@ -1110,11 +1242,11 @@
       }
 
       const recognition = new SpeechRecognition();
-      recognition.lang = 'en-US';
+      recognition.lang = 'en-US'; // খাঁটি ইংরেজি স্পেলিং
       recognition.start();
 
       const input = document.getElementById('searchInput');
-      input.placeholder = "Listening... Speak in English 🎙️";
+      input.placeholder = "Listening... Say movie name 🎙️";
 
       recognition.onresult = function(event) {
         const transcript = event.results[0][0].transcript;
@@ -1128,6 +1260,7 @@
       };
     }
 
+    /* নোটিশ ঘণ্টা বাটনের কাজ */
     function openNotificationNotice() {
       alert("🔔 CineVibeBD Notice:\n\nএখানে প্রতিদিন নতুন নতুন সিনেমা ও ওয়েব সিরিজের সকল পর্ব হাই স্পিডে আপলোড করা হয়। সবার আগে লিংক পেতে প্রতিদিন ভিজিট করুন!");
     }
@@ -1202,6 +1335,19 @@
       const urlParams = new URLSearchParams(window.location.search);
       const movieId = urlParams.get('id');
       if (movieId) openModal(parseInt(movieId));
+    }
+
+    setTimeout(() => {
+      const alertBox = document.getElementById('socialAdAlert');
+      if (alertBox) {
+        alertBox.classList.add('show');
+        setTimeout(() => alertBox.classList.remove('show'), 8000);
+      }
+    }, 3500);
+
+    function dismissAdAlert() {
+      const alertBox = document.getElementById('socialAdAlert');
+      if (alertBox) alertBox.classList.remove('show');
     }
 
     function openModal(id) {
@@ -1348,4 +1494,11 @@
 
     function closeModal() {
       clearInterval(timerInterval);
-      document.getElementById('downloadModal').style.display = 'non
+      document.getElementById('downloadModal').style.display = 'none';
+      if (tg?.BackButton) tg.BackButton.hide();
+    }
+
+    fetchMoviesFromSheet();
+  </script>
+</body>
+</html>
