@@ -128,7 +128,7 @@
     }
     .dropdown-menu div:active { background: var(--primary-hover); }
 
-    /* সার্চ, ইংরেজি ভয়েস ও লাকি মুভি বাটন */
+    /* সার্চ ও ইংরেজি ভয়েস সার্চ */
     .search-wrapper {
       position: relative;
       margin-bottom: 12px;
@@ -254,7 +254,7 @@
       font-weight: 700;
     }
 
-    /* সেকশন হেডার ও SEE ALL */
+    /* সেকশন হেডার */
     .section-header {
       display: flex;
       justify-content: space-between;
@@ -347,7 +347,7 @@
       background: linear-gradient(135deg, #a855f7, #6366f1) !important;
     }
 
-    /* কার্ডের ভেতরের তথ্য */
+    /* কার্ডের তথ্য */
     .movie-info {
       padding: 6px;
       flex-grow: 1;
@@ -424,7 +424,7 @@
       animation: shimmer 1.5s infinite;
     }
 
-    /* ডেডিকেটেড পেজ হেডার */
+    /* পেজ হেডার */
     .full-view-header {
       display: flex;
       align-items: center;
@@ -471,7 +471,7 @@
     }
     .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    /* বটম নেভিগেশন (ঘণ্টা আইকনসহ) */
+    /* বটম নেভিগেশন */
     .bottom-nav {
       position: fixed;
       bottom: 0;
@@ -554,7 +554,7 @@
       font-size: 13px;
     }
 
-    /* মডাল ও নায়ক-নায়িকা (Cast) ডিজাইন */
+    /* মডাল ও কাস্ট ডিজাইন */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -592,7 +592,7 @@
       border: 1px solid var(--border-color);
     }
 
-    /* অভিনেতা/অভিনেত্রীদের ফটো স্লাইডার */
+    /* অভিনেতা/অভিনেত্রীদের ছবি ও নাম */
     .cast-section {
       margin: 10px 0;
       text-align: left;
@@ -622,8 +622,8 @@
       flex-shrink: 0;
     }
     .actor-avatar {
-      width: 42px;
-      height: 42px;
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
       border: 1.5px solid #38bdf8;
       object-fit: cover;
@@ -662,7 +662,7 @@
     .btn-ad2 { background: var(--accent-orange); color: #fff; }
     .action-btn:disabled { background: #475569 !important; color: #cbd5e1 !important; cursor: not-allowed; }
 
-    /* ওয়েব সিরিজ পর্বের বাটন */
+    /* ওয়েব সিরিজ পর্ব বাটন */
     .episodes-title {
       font-size: 13px;
       font-weight: bold;
@@ -698,7 +698,7 @@
     .episode-btn:active { background: #0284c7; color: #000; }
     .episode-btn.disabled-ep { opacity: 0.4; border-color: #475569; cursor: not-allowed; }
 
-    /* সাধারণ মুভির কোয়ালিটি বাটন */
+    /* সাধারণ কোয়ালিটি বাটন */
     .quality-options-list { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
     .quality-btn {
       display: flex;
@@ -909,9 +909,21 @@
 
   <script>
     const GOOGLE_SHEET_ID = "1RtUsHpLyk3NoxLCPSb8u4iqBqwMqtfUmWYMkD8tPWeU";
-
-    // বিশ্বখ্যাত TMDB API Key (অটো পোস্টার, রেটিং ও কাস্টের জন্য)
     const TMDB_API_KEY = "f81b15c57b7736347da1d615437498e2";
+
+    // TMDB জনরা ও ভাষার পূর্ণাঙ্গ ডিকশনারি
+    const TMDB_GENRES = {
+      28: "Action", 12: "Adventure", 16: "Animation", 35: "Comedy", 80: "Crime",
+      99: "Documentary", 18: "Drama", 10751: "Family", 14: "Fantasy", 36: "History",
+      27: "Horror", 10402: "Music", 9648: "Mystery", 10749: "Romance", 878: "Sci-Fi",
+      10770: "TV Movie", 53: "Thriller", 10752: "War", 37: "Western",
+      10759: "Action & Adventure", 10762: "Kids", 10765: "Sci-Fi & Fantasy"
+    };
+
+    const TMDB_LANG = {
+      "en": "English", "hi": "Hindi", "bn": "Bangla", "te": "Telugu",
+      "ta": "Tamil", "ml": "Malayalam", "ko": "Korean", "es": "Spanish", "ja": "Japanese"
+    };
 
     const isInsideTelegram = !!(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData);
     const tg = isInsideTelegram ? window.Telegram.WebApp : null;
@@ -992,25 +1004,33 @@
       return String(c[index].v).trim();
     }
 
-    /* TMDB API দিয়ে অটোমেটিক পোস্টার, রেটিং, ডেট ও জনরা সংগ্রহ */
+    /* অটোমেটিক টাইটেল ক্লিনার ও TMDB সার্চ */
     async function enrichMovieWithTMDB(movie) {
       try {
-        const cleanTitle = movie.title.replace(/\b(s01|s02|season \d+|480p|720p|1080p|hd|web-dl)\b/gi, '').trim();
+        // মুভির নাম থেকে সাল ও টেকনিক্যাল শব্দ বাদ দিয়ে নিখুঁত সার্চ করা
+        const cleanTitle = movie.title
+          .replace(/[\(\[\{].*?[\)\]\}]/g, '')
+          .replace(/\b(s0\d|season \d+|ep\d+|480p|720p|1080p|2160p|4k|hd|web-dl|rip|dual audio|hindi|bangla|english|tamil|telugu)\b/gi, '')
+          .trim();
+
         const searchUrl = `https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(cleanTitle)}&include_adult=false`;
         const res = await fetch(searchUrl);
         const data = await res.json();
 
         if (data.results && data.results.length > 0) {
-          const item = data.results[0];
+          // সবচেয়ে ভালো ম্যাচিং রেজাল্ট বেছে নেওয়া
+          const item = data.results.find(r => r.poster_path || r.backdrop_path) || data.results[0];
 
-          // ১. পোস্টার অটো সেট করা
-          if (!movie.image && item.poster_path) {
-            movie.image = `https://image.tmdb.org/t/p/w500${item.poster_path}`;
+          // ১. চকচকে এইচডি পোস্টার
+          if ((!movie.image || !movie.image.startsWith('http')) && (item.poster_path || item.backdrop_path)) {
+            movie.image = `https://image.tmdb.org/t/p/w500${item.poster_path || item.backdrop_path}`;
           }
 
-          // ২. আসল IMDb / TMDB রেটিং
-          if (!movie.rating || movie.rating === '⭐' || movie.rating === '8.0' || movie.rating === '⭐ 8.0') {
-            if (item.vote_average) movie.rating = `⭐ ${item.vote_average.toFixed(1)}`;
+          // ২. আসল IMDb/TMDB রেটিং
+          if (!movie.rating || movie.rating === '⭐' || movie.rating === '⭐ 8.0') {
+            if (item.vote_average && item.vote_average > 0) {
+              movie.rating = `⭐ ${item.vote_average.toFixed(1)}`;
+            }
           }
 
           // ৩. রিলিজ বছর
@@ -1019,9 +1039,18 @@
             movie.date = rDate.split('-')[0];
           }
 
-          // ৪. ভাষা
+          // ৪. জনরা (Action, Comedy ইত্যাদি আসল নাম)
+          if (!movie.genre && item.genre_ids && item.genre_ids.length > 0) {
+            movie.genre = item.genre_ids
+              .map(id => TMDB_GENRES[id])
+              .filter(Boolean)
+              .slice(0, 2)
+              .join(', ');
+          }
+
+          // ৫. ভাষা (Hindi, Bangla ইত্যাদি আসল নাম)
           if (!movie.language && item.original_language) {
-            movie.language = item.original_language.toUpperCase();
+            movie.language = TMDB_LANG[item.original_language] || item.original_language.toUpperCase();
           }
 
           movie.tmdbId = item.id;
@@ -1099,7 +1128,7 @@
 
           rawMovies.reverse();
 
-          // TMDB থেকে ব্যাকগ্রাউন্ডে তথ্য ও পোস্টার নিয়ে আসা
+          // ব্যাকগ্রাউন্ডে TMDB থেকে পোস্টার ও সব ডাটা সংগ্রহ
           await Promise.all(rawMovies.map(enrichMovieWithTMDB));
 
           allMovies = rawMovies;
@@ -1324,7 +1353,6 @@
       if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
     }
 
-    /* ইংরেজি ভয়েস সার্চ (English en-US) */
     function startVoiceSearch() {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SpeechRecognition) {
@@ -1333,7 +1361,7 @@
       }
 
       const recognition = new SpeechRecognition();
-      recognition.lang = 'en-US'; // খাঁটি ইংরেজি
+      recognition.lang = 'en-US';
       recognition.start();
 
       const input = document.getElementById('searchInput');
@@ -1440,7 +1468,7 @@
       if (alertBox) alertBox.classList.remove('show');
     }
 
-    /* ডাউনলোড মডাল এবং অভিনেতা/অভিনেত্রীদের ছবি লোড */
+    /* ডাউনলোড মডাল এবং অভিনেতা/অভিনেত্রীদের ছবি সরাসরি লোড */
     async function openModal(id) {
       currentMovie = allMovies.find(m => m.id === id);
       if (!currentMovie) return;
@@ -1458,11 +1486,11 @@
       
       document.getElementById('modalSubDetails').innerHTML = detailsList.join(' &nbsp;•&nbsp; ');
 
-      // TMDB থেকে অভিনেতা ও অভিনেত্রীদের ছবি লোড করা
+      // কাস্ট সেকশন লোডিং
       const castSection = document.getElementById('castSection');
       const castList = document.getElementById('castList');
-      castList.innerHTML = '';
-      castSection.style.display = 'none';
+      castList.innerHTML = '<span style="font-size:10px; color:#94a3b8; padding: 5px;">লোড হচ্ছে...</span>';
+      castSection.style.display = 'block';
 
       if (currentMovie.tmdbId) {
         try {
@@ -1470,6 +1498,7 @@
           const res = await fetch(creditsUrl);
           const credits = await res.json();
           if (credits.cast && credits.cast.length > 0) {
+            castList.innerHTML = '';
             const topCast = credits.cast.slice(0, 6);
             topCast.forEach(actor => {
               const photoUrl = actor.profile_path ? `https://image.tmdb.org/t/p/w185${actor.profile_path}` : 'https://via.placeholder.com/60?text=Actor';
@@ -1482,10 +1511,14 @@
               castList.appendChild(chip);
             });
             castSection.style.display = 'block';
+          } else {
+            castSection.style.display = 'none';
           }
         } catch (e) {
-          console.warn("Cast load error");
+          castSection.style.display = 'none';
         }
+      } else {
+        castSection.style.display = 'none';
       }
 
       document.getElementById('modalStatus').innerHTML = currentMovie.isSeries ? 
