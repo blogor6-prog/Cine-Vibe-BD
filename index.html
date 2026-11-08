@@ -128,7 +128,7 @@
     }
     .dropdown-menu div:active { background: var(--primary-hover); }
 
-    /* সার্চ, ভয়েস ও লাকি মুভি */
+    /* সার্চ, ইংরেজি ভয়েস ও লাকি মুভি বাটন */
     .search-wrapper {
       position: relative;
       margin-bottom: 12px;
@@ -471,7 +471,7 @@
     }
     .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    /* বটম নেভিগেশন */
+    /* বটম নেভিগেশন (ঘণ্টা আইকনসহ) */
     .bottom-nav {
       position: fixed;
       bottom: 0;
@@ -554,7 +554,7 @@
       font-size: 13px;
     }
 
-    /* মডাল ও পর্ব ডিজাইন */
+    /* মডাল ও নায়ক-নায়িকা (Cast) ডিজাইন */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -591,36 +591,55 @@
       border-radius: 8px;
       border: 1px solid var(--border-color);
     }
-    .share-link-btn {
-      background: #334155;
-      color: #38bdf8;
-      border: 1px solid #475569;
-      padding: 6px 12px;
-      border-radius: 6px;
+
+    /* অভিনেতা/অভিনেত্রীদের ফটো স্লাইডার */
+    .cast-section {
+      margin: 10px 0;
+      text-align: left;
+    }
+    .cast-title {
       font-size: 11px;
       font-weight: bold;
-      cursor: pointer;
-      margin-bottom: 10px;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-    }
-    .skip-ad-btn {
-      background: linear-gradient(135deg, #22c55e, #16a34a);
-      color: #fff;
-      border: 1px solid #4ade80;
-      padding: 9px;
-      border-radius: 8px;
-      font-size: 12px;
-      font-weight: bold;
-      cursor: pointer;
-      width: 100%;
-      margin-bottom: 10px;
+      color: #facc15;
+      margin-bottom: 6px;
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 5px;
+      gap: 4px;
     }
+    .cast-list {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scrollbar-width: none;
+    }
+    .cast-list::-webkit-scrollbar { display: none; }
+    .actor-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 52px;
+      flex-shrink: 0;
+    }
+    .actor-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: 1.5px solid #38bdf8;
+      object-fit: cover;
+      background: #0f172a;
+    }
+    .actor-name {
+      font-size: 8.5px;
+      color: #ffffff;
+      text-align: center;
+      margin-top: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 100%;
+    }
+
     .ad-status-box {
       background: #0f172a;
       padding: 9px;
@@ -643,7 +662,7 @@
     .btn-ad2 { background: var(--accent-orange); color: #fff; }
     .action-btn:disabled { background: #475569 !important; color: #cbd5e1 !important; cursor: not-allowed; }
 
-    /* ওয়েব সিরিজ পর্বের বাটন ডিজাইন */
+    /* ওয়েব সিরিজ পর্বের বাটন */
     .episodes-title {
       font-size: 13px;
       font-weight: bold;
@@ -676,15 +695,8 @@
       justify-content: space-between;
       transition: 0.2s;
     }
-    .episode-btn:active {
-      background: #0284c7;
-      color: #000;
-    }
-    .episode-btn.disabled-ep {
-      opacity: 0.4;
-      border-color: #475569;
-      cursor: not-allowed;
-    }
+    .episode-btn:active { background: #0284c7; color: #000; }
+    .episode-btn.disabled-ep { opacity: 0.4; border-color: #475569; cursor: not-allowed; }
 
     /* সাধারণ মুভির কোয়ালিটি বাটন */
     .quality-options-list { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
@@ -743,11 +755,11 @@
     </div>
   </div>
 
-  <!-- সার্চ, ভয়েস ও লাকি মুভি -->
+  <!-- সার্চ, ইংরেজি ভয়েস ও লাকি মুভি -->
   <div class="search-wrapper">
     <div class="search-box">
-      <input type="text" id="searchInput" placeholder="মুভি বা সিরিজের নাম খুঁজুন..." onkeyup="handleSearch()">
-      <button class="voice-btn" onclick="startVoiceSearch()" title="মুখে বলে সার্চ করুন">🎙️</button>
+      <input type="text" id="searchInput" placeholder="Search movie or series..." onkeyup="handleSearch()">
+      <button class="voice-btn" onclick="startVoiceSearch()" title="মুখে বলে সার্চ করুন (English)">🎙️</button>
     </div>
     <button class="lucky-dice-btn" onclick="pickRandomMovie()" title="র‍্যান্ডম মুভি/সিরিজ দেখুন">
       🎲 লাকি মুভি
@@ -845,13 +857,11 @@
       
       <div class="modal-sub-details" id="modalSubDetails"></div>
 
-      <button class="skip-ad-btn" id="skipAdBtn" onclick="shareToSkipAds()">
-        🎁 শেয়ার করে বিজ্ঞাপন ছাড়া দেখুন ⚡
-      </button>
-
-      <button class="share-link-btn" onclick="copyMovieShareLink()">
-        🔗 সরাসরি লিংক কপি করুন
-      </button>
+      <!-- অটোমেটিক অভিনেতা ও অভিনেত্রীদের ছবি ও নাম -->
+      <div class="cast-section" id="castSection" style="display: none;">
+        <div class="cast-title">🎭 প্রধান অভিনয়শিল্পী (Top Cast):</div>
+        <div class="cast-list" id="castList"></div>
+      </div>
 
       <div class="ad-status-box" id="modalStatus">আনলক করতে ১ম বিজ্ঞাপনটি দেখুন।</div>
 
@@ -859,10 +869,10 @@
         👉 ধাপ ১: ১ম অ্যাড চালু করুন (১০ সে.)
       </button>
 
-      <!-- সাধারণ মুভি কোয়ালিটি বাটন কন্টেইনার -->
+      <!-- সাধারণ মুভি কোয়ালিটি বাটন -->
       <div class="quality-options-list" id="qualityContainer" style="display: none;"></div>
 
-      <!-- ওয়েব সিরিজ পর্বের কন্টেইনার -->
+      <!-- ওয়েব সিরিজ পর্ব বাটন -->
       <div id="seriesContainer" style="display: none;">
         <div class="episodes-title">📺 পর্বসমূহ বেছে নিন (Episodes):</div>
         <div class="episodes-grid" id="episodesGrid"></div>
@@ -891,14 +901,17 @@
       <span class="nav-icon">🇧🇩</span>
       <span>Bangla</span>
     </div>
-    <div class="nav-item" onclick="pickRandomMovie()">
-      <span class="nav-icon">🎲</span>
-      <span>Lucky</span>
+    <div class="nav-item" onclick="openNotificationNotice()">
+      <span class="nav-icon">🔔</span>
+      <span>Notice</span>
     </div>
   </nav>
 
   <script>
     const GOOGLE_SHEET_ID = "1RtUsHpLyk3NoxLCPSb8u4iqBqwMqtfUmWYMkD8tPWeU";
+
+    // বিশ্বখ্যাত TMDB API Key (অটো পোস্টার, রেটিং ও কাস্টের জন্য)
+    const TMDB_API_KEY = "f81b15c57b7736347da1d615437498e2";
 
     const isInsideTelegram = !!(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData);
     const tg = isInsideTelegram ? window.Telegram.WebApp : null;
@@ -950,7 +963,6 @@
     let fullListPage = 1;
     let fullListCurrentMovies = [];
 
-    // কমা ও নিউলাইন দিয়ে আলাদা করা পর্ব বা কোয়ালিটি লিংক পার্সার
     function parseMultipleLinks(cellValue, defaultLabel) {
       if (!cellValue) return [];
       const str = String(cellValue).trim();
@@ -980,12 +992,52 @@
       return String(c[index].v).trim();
     }
 
+    /* TMDB API দিয়ে অটোমেটিক পোস্টার, রেটিং, ডেট ও জনরা সংগ্রহ */
+    async function enrichMovieWithTMDB(movie) {
+      try {
+        const cleanTitle = movie.title.replace(/\b(s01|s02|season \d+|480p|720p|1080p|hd|web-dl)\b/gi, '').trim();
+        const searchUrl = `https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(cleanTitle)}&include_adult=false`;
+        const res = await fetch(searchUrl);
+        const data = await res.json();
+
+        if (data.results && data.results.length > 0) {
+          const item = data.results[0];
+
+          // ১. পোস্টার অটো সেট করা
+          if (!movie.image && item.poster_path) {
+            movie.image = `https://image.tmdb.org/t/p/w500${item.poster_path}`;
+          }
+
+          // ২. আসল IMDb / TMDB রেটিং
+          if (!movie.rating || movie.rating === '⭐' || movie.rating === '8.0' || movie.rating === '⭐ 8.0') {
+            if (item.vote_average) movie.rating = `⭐ ${item.vote_average.toFixed(1)}`;
+          }
+
+          // ৩. রিলিজ বছর
+          const rDate = item.release_date || item.first_air_date;
+          if (!movie.date && rDate) {
+            movie.date = rDate.split('-')[0];
+          }
+
+          // ৪. ভাষা
+          if (!movie.language && item.original_language) {
+            movie.language = item.original_language.toUpperCase();
+          }
+
+          movie.tmdbId = item.id;
+          movie.mediaType = item.media_type || (movie.isSeries ? 'tv' : 'movie');
+        }
+      } catch (e) {
+        console.warn("TMDB error for", movie.title);
+      }
+    }
+
     function fetchMoviesFromSheet() {
       const url = "https://docs.google.com/spreadsheets/d/" + GOOGLE_SHEET_ID + "/gviz/tq?tqx=out:json&t=" + new Date().getTime();
 
       fetch(url)
         .then(res => res.text())
-        .then(data => {
+        .then(async data => {
           const startIdx = data.indexOf('{');
           const endIdx = data.lastIndexOf('}');
           if (startIdx === -1 || endIdx === -1) throw new Error("Invalid response");
@@ -1002,26 +1054,21 @@
             if (!titleStr || titleStr.toLowerCase() === 'title') continue;
 
             const categoryVal = getCellVal(c, 1) || 'All';
-            const ratingVal = getCellVal(c, 2) || '8.0';
+            const ratingVal = getCellVal(c, 2);
             const rawImg = getCellVal(c, 3);
             const ad1Val = getCellVal(c, 4) || ENTRY_AD_URL;
             const ad2Val = (getCellVal(c, 5).startsWith('http')) ? getCellVal(c, 5) : DEFAULT_AD2;
 
-            // ওয়েব সিরিজ কিনা চেক করা
             const isSeries = categoryVal.toLowerCase().includes('series') || 
                              titleStr.toLowerCase().includes('season') || 
                              titleStr.toLowerCase().includes('s01');
 
-            // G, H, I, J কলামের লিংক
             const linksG = parseMultipleLinks(getCellVal(c, 6), isSeries ? "Episode 1" : "Download [480p • 477 MB]");
             const linksH = parseMultipleLinks(getCellVal(c, 7), isSeries ? "Episode 2" : "Download [720p • 1.0 GB]");
             const linksI = parseMultipleLinks(getCellVal(c, 8), isSeries ? "Episode 3" : "Download [1080p • 2.2 GB]");
             const linksJ = parseMultipleLinks(getCellVal(c, 9), isSeries ? "Episode 4" : "Download [Best Quality 🔥 • 4.3 GB]");
-
-            // নতুন: P নম্বর কলাম (Index 15) থেকে ১০টি বা তার বেশি পর্ব রিড করা
             const linksP = parseMultipleLinks(getCellVal(c, 15), "Episode");
 
-            // সব পর্ব বা লিংক একসাথে করা
             const allParsedLinks = [...linksG, ...linksH, ...linksI, ...linksJ, ...linksP];
 
             const badgeTag = getCellVal(c, 10) || (isSeries ? 'SERIES' : 'WEB-DL');
@@ -1035,7 +1082,7 @@
               id: i + 1,
               title: titleStr,
               category: categoryVal,
-              rating: ratingVal.startsWith('⭐') ? ratingVal : `⭐ ${ratingVal}`,
+              rating: ratingVal ? (ratingVal.startsWith('⭐') ? ratingVal : `⭐ ${ratingVal}`) : '',
               image: formatImageUrl(rawImg),
               ad1: ad1Val,
               ad2: ad2Val,
@@ -1051,8 +1098,11 @@
           }
 
           rawMovies.reverse();
-          allMovies = rawMovies;
 
+          // TMDB থেকে ব্যাকগ্রাউন্ডে তথ্য ও পোস্টার নিয়ে আসা
+          await Promise.all(rawMovies.map(enrichMovieWithTMDB));
+
+          allMovies = rawMovies;
           pinnedMovies = allMovies.filter(m => m.pinned);
           banglaMovies = allMovies.filter(m => m.category.toLowerCase().includes('bangla'));
 
@@ -1071,18 +1121,20 @@
     function createMovieCardHTML(m) {
       const pinTag = m.pinned ? '<div class="pin-badge">📌</div>' : '';
       const seriesBadgeClass = m.isSeries ? 'series-badge' : '';
+      const posterSrc = m.image || 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 140%22><rect width=%22100%22 height=%22140%22 fill=%22%231e293b%22/><text x=%2250%%22 y=%2250%%22 fill=%22%2364748b%22 font-size=%2212%22 text-anchor=%22middle%22 dy=%22.3em%22>No Poster</text></svg>';
+
       return `
         <div class="movie-card ${m.pinned ? 'is-pinned' : ''}" onclick="openModal(${m.id})">
           ${pinTag}
           <div class="movie-poster-wrap">
             ${m.badge ? `<span class="quality-badge ${seriesBadgeClass}">${m.badge}</span>` : ''}
-            <img src="${m.image}" alt="${m.title}" loading="lazy" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 140%22><rect width=%22100%22 height=%22140%22 fill=%22%231e293b%22/></svg>'">
+            <img src="${posterSrc}" alt="${m.title}" loading="lazy" referrerpolicy="no-referrer">
           </div>
           <div class="movie-info">
             <div class="movie-title" title="${m.title}">${m.title}</div>
             
             <div class="movie-meta">
-              <span class="movie-rating">${m.rating}</span>
+              <span class="movie-rating">${m.rating || '⭐ 8.0'}</span>
               <span class="movie-date">${m.date ? m.date : ''}</span>
             </div>
 
@@ -1254,9 +1306,11 @@
         const item = document.createElement('div');
         item.className = 'trending-card';
         item.onclick = () => openModal(m.id);
+        const posterSrc = m.image || 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 140%22><rect width=%22100%22 height=%22140%22 fill=%22%231e293b%22/></svg>';
+
         item.innerHTML = `
           <span class="featured-badge">FEATURED</span>
-          <img src="${m.image}" alt="${m.title}" loading="lazy" referrerpolicy="no-referrer">
+          <img src="${posterSrc}" alt="${m.title}" loading="lazy" referrerpolicy="no-referrer">
           <div class="trending-card-title">${m.title}</div>
         `;
         container.appendChild(item);
@@ -1270,47 +1324,35 @@
       if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
     }
 
+    /* ইংরেজি ভয়েস সার্চ (English en-US) */
     function startVoiceSearch() {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SpeechRecognition) {
-        alert("আপনার ব্রাউজারে ভয়েস সার্চ সাপোর্ট করছে না। টাইপ করে সার্চ করুন।");
+        alert("Your browser does not support voice search. Please type.");
         return;
       }
 
       const recognition = new SpeechRecognition();
-      recognition.lang = 'bn-BD';
+      recognition.lang = 'en-US'; // খাঁটি ইংরেজি
       recognition.start();
 
       const input = document.getElementById('searchInput');
-      input.placeholder = "শুনছি... নাম বলুন 🎙️";
+      input.placeholder = "Listening... Speak in English 🎙️";
 
       recognition.onresult = function(event) {
         const transcript = event.results[0][0].transcript;
         input.value = transcript;
-        input.placeholder = "মুভি বা সিরিজের নাম খুঁজুন...";
+        input.placeholder = "Search movie or series...";
         handleSearch();
       };
 
       recognition.onerror = function() {
-        input.placeholder = "মুভি বা সিরিজের নাম খুঁজুন...";
+        input.placeholder = "Search movie or series...";
       };
     }
 
-    function shareToSkipAds() {
-      if (!currentMovie) return;
-      const shareUrl = window.location.origin + window.location.pathname + '?id=' + currentMovie.id;
-      const text = `🔥 ${currentMovie.title} সরাসরি দেখুন!`;
-      
-      const tgShare = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(text)}`;
-      openSafeUrl(tgShare);
-
-      clearInterval(timerInterval);
-      document.getElementById('modalStatus').innerHTML = "<b style='color:#4ade80;'>🎉 শেয়ার সম্পন্ন! বিজ্ঞাপন ছাড়াই আনলক হয়েছে:</b>";
-      document.getElementById('mainActionBtn').style.display = 'none';
-      document.getElementById('skipAdBtn').style.display = 'none';
-      showMovieOrSeriesLinks();
-
-      if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+    function openNotificationNotice() {
+      alert("🔔 CineVibeBD Notice:\n\nএখানে প্রতিদিন নতুন নতুন সিনেমা ও ওয়েব সিরিজের সকল পর্ব হাই স্পিডে আপলোড করা হয়। সবার আগে লিংক পেতে প্রতিদিন ভিজিট করুন!");
     }
 
     function selectCategory(cat, event) {
@@ -1379,35 +1421,6 @@
       if (menu) menu.style.display = 'none';
     });
 
-    function copyMovieShareLink() {
-      if (!currentMovie) return;
-      const shareUrl = window.location.origin + window.location.pathname + '?id=' + currentMovie.id;
-
-      if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(shareUrl).then(() => {
-          alert("✅ সরাসরি লিংক কপি হয়েছে!\n\n" + shareUrl);
-        }).catch(() => fallbackCopy(shareUrl));
-      } else {
-        fallbackCopy(shareUrl);
-      }
-    }
-
-    function fallbackCopy(text) {
-      const ta = document.createElement("textarea");
-      ta.value = text;
-      ta.style.position = "fixed";
-      document.body.appendChild(ta);
-      ta.focus();
-      ta.select();
-      try {
-        document.execCommand('copy');
-        alert("✅ সরাসরি লিংক কপি হয়েছে!\n\n" + text);
-      } catch (e) {
-        prompt("লিংকটি কপি করে নিন:", text);
-      }
-      document.body.removeChild(ta);
-    }
-
     function checkDirectMovieLink() {
       const urlParams = new URLSearchParams(window.location.search);
       const movieId = urlParams.get('id');
@@ -1427,7 +1440,8 @@
       if (alertBox) alertBox.classList.remove('show');
     }
 
-    function openModal(id) {
+    /* ডাউনলোড মডাল এবং অভিনেতা/অভিনেত্রীদের ছবি লোড */
+    async function openModal(id) {
       currentMovie = allMovies.find(m => m.id === id);
       if (!currentMovie) return;
 
@@ -1444,6 +1458,36 @@
       
       document.getElementById('modalSubDetails').innerHTML = detailsList.join(' &nbsp;•&nbsp; ');
 
+      // TMDB থেকে অভিনেতা ও অভিনেত্রীদের ছবি লোড করা
+      const castSection = document.getElementById('castSection');
+      const castList = document.getElementById('castList');
+      castList.innerHTML = '';
+      castSection.style.display = 'none';
+
+      if (currentMovie.tmdbId) {
+        try {
+          const creditsUrl = `https://api.themoviedb.org/3/${currentMovie.mediaType}/${currentMovie.tmdbId}/credits?api_key=${TMDB_API_KEY}`;
+          const res = await fetch(creditsUrl);
+          const credits = await res.json();
+          if (credits.cast && credits.cast.length > 0) {
+            const topCast = credits.cast.slice(0, 6);
+            topCast.forEach(actor => {
+              const photoUrl = actor.profile_path ? `https://image.tmdb.org/t/p/w185${actor.profile_path}` : 'https://via.placeholder.com/60?text=Actor';
+              const chip = document.createElement('div');
+              chip.className = 'actor-chip';
+              chip.innerHTML = `
+                <img class="actor-avatar" src="${photoUrl}" alt="${actor.name}" loading="lazy">
+                <span class="actor-name">${actor.name}</span>
+              `;
+              castList.appendChild(chip);
+            });
+            castSection.style.display = 'block';
+          }
+        } catch (e) {
+          console.warn("Cast load error");
+        }
+      }
+
       document.getElementById('modalStatus').innerHTML = currentMovie.isSeries ? 
         "সব পর্ব আনলক করতে <b>১ম বিজ্ঞাপনটি</b> দেখুন।" : 
         "ডাউনলোড আনলক করতে <b>১ম বিজ্ঞাপনটি</b> দেখুন।";
@@ -1455,7 +1499,6 @@
       btn.disabled = false;
       btn.onclick = handleAdClick;
 
-      document.getElementById('skipAdBtn').style.display = 'flex';
       document.getElementById('qualityContainer').style.display = 'none';
       document.getElementById('seriesContainer').style.display = 'none';
       document.getElementById('downloadModal').style.display = 'flex';
@@ -1495,7 +1538,6 @@
           } else {
             status.innerHTML = "<b style='color:#4ade80;'>🎉 বিজ্ঞাপন শেষ! নিচের লিংক বেছে নিন:</b>";
             btn.style.display = 'none';
-            document.getElementById('skipAdBtn').style.display = 'none';
             showMovieOrSeriesLinks();
             if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
           }
@@ -1503,7 +1545,6 @@
       }, 1000);
     }
 
-    // মুভি বা ওয়েব সিরিজের লিংক প্রদর্শন লজিক (P কলামসহ)
     function showMovieOrSeriesLinks() {
       if (currentMovie.isSeries) {
         const container = document.getElementById('seriesContainer');
@@ -1514,7 +1555,6 @@
           const hasValidLink = ep.link && ep.link.trim().startsWith('http');
           const epBtn = document.createElement('div');
           epBtn.className = `episode-btn ${hasValidLink ? '' : 'disabled-ep'}`;
-
           const lightClass = hasValidLink ? 'light-blue' : 'light-red';
 
           epBtn.innerHTML = `
