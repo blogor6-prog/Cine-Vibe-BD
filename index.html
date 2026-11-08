@@ -505,53 +505,6 @@
       border: 1px solid var(--border-color);
     }
 
-    .cast-section {
-      margin: 10px 0;
-      text-align: left;
-    }
-    .cast-title {
-      font-size: 11px;
-      font-weight: bold;
-      color: #facc15;
-      margin-bottom: 6px;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .cast-list {
-      display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      padding-bottom: 4px;
-      scrollbar-width: none;
-    }
-    .cast-list::-webkit-scrollbar { display: none; }
-    .actor-chip {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      width: 52px;
-      flex-shrink: 0;
-    }
-    .actor-avatar {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      border: 1.5px solid #38bdf8;
-      object-fit: cover;
-      background: #0f172a;
-    }
-    .actor-name {
-      font-size: 8.5px;
-      color: #ffffff;
-      text-align: center;
-      margin-top: 3px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      width: 100%;
-    }
-
     .ad-status-box {
       background: #0f172a;
       padding: 9px;
@@ -642,7 +595,6 @@
 </head>
 <body>
 
-  <!-- ভাইরাল ভিডিও বাটন -->
   <div class="viral-btn-wrap">
     <a href="https://t.me/supersp49" target="_blank" class="viral-btn" onclick="openSafeUrl('https://t.me/supersp49'); return false;">
       🔥 Viral Video Link (এখানে ক্লিক করুন) 🔞
@@ -663,7 +615,6 @@
     </div>
   </div>
 
-  <!-- সার্চ, ইংরেজি ভয়েস ও লাকি মুভি -->
   <div class="search-wrapper">
     <div class="search-box">
       <input type="text" id="searchInput" placeholder="Search movie or series..." onkeyup="handleSearch()">
@@ -674,13 +625,11 @@
     </button>
   </div>
 
-  <!-- ট্রেন্ডিং স্লাইডার -->
   <div id="trendingSection" style="display: none;">
     <div style="font-size: 14px; font-weight: 800; color: #facc15; margin-bottom: 8px;">🔥 Trending & Featured</div>
     <div class="trending-scroll-container" id="trendingList"></div>
   </div>
 
-  <!-- ক্যাটাগরি চিপস -->
   <div class="category-pills">
     <div class="pill active" onclick="selectCategory('All', event)">All</div>
     <div class="pill" onclick="selectCategory('Series', event)">📺 Series</div>
@@ -691,7 +640,6 @@
     <div class="pill" onclick="selectCategory('Hollywood', event)">Hollywood</div>
   </div>
 
-  <!-- হোমপেজ সেকশন কনটেইনার -->
   <div id="homeSectionsContainer">
     <div id="pinnedSectionBlock" style="display: none;">
       <div class="section-header">
@@ -715,7 +663,7 @@
       </div>
       <div class="movies-grid" id="recentMoviesGrid">
         <div style="grid-column: span 3; text-align: center; padding: 40px 10px; color: var(--primary); font-size: 14px;">
-          মুভি লোড হচ্ছে... অনুগ্রহ করে একটু অপেক্ষা করুন ⏳
+          মুভি লোড হচ্ছে... অনুগ্রহ করে অপেক্ষা করুন ⏳
         </div>
       </div>
       <div class="pagination-bar" id="homePaginationBar" style="display: none;"></div>
@@ -746,11 +694,6 @@
     <div class="modal-content" onclick="event.stopPropagation()">
       <h3 id="modalTitle">মুভি/সিরিজের নাম</h3>
       <div class="modal-sub-details" id="modalSubDetails"></div>
-
-      <div class="cast-section" id="castSection" style="display: none;">
-        <div class="cast-title">🎭 প্রধান অভিনয়শিল্পী (Top Cast):</div>
-        <div class="cast-list" id="castList"></div>
-      </div>
 
       <div class="ad-status-box" id="modalStatus">আনলক করতে ১ম বিজ্ঞাপনটি দেখুন।</div>
 
@@ -795,20 +738,6 @@
 
   <script>
     const GOOGLE_SHEET_ID = "1RtUsHpLyk3NoxLCPSb8u4iqBqwMqtfUmWYMkD8tPWeU";
-    const TMDB_API_KEY = "f81b15c57b7736347da1d615437498e2";
-
-    const TMDB_GENRES = {
-      28: "Action", 12: "Adventure", 16: "Animation", 35: "Comedy", 80: "Crime",
-      99: "Documentary", 18: "Drama", 10751: "Family", 14: "Fantasy", 36: "History",
-      27: "Horror", 10402: "Music", 9648: "Mystery", 10749: "Romance", 878: "Sci-Fi",
-      10770: "TV Movie", 53: "Thriller", 10752: "War", 37: "Western",
-      10759: "Action & Adventure", 10762: "Kids", 10765: "Sci-Fi & Fantasy"
-    };
-
-    const TMDB_LANG = {
-      "en": "English", "hi": "Hindi", "bn": "Bangla", "te": "Telugu",
-      "ta": "Tamil", "ml": "Malayalam", "ko": "Korean", "es": "Spanish", "ja": "Japanese"
-    };
 
     const isInsideTelegram = !!(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData);
     const tg = isInsideTelegram ? window.Telegram.WebApp : null;
@@ -883,58 +812,12 @@
       return String(c[index].v).trim();
     }
 
-    /* TMDB দিয়ে ব্যাকগ্রাউন্ডে পোস্টার ও ডাটা লোড */
-    async function enrichMovieWithTMDB(movie) {
-      try {
-        const cleanTitle = movie.title
-          .replace(/[\(\[\{].*?[\)\]\}]/g, '')
-          .replace(/\b(s0\d|season \d+|ep\d+|480p|720p|1080p|2160p|4k|hd|web-dl|rip|dual audio|hindi|bangla|english|tamil|telugu)\b/gi, '')
-          .trim();
-
-        const searchUrl = `https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(cleanTitle)}&include_adult=false`;
-        const res = await fetch(searchUrl);
-        const data = await res.json();
-
-        if (data.results && data.results.length > 0) {
-          const item = data.results.find(r => r.poster_path || r.backdrop_path) || data.results[0];
-
-          if ((!movie.image || !movie.image.startsWith('http')) && (item.poster_path || item.backdrop_path)) {
-            movie.image = `https://image.tmdb.org/t/p/w500${item.poster_path || item.backdrop_path}`;
-          }
-
-          if (!movie.rating || movie.rating === '⭐' || movie.rating === '⭐ 8.0') {
-            if (item.vote_average && item.vote_average > 0) {
-              movie.rating = `⭐ ${item.vote_average.toFixed(1)}`;
-            }
-          }
-
-          const rDate = item.release_date || item.first_air_date;
-          if (!movie.date && rDate) {
-            movie.date = rDate.split('-')[0];
-          }
-
-          if (!movie.genre && item.genre_ids && item.genre_ids.length > 0) {
-            movie.genre = item.genre_ids.map(id => TMDB_GENRES[id]).filter(Boolean).slice(0, 2).join(', ');
-          }
-
-          if (!movie.language && item.original_language) {
-            movie.language = TMDB_LANG[item.original_language] || item.original_language.toUpperCase();
-          }
-
-          movie.tmdbId = item.id;
-          movie.mediaType = item.media_type || (movie.isSeries ? 'tv' : 'movie');
-        }
-      } catch (e) {
-        console.warn("TMDB fetch error");
-      }
-    }
-
     function fetchMoviesFromSheet() {
       const url = "https://docs.google.com/spreadsheets/d/" + GOOGLE_SHEET_ID + "/gviz/tq?tqx=out:json&t=" + new Date().getTime();
 
       fetch(url)
         .then(res => res.text())
-        .then(async data => {
+        .then(data => {
           const startIdx = data.indexOf('{');
           const endIdx = data.lastIndexOf('}');
           if (startIdx === -1 || endIdx === -1) throw new Error("Invalid response");
@@ -951,7 +834,7 @@
             if (!titleStr || titleStr.toLowerCase() === 'title') continue;
 
             const categoryVal = getCellVal(c, 1) || 'All';
-            const ratingVal = getCellVal(c, 2);
+            const ratingVal = getCellVal(c, 2) || '8.0';
             const rawImg = getCellVal(c, 3);
             const ad1Val = getCellVal(c, 4) || ENTRY_AD_URL;
             const ad2Val = (getCellVal(c, 5).startsWith('http')) ? getCellVal(c, 5) : DEFAULT_AD2;
@@ -979,7 +862,7 @@
               id: i + 1,
               title: titleStr,
               category: categoryVal,
-              rating: ratingVal ? (ratingVal.startsWith('⭐') ? ratingVal : `⭐ ${ratingVal}`) : '',
+              rating: ratingVal.startsWith('⭐') ? ratingVal : `⭐ ${ratingVal}`,
               image: formatImageUrl(rawImg),
               ad1: ad1Val,
               ad2: ad2Val,
@@ -995,10 +878,6 @@
           }
 
           rawMovies.reverse();
-
-          // TMDB থেকে অটোমেটিক পোস্টার ও সব তথ্য সংগ্রহ
-          await Promise.all(rawMovies.map(enrichMovieWithTMDB));
-
           allMovies = rawMovies;
           pinnedMovies = allMovies.filter(m => m.pinned);
           banglaMovies = allMovies.filter(m => m.category.toLowerCase().includes('bangla'));
@@ -1018,20 +897,22 @@
     function createMovieCardHTML(m) {
       const pinTag = m.pinned ? '<div class="pin-badge">📌</div>' : '';
       const seriesBadgeClass = m.isSeries ? 'series-badge' : '';
-      const posterSrc = m.image || 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 140%22><rect width=%22100%22 height=%22140%22 fill=%22%231e293b%22/><text x=%2250%%22 y=%2250%%22 fill=%22%2364748b%22 font-size=%2212%22 text-anchor=%22middle%22 dy=%22.3em%22>No Poster</text></svg>';
+      
+      // ছবি না থাকলে সুন্দর ডার্ক পোস্টার
+      const posterSrc = m.image ? m.image : 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 140%22><rect width=%22100%22 height=%22140%22 fill=%22%231e293b%22/><text x=%2250%%22 y=%2250%%22 fill=%22%2364748b%22 font-size=%2211%22 font-weight=%22bold%22 text-anchor=%22middle%22 dy=%22.3em%22>CineVibeBD</text></svg>';
 
       return `
         <div class="movie-card ${m.pinned ? 'is-pinned' : ''}" onclick="openModal(${m.id})">
           ${pinTag}
           <div class="movie-poster-wrap">
             ${m.badge ? `<span class="quality-badge ${seriesBadgeClass}">${m.badge}</span>` : ''}
-            <img src="${posterSrc}" alt="${m.title}" loading="lazy" referrerpolicy="no-referrer">
+            <img src="${posterSrc}" alt="${m.title}" loading="lazy" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 140%22><rect width=%22100%22 height=%22140%22 fill=%22%231e293b%22/><text x=%2250%%22 y=%2250%%22 fill=%22%2338bdf8%22 font-size=%2210%22 font-weight=%22bold%22 text-anchor=%22middle%22 dy=%22.3em%22>🎬 Movie</text></svg>'">
           </div>
           <div class="movie-info">
             <div class="movie-title" title="${m.title}">${m.title}</div>
             
             <div class="movie-meta">
-              <span class="movie-rating">${m.rating || '⭐ 8.0'}</span>
+              <span class="movie-rating">${m.rating}</span>
               <span class="movie-date">${m.date ? m.date : ''}</span>
             </div>
 
@@ -1203,7 +1084,7 @@
         const item = document.createElement('div');
         item.className = 'trending-card';
         item.onclick = () => openModal(m.id);
-        const posterSrc = m.image || 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 140%22><rect width=%22100%22 height=%22140%22 fill=%22%231e293b%22/></svg>';
+        const posterSrc = m.image ? m.image : 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 140%22><rect width=%22100%22 height=%22140%22 fill=%22%231e293b%22/><text x=%2250%%22 y=%2250%%22 fill=%22%2338bdf8%22 font-size=%2210%22 font-weight=%22bold%22 text-anchor=%22middle%22 dy=%22.3em%22>🎬 Movie</text></svg>';
 
         item.innerHTML = `
           <span class="featured-badge">FEATURED</span>
@@ -1323,8 +1204,7 @@
       if (movieId) openModal(parseInt(movieId));
     }
 
-    /* ডাউনলোড মডাল এবং অভিনেতা/অভিনেত্রীদের ছবি */
-    async function openModal(id) {
+    function openModal(id) {
       currentMovie = allMovies.find(m => m.id === id);
       if (!currentMovie) return;
 
@@ -1340,41 +1220,6 @@
       if (currentMovie.language) detailsList.push(`🔊 ভাষা: ${currentMovie.language}`);
       
       document.getElementById('modalSubDetails').innerHTML = detailsList.join(' &nbsp;•&nbsp; ');
-
-      // কাস্ট সেকশন লোডিং
-      const castSection = document.getElementById('castSection');
-      const castList = document.getElementById('castList');
-      castList.innerHTML = '<span style="font-size:10px; color:#94a3b8; padding: 5px;">লোড হচ্ছে...</span>';
-      castSection.style.display = 'block';
-
-      if (currentMovie.tmdbId) {
-        try {
-          const creditsUrl = `https://api.themoviedb.org/3/${currentMovie.mediaType}/${currentMovie.tmdbId}/credits?api_key=${TMDB_API_KEY}`;
-          const res = await fetch(creditsUrl);
-          const credits = await res.json();
-          if (credits.cast && credits.cast.length > 0) {
-            castList.innerHTML = '';
-            const topCast = credits.cast.slice(0, 6);
-            topCast.forEach(actor => {
-              const photoUrl = actor.profile_path ? `https://image.tmdb.org/t/p/w185${actor.profile_path}` : 'https://via.placeholder.com/60?text=Actor';
-              const chip = document.createElement('div');
-              chip.className = 'actor-chip';
-              chip.innerHTML = `
-                <img class="actor-avatar" src="${photoUrl}" alt="${actor.name}" loading="lazy">
-                <span class="actor-name">${actor.name}</span>
-              `;
-              castList.appendChild(chip);
-            });
-            castSection.style.display = 'block';
-          } else {
-            castSection.style.display = 'none';
-          }
-        } catch (e) {
-          castSection.style.display = 'none';
-        }
-      } else {
-        castSection.style.display = 'none';
-      }
 
       document.getElementById('modalStatus').innerHTML = currentMovie.isSeries ? 
         "সব পর্ব আনলক করতে <b>১ম বিজ্ঞাপনটি</b> দেখুন।" : 
@@ -1503,11 +1348,4 @@
 
     function closeModal() {
       clearInterval(timerInterval);
-      document.getElementById('downloadModal').style.display = 'none';
-      if (tg?.BackButton) tg.BackButton.hide();
-    }
-
-    fetchMoviesFromSheet();
-  </script>
-</body>
-</html>
+      document.getElementById('downloadModal').style.display = 'non
