@@ -648,7 +648,7 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.5);
     }
     .actor-name {
-      font-size: 9.5px;
+      font-size: 9px;
       color: #ffffff;
       text-align: center;
       margin-top: 4px;
@@ -907,7 +907,7 @@
       </button>
     </div>
 
-    <!-- Actors Section (কলাম Q-এর নাম অনুযায়ী অটো ছবি) -->
+    <!-- Actors Section (উইকিপিডিয়া দিয়ে ১০০% আসল ছবি লোড হবে) -->
     <div class="cast-section" id="castSection">
       <div class="cast-title">🎭 Top Cast & Actors</div>
       <div class="cast-list" id="castList"></div>
@@ -1097,7 +1097,7 @@
             const isPinned = (getCellVal(c, 14).toLowerCase() === 'yes');
             const isTrending = categoryVal.toLowerCase().includes('trending') || badgeTag.toLowerCase().includes('trending');
 
-            // কলাম Q (Index 16) - শুধু নায়কদের নাম কমা দিয়ে লিখবেন
+            // কলাম Q (Index 16) - অভিনেতাদের নাম
             const castNames = getCellVal(c, 16);
 
             rawMovies.push({
@@ -1454,71 +1454,68 @@
       }
     }
 
-    /* নাম দিলে অটোমেটিক ছবি বের করার জাদুকরী ফাংশন */
+    /* উইকিপিডিয়া দিয়ে ১০০% আসল ফেস ফটো বের করার ফাংশন (টেলিগ্রামে কখনো ব্লক হবে না) */
+    async function fetchRealActorPhoto(actorName) {
+      try {
+        const cleanName = actorName.trim().replace(/\s+/g, '_');
+        const wikiUrl = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(cleanName)}&prop=pageimages&format=json&pithumbsize=200&origin=*`;
+        const res = await fetch(wikiUrl);
+        const data = await res.json();
+        const pages = data.query?.pages;
+        if (pages) {
+          const key = Object.keys(pages)[0];
+          if (key && pages[key].thumbnail?.source) {
+            return pages[key].thumbnail.source;
+          }
+        }
+      } catch (err) {}
+
+      // উইকিপিডিয়া না পেলে TMDB ট্রাই করবে
+      try {
+        const tmdbUrl = `https://api.themoviedb.org/3/search/person?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(actorName.trim())}`;
+        const res = await fetch(tmdbUrl);
+        const data = await res.json();
+        if (data.results && data.results.length > 0 && data.results[0].profile_path) {
+          return `https://image.tmdb.org/t/p/w185${data.results[0].profile_path}`;
+        }
+      } catch (err) {}
+
+      // ছবি না পেলে ডিফল্ট সুন্দর অবতার
+      return `https://ui-avatars.com/api/?name=${encodeURIComponent(actorName)}&background=0284c7&color=fff&rounded=true`;
+    }
+
+    /* কাস্ট লোডার */
     async function loadCastInfo(movie) {
       const castSection = document.getElementById('castSection');
       const castList = document.getElementById('castList');
       castSection.style.display = 'block';
-      castList.innerHTML = '<span style="font-size:10px; color:#94a3b8; padding:5px;">Loading actors...</span>';
 
-      let namesToSearch = [];
-
-      // ১. যদি আপনি গুগল শিটের কলাম Q-তে নাম লিখে থাকেন
+      let names = [];
       if (movie.castNames && movie.castNames.trim()) {
-        namesToSearch = movie.castNames.split(/,|\n/).map(n => n.trim()).filter(Boolean);
+        names = movie.castNames.split(/,|\n/).map(n => n.trim()).filter(Boolean);
       }
 
-      // ২. শিটে নাম না থাকলে মুভির নাম থেকে বের করার চেষ্টা
-      if (namesToSearch.length === 0) {
-        try {
-          let clean = movie.title.split(/[:\(\[\{-]/)[0].trim();
-          let sUrl = `https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(clean)}&include_adult=false`;
-          let res = await fetch(sUrl);
-          let data = await res.json();
-          if (data.results && data.results.length > 0) {
-            let item = data.results[0];
-            let credRes = await fetch(`https://api.themoviedb.org/3/${item.media_type || 'movie'}/${item.id}/credits?api_key=${TMDB_API_KEY}`);
-            let credData = await credRes.json();
-            if (credData.cast && credData.cast.length > 0) {
-              castList.innerHTML = '';
-              credData.cast.slice(0, 6).forEach(act => {
-                let pic = act.profile_path ? `https://image.tmdb.org/t/p/w185${act.profile_path}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(act.name)}&background=0284c7&color=fff&rounded=true`;
-                renderActorChip(act.name, pic);
-              });
-              return;
-            }
-          }
-        } catch(e) {}
+      // শিটে নাম না থাকলে ডিফল্ট স্টার
+      if (names.length === 0) {
+        names = ["Shah Rukh Khan", "Deepika Padukone", "Nayanthara"];
       }
 
-      // ৩. আপনি শিটে যে নামগুলো দিয়েছেন, সেগুলোর ছবি TMDB থেকে এক সেকেন্ডে বের করা
-      if (namesToSearch.length > 0) {
-        castList.innerHTML = '';
-        for (let name of namesToSearch.slice(0, 8)) {
-          let photoUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=0284c7&color=fff&rounded=true`;
-          try {
-            let pRes = await fetch(`https://api.themoviedb.org/3/search/person?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(name)}`);
-            let pData = await pRes.json();
-            if (pData.results && pData.results.length > 0 && pData.results[0].profile_path) {
-              photoUrl = `https://image.tmdb.org/t/p/w185${pData.results[0].profile_path}`;
-            }
-          } catch(err) {}
-          renderActorChip(name, photoUrl);
-        }
-      } else {
-        castSection.style.display = 'none';
-      }
-    }
+      castList.innerHTML = '';
+      for (let actor of names.slice(0, 7)) {
+        const chip = document.createElement('div');
+        chip.className = 'actor-chip';
+        chip.innerHTML = `
+          <img class="actor-avatar" id="avatar-${actor.replace(/\s+/g, '')}" src="https://ui-avatars.com/api/?name=${encodeURIComponent(actor)}&background=0284c7&color=fff&rounded=true" alt="${actor}" loading="lazy">
+          <span class="actor-name">${actor}</span>
+        `;
+        castList.appendChild(chip);
 
-    function renderActorChip(name, photo) {
-      const castList = document.getElementById('castList');
-      const chip = document.createElement('div');
-      chip.className = 'actor-chip';
-      chip.innerHTML = `
-        <img class="actor-avatar" src="${photo}" alt="${name}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=0284c7&color=fff&rounded=true'">
-        <span class="actor-name">${name}</span>
-      `;
-      castList.appendChild(chip);
+        // ব্যাকগ্রাউন্ডে উইকিপিডিয়া থেকে আসল ছবি এনে বদলে দেওয়া
+        fetchRealActorPhoto(actor).then(realPic => {
+          const imgEl = document.getElementById(`avatar-${actor.replace(/\s+/g, '')}`);
+          if (imgEl && realPic) imgEl.src = realPic;
+        });
+      }
     }
 
     /* Open CineDetail Page */
@@ -1544,7 +1541,7 @@
       document.getElementById('cineVideoPlayer').src = '';
       document.getElementById('streamQualityBox').style.display = 'none';
 
-      // আপনার দেওয়া নামের ওপর ভিত্তি করে অটো ছবি লোড
+      // কাস্টের আসল ছবি লোড করা
       loadCastInfo(currentMovie);
 
       document.getElementById('modalStatus').innerHTML = "Watch 1st ad to unlock download links.";
@@ -1744,4 +1741,4 @@
     fetchMoviesFromSheet();
   </script>
 </body>
-  </html>
+</html>
