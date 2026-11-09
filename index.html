@@ -9,10 +9,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   
-  <!-- Telegram Web App SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-  <!-- Social Bar Ad -->
   <script type="text/javascript" data-cfasync="false" src="https://bancadeltempoidea.org/14/6ec3380071a63409857caac0c1180d7e"></script>
 
   <style>
@@ -48,7 +45,6 @@
       overflow-x: hidden;
     }
 
-    /* Top Viral Button */
     .viral-btn-wrap { margin-bottom: 12px; }
     .viral-btn {
       display: flex;
@@ -68,7 +64,6 @@
       cursor: pointer;
     }
 
-    /* Header Bar */
     .header-bar {
       display: flex;
       align-items: center;
@@ -124,7 +119,6 @@
     }
     .dropdown-menu div:active { background: var(--primary-hover); }
 
-    /* Search & English Voice Search */
     .search-wrapper {
       position: relative;
       margin-bottom: 12px;
@@ -172,7 +166,6 @@
       gap: 4px;
     }
 
-    /* Trending Carousel */
     .trending-scroll-container {
       display: flex;
       gap: 10px;
@@ -221,7 +214,6 @@
       color: #fff;
     }
 
-    /* Category Pills */
     .category-pills {
       display: flex;
       gap: 8px;
@@ -248,7 +240,6 @@
       font-weight: 700;
     }
 
-    /* Section Header */
     .section-header {
       display: flex;
       justify-content: space-between;
@@ -279,7 +270,6 @@
       gap: 3px;
     }
 
-    /* Movies Grid (3 Columns) */
     .movies-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -386,7 +376,6 @@
       margin-top: 5px;
     }
 
-    /* Dedicated Full View Header */
     .full-view-header {
       display: flex;
       align-items: center;
@@ -407,7 +396,6 @@
       cursor: pointer;
     }
 
-    /* Pagination */
     .pagination-bar {
       display: flex;
       justify-content: center;
@@ -433,7 +421,6 @@
     }
     .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    /* Bottom Navigation Bar */
     .bottom-nav {
       position: fixed;
       bottom: 0;
@@ -461,7 +448,6 @@
     .nav-item.active { color: var(--primary); font-weight: bold; }
     .nav-icon { font-size: 18px; }
 
-    /* Ad Container */
     .bottom-ad-section { margin-top: 25px; padding-top: 15px; border-top: 1px solid var(--border-color); }
     .entry-ad-banner {
       background: linear-gradient(135deg, #1e3a8a, #0284c7);
@@ -483,9 +469,7 @@
       margin-right: 5px;
     }
 
-    /* ====================================================
-       CinePulse OTT Style Movie Detail Page (English)
-       ==================================================== */
+    /* CinePulse Style Detail View */
     .cine-detail-view {
       position: fixed;
       top: 0;
@@ -504,7 +488,7 @@
       top: 0;
       left: 0;
       width: 100%;
-      background: rgba(11, 15, 25, 0.9);
+      background: rgba(11, 15, 25, 0.95);
       backdrop-filter: blur(8px);
       padding: 12px 14px;
       display: flex;
@@ -624,10 +608,11 @@
       box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
     }
 
-    /* Actors / Top Cast Section (Round Photos with Names) */
+    /* Actors Section */
     .cast-section {
-      margin: 12px 14px 6px 14px;
+      margin: 12px 14px 8px 14px;
       text-align: left;
+      display: block !important;
     }
     .cast-title {
       font-size: 12px;
@@ -650,7 +635,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      width: 55px;
+      width: 58px;
       flex-shrink: 0;
     }
     .actor-avatar {
@@ -659,11 +644,11 @@
       border-radius: 50%;
       border: 2px solid #38bdf8;
       object-fit: cover;
-      background: #0f172a;
+      background: #1e293b;
       box-shadow: 0 2px 8px rgba(0,0,0,0.5);
     }
     .actor-name {
-      font-size: 9px;
+      font-size: 9.5px;
       color: #ffffff;
       text-align: center;
       margin-top: 4px;
@@ -674,7 +659,7 @@
       font-weight: 600;
     }
 
-    /* In-App Stream Video Player */
+    /* In-App Player */
     .cine-player-wrap {
       padding: 10px 14px;
       display: none;
@@ -687,7 +672,6 @@
       background: #000;
     }
 
-    /* Box Containers */
     .cine-section-box {
       margin: 12px 14px;
       background: #1e293b;
@@ -728,7 +712,6 @@
     .btn-ad2 { background: var(--accent-orange); color: #fff; }
     .action-btn:disabled { background: #475569 !important; color: #cbd5e1 !important; cursor: not-allowed; }
 
-    /* Quality Buttons */
     .quality-options-list { display: flex; flex-direction: column; gap: 8px; }
     .quality-btn {
       display: flex;
@@ -924,8 +907,8 @@
       </button>
     </div>
 
-    <!-- Actors / Top Cast Section (Round Photos with Names) -->
-    <div class="cast-section" id="castSection" style="display: none;">
+    <!-- Actors Section (কলাম Q-এর নাম অনুযায়ী অটো ছবি) -->
+    <div class="cast-section" id="castSection">
       <div class="cast-title">🎭 Top Cast & Actors</div>
       <div class="cast-list" id="castList"></div>
     </div>
@@ -1114,6 +1097,9 @@
             const isPinned = (getCellVal(c, 14).toLowerCase() === 'yes');
             const isTrending = categoryVal.toLowerCase().includes('trending') || badgeTag.toLowerCase().includes('trending');
 
+            // কলাম Q (Index 16) - শুধু নায়কদের নাম কমা দিয়ে লিখবেন
+            const castNames = getCellVal(c, 16);
+
             rawMovies.push({
               id: i + 1,
               title: titleStr,
@@ -1129,7 +1115,8 @@
               links: allParsedLinks,
               pinned: isPinned,
               trending: isTrending,
-              isSeries: isSeries
+              isSeries: isSeries,
+              castNames: castNames
             });
           }
 
@@ -1467,49 +1454,71 @@
       }
     }
 
-    /* TMDB Top Cast Loader (Round Avatars with Names) */
-    async function loadCastInfo(movieTitle) {
+    /* নাম দিলে অটোমেটিক ছবি বের করার জাদুকরী ফাংশন */
+    async function loadCastInfo(movie) {
       const castSection = document.getElementById('castSection');
       const castList = document.getElementById('castList');
-      castList.innerHTML = '<span style="font-size:10px; color:#94a3b8;">Loading cast...</span>';
       castSection.style.display = 'block';
+      castList.innerHTML = '<span style="font-size:10px; color:#94a3b8; padding:5px;">Loading actors...</span>';
 
-      try {
-        const cleanTitle = movieTitle
-          .replace(/[\(\[\{].*?[\)\]\}]/g, '')
-          .replace(/\b(s0\d|season \d+|ep\d+|480p|720p|1080p|web-dl|hd|dual audio|hindi|bangla)\b/gi, '')
-          .trim();
+      let namesToSearch = [];
 
-        const searchUrl = `https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(cleanTitle)}&include_adult=false`;
-        const res = await fetch(searchUrl);
-        const data = await res.json();
+      // ১. যদি আপনি গুগল শিটের কলাম Q-তে নাম লিখে থাকেন
+      if (movie.castNames && movie.castNames.trim()) {
+        namesToSearch = movie.castNames.split(/,|\n/).map(n => n.trim()).filter(Boolean);
+      }
 
-        if (data.results && data.results.length > 0) {
-          const item = data.results[0];
-          const mediaType = item.media_type || 'movie';
-          const creditsUrl = `https://api.themoviedb.org/3/${mediaType}/${item.id}/credits?api_key=${TMDB_API_KEY}`;
-          const credRes = await fetch(creditsUrl);
-          const credData = await credRes.json();
-
-          if (credData.cast && credData.cast.length > 0) {
-            castList.innerHTML = '';
-            credData.cast.slice(0, 7).forEach(actor => {
-              const photoUrl = actor.profile_path ? `https://image.tmdb.org/t/p/w185${actor.profile_path}` : 'https://via.placeholder.com/60?text=Actor';
-              const chip = document.createElement('div');
-              chip.className = 'actor-chip';
-              chip.innerHTML = `
-                <img class="actor-avatar" src="${photoUrl}" alt="${actor.name}" loading="lazy">
-                <span class="actor-name">${actor.name}</span>
-              `;
-              castList.appendChild(chip);
-            });
-            return;
+      // ২. শিটে নাম না থাকলে মুভির নাম থেকে বের করার চেষ্টা
+      if (namesToSearch.length === 0) {
+        try {
+          let clean = movie.title.split(/[:\(\[\{-]/)[0].trim();
+          let sUrl = `https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(clean)}&include_adult=false`;
+          let res = await fetch(sUrl);
+          let data = await res.json();
+          if (data.results && data.results.length > 0) {
+            let item = data.results[0];
+            let credRes = await fetch(`https://api.themoviedb.org/3/${item.media_type || 'movie'}/${item.id}/credits?api_key=${TMDB_API_KEY}`);
+            let credData = await credRes.json();
+            if (credData.cast && credData.cast.length > 0) {
+              castList.innerHTML = '';
+              credData.cast.slice(0, 6).forEach(act => {
+                let pic = act.profile_path ? `https://image.tmdb.org/t/p/w185${act.profile_path}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(act.name)}&background=0284c7&color=fff&rounded=true`;
+                renderActorChip(act.name, pic);
+              });
+              return;
+            }
           }
+        } catch(e) {}
+      }
+
+      // ৩. আপনি শিটে যে নামগুলো দিয়েছেন, সেগুলোর ছবি TMDB থেকে এক সেকেন্ডে বের করা
+      if (namesToSearch.length > 0) {
+        castList.innerHTML = '';
+        for (let name of namesToSearch.slice(0, 8)) {
+          let photoUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=0284c7&color=fff&rounded=true`;
+          try {
+            let pRes = await fetch(`https://api.themoviedb.org/3/search/person?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(name)}`);
+            let pData = await pRes.json();
+            if (pData.results && pData.results.length > 0 && pData.results[0].profile_path) {
+              photoUrl = `https://image.tmdb.org/t/p/w185${pData.results[0].profile_path}`;
+            }
+          } catch(err) {}
+          renderActorChip(name, photoUrl);
         }
-        castSection.style.display = 'none';
-      } catch (e) {
+      } else {
         castSection.style.display = 'none';
       }
+    }
+
+    function renderActorChip(name, photo) {
+      const castList = document.getElementById('castList');
+      const chip = document.createElement('div');
+      chip.className = 'actor-chip';
+      chip.innerHTML = `
+        <img class="actor-avatar" src="${photo}" alt="${name}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=0284c7&color=fff&rounded=true'">
+        <span class="actor-name">${name}</span>
+      `;
+      castList.appendChild(chip);
     }
 
     /* Open CineDetail Page */
@@ -1531,15 +1540,13 @@
       document.getElementById('cineGenreChip').innerText = currentMovie.genre;
       document.getElementById('cineLangChip').innerText = currentMovie.language;
 
-      // Reset Player & Streaming Picker
       document.getElementById('cinePlayerWrap').style.display = 'none';
       document.getElementById('cineVideoPlayer').src = '';
       document.getElementById('streamQualityBox').style.display = 'none';
 
-      // Load Actors below watch button
-      loadCastInfo(currentMovie.title);
+      // আপনার দেওয়া নামের ওপর ভিত্তি করে অটো ছবি লোড
+      loadCastInfo(currentMovie);
 
-      // Download Box Reset
       document.getElementById('modalStatus').innerHTML = "Watch 1st ad to unlock download links.";
       const btn = document.getElementById('mainActionBtn');
       btn.style.display = 'block';
@@ -1568,7 +1575,6 @@
       if (tg?.BackButton) tg.BackButton.hide();
     }
 
-    /* Watch Online - Shows Quality Options to Stream */
     function openWatchQualityPicker() {
       if (!currentMovie || !currentMovie.links.length) {
         alert("Sorry! No stream links available for this title.");
@@ -1624,7 +1630,6 @@
       qualityBox.scrollIntoView({ behavior: 'smooth' });
     }
 
-    /* Play Video inside Embedded Player */
     function playStreamUrl(url) {
       const playerWrap = document.getElementById('cinePlayerWrap');
       const player = document.getElementById('cineVideoPlayer');
@@ -1739,4 +1744,4 @@
     fetchMoviesFromSheet();
   </script>
 </body>
-</html>
+  </html>
