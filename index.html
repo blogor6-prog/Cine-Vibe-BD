@@ -574,7 +574,6 @@
     .chip-yellow { color: #facc15; border-color: rgba(250, 204, 21, 0.3); }
     .chip-blue { color: #38bdf8; border-color: rgba(56, 189, 248, 0.3); }
 
-    /* কলাম L-এর সম্পূর্ণ মুভি ডিটেইলস বক্স */
     .cine-details-desc-box {
       font-size: 11.5px;
       color: #cbd5e1;
@@ -586,7 +585,7 @@
       margin-top: 4px;
     }
 
-    /* Action Buttons */
+    /* Action Buttons (Watch Trailer & Download) */
     .cine-action-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -606,10 +605,10 @@
       border: none;
       text-decoration: none;
     }
-    .btn-stream {
-      background: linear-gradient(135deg, #0284c7, #38bdf8);
-      color: #000;
-      box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
+    .btn-trailer {
+      background: linear-gradient(135deg, #ef4444, #f97316);
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
     }
     .btn-download {
       background: linear-gradient(135deg, #10b981, #059669);
@@ -617,7 +616,7 @@
       box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
     }
 
-    /* কাস্ট সেকশন (বড় গোল ছবি ও বড় লেখা) */
+    /* Actors Section */
     .cast-section {
       margin: 12px 14px 8px 14px;
       text-align: left;
@@ -668,7 +667,7 @@
       font-weight: 700;
     }
 
-    /* In-App Player */
+    /* In-App Trailer Player */
     .cine-player-wrap {
       padding: 10px 14px;
       display: none;
@@ -768,6 +767,7 @@
 </head>
 <body>
 
+  <!-- Top Viral Link -->
   <div class="viral-btn-wrap">
     <a href="https://t.me/supersp49" target="_blank" class="viral-btn" onclick="openSafeUrl('https://t.me/supersp49'); return false;">
       🔥 Viral Video Link (Click Here) 🔞
@@ -788,6 +788,7 @@
     </div>
   </div>
 
+  <!-- Search, English Voice & Lucky Pick -->
   <div class="search-wrapper">
     <div class="search-box">
       <input type="text" id="searchInput" placeholder="Search movie or series..." onkeyup="handleSearch()">
@@ -798,11 +799,13 @@
     </button>
   </div>
 
+  <!-- Trending Carousel -->
   <div id="trendingSection" style="display: none;">
     <div style="font-size: 14px; font-weight: 800; color: #facc15; margin-bottom: 8px;">🔥 Trending & Featured</div>
     <div class="trending-scroll-container" id="trendingList"></div>
   </div>
 
+  <!-- Category Pills -->
   <div class="category-pills">
     <div class="pill active" onclick="selectCategory('All', event)">All</div>
     <div class="pill" onclick="selectCategory('Series', event)">📺 Series</div>
@@ -813,6 +816,7 @@
     <div class="pill" onclick="selectCategory('Hollywood', event)">Hollywood</div>
   </div>
 
+  <!-- Home Sections -->
   <div id="homeSectionsContainer">
     <div id="pinnedSectionBlock" style="display: none;">
       <div class="section-header">
@@ -843,6 +847,7 @@
     </div>
   </div>
 
+  <!-- Dedicated View -->
   <div id="fullListViewBlock" style="display: none;">
     <div class="full-view-header">
       <h2 id="fullViewTitle">All Collections</h2>
@@ -852,6 +857,7 @@
     <div class="pagination-bar" id="fullListPaginationBar" style="display: none;"></div>
   </div>
 
+  <!-- Bottom Ad Section -->
   <div class="bottom-ad-section">
     <div class="entry-ad-banner" onclick="openEntryAd()">
       <p><span>SPONSOR</span> Check out sponsored offers 🎁</p>
@@ -863,6 +869,7 @@
     </div>
   </div>
 
+  <!-- CinePulse Detail Page -->
   <div class="cine-detail-view" id="cineDetailView">
     <div class="cine-top-nav">
       <button class="cine-back-btn" onclick="closeCineDetail()">
@@ -884,38 +891,29 @@
           <span class="cine-chip chip-yellow" id="cineRatingChip">⭐ 8.0</span>
           <span class="cine-chip chip-blue" id="cineQualityChip">WEB-DL</span>
         </div>
-        <!-- কলাম L-এর সকল ডিটেইলস এখানে দেখাবে -->
         <div class="cine-details-desc-box" id="cineDetailsDescBox"></div>
       </div>
     </div>
 
+    <!-- Watch Trailer & Download Buttons -->
     <div class="cine-action-grid">
-      <button class="cine-btn btn-stream" onclick="openWatchQualityPicker()">
-        ▶️ Watch Online
+      <button class="cine-btn btn-trailer" onclick="playOfficialTrailer()">
+        🎬 Watch Trailer
       </button>
       <button class="cine-btn btn-download" onclick="scrollToDownload()">
         📥 Download Options
       </button>
     </div>
 
-    <!-- কাস্ট সেকশন (Col O থেকে নাম নিয়ে অটো আসল ছবি) -->
+    <!-- Cast Section (Col N থেকে নাম নিয়ে অটো আসল ছবি) -->
     <div class="cast-section" id="castSection">
       <div class="cast-title">🎭 Top Cast & Actors</div>
       <div class="cast-list" id="castList"></div>
     </div>
 
+    <!-- In-App Trailer Video Player -->
     <div class="cine-player-wrap" id="cinePlayerWrap">
       <iframe class="cine-video-frame" id="cineVideoPlayer" src="" allowfullscreen></iframe>
-    </div>
-
-    <div class="cine-section-box" id="streamQualityBox" style="display: none;">
-      <div class="cine-box-title">
-        <span>▶️ Select Quality to Stream:</span>
-      </div>
-      <div class="quality-options-list" id="streamQualityContainer"></div>
-      <div id="streamSeriesContainer" style="display: none;">
-        <div class="episodes-grid" id="streamEpisodesGrid"></div>
-      </div>
     </div>
 
     <div class="cine-section-box" id="downloadSectionBox">
@@ -1037,7 +1035,7 @@
       return String(c[index].v).trim();
     }
 
-    /* নতুন কলাম ম্যাপিং (Col A থেকে Col O) */
+    /* নতুন কলাম ম্যাপিং (Col A থেকে Col N পর্যন্ত) */
     function fetchMoviesFromSheet() {
       const url = "https://docs.google.com/spreadsheets/d/" + GOOGLE_SHEET_ID + "/gviz/tq?tqx=out:json&t=" + new Date().getTime();
 
@@ -1060,7 +1058,20 @@
             if (!titleStr || titleStr.toLowerCase() === 'title') continue;
 
             const categoryVal = getCellVal(c, 1) || 'All'; // Col B
-            const ratingVal = getCellVal(c, 2) || '8.0';   // Col C
+            
+            // Col C (Index 2): রেটিং ও পিন একসাথে (যেমন: '8.2, yes' বা শুধু '8.0')
+            const rawRatingCol = getCellVal(c, 2);
+            let ratingVal = "8.0";
+            let isPinned = false;
+
+            if (rawRatingCol) {
+              if (rawRatingCol.toLowerCase().includes('yes')) {
+                isPinned = true;
+              }
+              const cleanRating = rawRatingCol.split(',')[0].replace(/yes/gi, '').trim();
+              if (cleanRating) ratingVal = cleanRating;
+            }
+
             const rawImg = getCellVal(c, 3);                // Col D
             const ad1Val = getCellVal(c, 4) || ENTRY_AD_URL;// Col E
             const ad2Val = (getCellVal(c, 5).startsWith('http')) ? getCellVal(c, 5) : DEFAULT_AD2; // Col F
@@ -1079,15 +1090,12 @@
             // Col L (Index 11): এক লাইনে সব মুভি ডিটেইলস
             const movieDetails = getCellVal(c, 11) || 'HD Quality • All Devices Supported';
 
-            // Col M (Index 12): Pinned
-            const isPinned = (getCellVal(c, 12).toLowerCase() === 'yes');
+            // Col M (Index 12): Series Episodes (কমা দিয়ে পর্বগুলো)
+            const linksM = parseMultipleLinks(getCellVal(c, 12), "Episode");
+            const allParsedLinks = [...linksG, ...linksH, ...linksI, ...linksJ, ...linksM];
 
-            // Col N (Index 13): Series Episodes (কমা দিয়ে লেখা পর্বগুলো)
-            const linksN = parseMultipleLinks(getCellVal(c, 13), "Episode");
-            const allParsedLinks = [...linksG, ...linksH, ...linksI, ...linksJ, ...linksN];
-
-            // Col O (Index 14): Cast / Actors (কমা দিয়ে অভিনেতাদের নাম)
-            const castNames = getCellVal(c, 14);
+            // Col N (Index 13): Cast / Actors (কমা দিয়ে অভিনেতাদের নাম)
+            const castNames = getCellVal(c, 13);
 
             const isTrending = categoryVal.toLowerCase().includes('trending') || badgeTag.toLowerCase().includes('trending');
 
@@ -1126,7 +1134,6 @@
         });
     }
 
-    /* হোম পেজে একদম ক্লিন কার্ড: শুধু টাইটেল ও রেটিং */
     function createMovieCardHTML(m) {
       const pinTag = m.pinned ? '<div class="pin-badge">📌</div>' : '';
       const seriesBadgeClass = m.isSeries ? 'series-badge' : '';
@@ -1445,7 +1452,6 @@
       }
     }
 
-    /* শুধু আসল মুখের ছবি খোঁজার ফাংশন */
     async function fetchRealActorPhoto(actorName) {
       try {
         const cleanName = actorName.trim().replace(/\s+/g, '_');
@@ -1473,7 +1479,7 @@
       return null;
     }
 
-    /* Col O থেকে নাম নিয়ে কাস্ট লোড (বড় ছবি ও বড় নাম) */
+    /* Col N থেকে নাম নিয়ে কাস্ট লোড */
     async function loadCastInfo(movie) {
       const castSection = document.getElementById('castSection');
       const castList = document.getElementById('castList');
@@ -1523,14 +1529,13 @@
       document.getElementById('cineRatingChip').innerText = currentMovie.rating;
       document.getElementById('cineQualityChip').innerText = currentMovie.badge;
 
-      // কলাম L-এর সকল ডিটেইলস ২য় পেজে সুন্দর বক্সে দেখাবে
+      // কলাম L-এর সকল ডিটেইলস ২য় পেজে দেখাবে
       document.getElementById('cineDetailsDescBox').innerText = currentMovie.details;
 
       document.getElementById('cinePlayerWrap').style.display = 'none';
       document.getElementById('cineVideoPlayer').src = '';
-      document.getElementById('streamQualityBox').style.display = 'none';
 
-      // কলাম O-এর নাম অনুযায়ী শুধু আসল ছবিওয়ালা কাস্ট লোড হবে
+      // কলাম N-এর নাম অনুযায়ী কাস্ট লোড
       loadCastInfo(currentMovie);
 
       document.getElementById('modalStatus').innerHTML = "Watch 1st ad to unlock download links.";
@@ -1561,65 +1566,15 @@
       if (tg?.BackButton) tg.BackButton.hide();
     }
 
-    function openWatchQualityPicker() {
-      if (!currentMovie || !currentMovie.links.length) {
-        alert("Sorry! No stream links available for this title.");
-        return;
-      }
-
-      const qualityBox = document.getElementById('streamQualityBox');
-      const container = document.getElementById('streamQualityContainer');
-      const seriesContainer = document.getElementById('streamSeriesContainer');
-      const episodesGrid = document.getElementById('streamEpisodesGrid');
-
-      container.innerHTML = '';
-      episodesGrid.innerHTML = '';
-
-      if (currentMovie.isSeries) {
-        container.style.display = 'none';
-        seriesContainer.style.display = 'block';
-
-        currentMovie.links.forEach((ep, idx) => {
-          const hasValidLink = ep.link && ep.link.startsWith('http');
-          const btn = document.createElement('div');
-          btn.className = `episode-btn ${hasValidLink ? '' : 'disabled-ep'}`;
-          btn.innerHTML = `
-            <span>▶️ Stream ${ep.label || `Episode ${idx + 1}`}</span>
-            <span class="indicator-light ${hasValidLink ? 'light-blue' : 'light-red'}"></span>
-          `;
-          if (hasValidLink) {
-            btn.onclick = () => playStreamUrl(ep.link);
-          }
-          episodesGrid.appendChild(btn);
-        });
-
-      } else {
-        seriesContainer.style.display = 'none';
-        container.style.display = 'flex';
-
-        currentMovie.links.forEach(q => {
-          const hasValidLink = q.link && q.link.startsWith('http');
-          const btn = document.createElement('div');
-          btn.className = `quality-btn ${hasValidLink ? 'has-link' : 'disabled-btn'}`;
-          btn.innerHTML = `
-            <span>▶️ Stream [${q.label.replace('Download', '').replace(/[\[\]]/g, '').trim() || 'HD'}]</span>
-            <span class="indicator-light ${hasValidLink ? 'light-blue' : 'light-red'}"></span>
-          `;
-          if (hasValidLink) {
-            btn.onclick = () => playStreamUrl(q.link);
-          }
-          container.appendChild(btn);
-        });
-      }
-
-      qualityBox.style.display = 'block';
-      qualityBox.scrollIntoView({ behavior: 'smooth' });
-    }
-
-    function playStreamUrl(url) {
+    /* অটোমেটিক ইউটিউব অফিশিয়াল ট্রেলার প্লেয়ার */
+    function playOfficialTrailer() {
+      if (!currentMovie) return;
+      const clean = currentMovie.title.split(/[:\(\[\{-]/)[0].trim();
+      const ytTrailerEmbed = `https://www.youtube.com/embed?listType=search&list=${encodeURIComponent(clean + ' official trailer')}`;
+      
       const playerWrap = document.getElementById('cinePlayerWrap');
       const player = document.getElementById('cineVideoPlayer');
-      player.src = url;
+      player.src = ytTrailerEmbed;
       playerWrap.style.display = 'block';
       playerWrap.scrollIntoView({ behavior: 'smooth' });
     }
