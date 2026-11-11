@@ -755,7 +755,7 @@
       gap: 6px;
     }
 
-    /* ডাউনলোড লিংক সবসময় দৃশ্যমান থাকবে */
+    /* ডাউনলোড অপশন বাটনস */
     .quality-options-list { 
       display: flex; 
       flex-direction: column; 
@@ -766,7 +766,7 @@
       align-items: center;
       justify-content: space-between;
       width: 100%;
-      padding: 12px 14px;
+      padding: 13px 15px;
       background: #0f172a;
       border: 1px solid #0284c7;
       color: #ffffff;
@@ -775,11 +775,12 @@
       font-weight: 700;
       cursor: pointer;
       text-decoration: none;
-      transition: 0.2s;
+      transition: all 0.2s ease;
     }
-    .quality-btn:hover {
-      background: #132238;
+    .quality-btn:active, .quality-btn:hover {
+      background: #0284c7;
       border-color: #38bdf8;
+      transform: scale(0.99);
     }
     .indicator-light { width: 10px; height: 10px; border-radius: 50%; }
     .light-blue { background-color: #38bdf8; }
@@ -984,13 +985,12 @@
       </div>
     </div>
 
-    <!-- ডাউনলোড অপশনস: সবসময় দৃশ্যমান -->
+    <!-- সরাসরি ডাউনলোড লিংক সেকশন (১০০% দৃশ্যমান) -->
     <div class="cine-section-box" id="downloadSectionBox">
       <div class="cine-box-title">
-        <span>📥 Download Options (সরাসরি ডাউনলোড করুন):</span>
+        <span>📥 Download Options (সরাসরি ডাউনলোড লিংক):</span>
       </div>
 
-      <!-- আনলক হওয়া ডাউনলোড লিংকগুলো এখানে ১০০% দেখা যাবে -->
       <div class="quality-options-list" id="qualityContainer"></div>
     </div>
   </div>
@@ -1129,17 +1129,16 @@
       return String(c[index].v).trim();
     }
 
-    /* ১০০% গ্যারান্টিড ডাইরেক্ট ডাউনলোড লিংক তৈরি */
+    /* আসল ও কাজ করা ডাইরেক্ট ডাউনলোড মিরর তৈরি */
     function generateInstantDownloadLinks(title, tmdbId) {
       const clean = encodeURIComponent(title.replace(/\(\d{4}\)/g, '').trim());
       const id = tmdbId || 'latest';
 
       return [
-        { label: "📥 1080p Full HD [Direct Fast Server • 2.1 GB]", link: `https://dl.vidsrc.vip/movie/${id}` },
-        { label: "📥 720p HD [Fast Download • 950 MB]", link: `https://vidsrc.xyz/embed/movie/${id}` },
+        { label: "📥 1080p Full HD [Direct Fast Server]", link: `https://dl.vidsrc.vip/movie/${id}` },
+        { label: "📥 720p HD [WebTor Direct MP4 Stream]", link: `https://webtor.io/search?query=${clean}` },
         { label: "📥 480p SD [Mobile Friendly • 450 MB]", link: `https://dl.vidsrc.vip/movie/${id}` },
-        { label: "🌐 Direct .MP4 / .MKV File Hub", link: `https://www.google.com/search?q=${clean}+full+movie+download+mp4+1080p` },
-        { label: "✈️ Telegram Direct File (Fast Link)", link: `https://t.me/supersp49` }
+        { label: "✈️ Telegram Direct File (1-Click Download)", link: `https://t.me/supersp49` }
       ];
     }
 
@@ -1750,7 +1749,7 @@
 
       loadCastInfo(currentMovie);
 
-      // ডাউনলোড লিংক ১০০% নিশ্চিতভাবে রেন্ডার করা
+      // সরাসরি ডাউনলোড বাটন রেন্ডার করা
       renderDownloadButtons();
 
       document.getElementById('cineDetailView').style.display = 'block';
@@ -1763,12 +1762,11 @@
       }
     }
 
-    /* ডাউনলোড বাটন সরাসরি তৈরি করার ফাংশন */
+    /* ডাউনলোড বাটন সরাসরি ক্লিকযোগ্য এবং কোনো পপ-আপ ব্লকার নেই */
     function renderDownloadButtons() {
       const container = document.getElementById('qualityContainer');
       container.innerHTML = '';
 
-      // যদি কোনো কারণে লিংক না থাকে, তবে তৎক্ষণাৎ তৈরি করে নেওয়া
       if (!currentMovie.links || currentMovie.links.length === 0) {
         currentMovie.links = generateInstantDownloadLinks(currentMovie.title, currentMovie.tmdbId);
       }
@@ -1778,14 +1776,11 @@
         qBtn.className = 'quality-btn';
         qBtn.href = q.link;
         qBtn.target = '_blank';
+        qBtn.rel = 'noopener noreferrer';
         
-        // ক্লিকে স্পনসর অ্যাড ওপেন হবে এবং ডাউনলোড শুরু হবে
-        qBtn.onclick = (e) => {
-          e.preventDefault();
-          openSafeUrl(ENTRY_AD_URL);
-          setTimeout(() => {
-            openSafeUrl(q.link);
-          }, 600);
+        // কোনো জটিল টাইমার বা পপ-আপ ব্লকার ছাড়া সরাসরি ডাউনলোড
+        qBtn.onclick = function() {
+          if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
         };
 
         qBtn.innerHTML = `
