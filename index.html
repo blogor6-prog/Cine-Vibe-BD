@@ -9,7 +9,6 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   
-  <!-- Google Premium Bengali Font: Hind Siliguri -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -97,9 +96,6 @@
       font-size: 11px;
       font-weight: bold;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 4px;
       z-index: 20;
     }
     .menu-btn {
@@ -612,7 +608,6 @@
       margin-bottom: 4px;
     }
 
-    /* ৩টি অ্যাকশন বাটন: Watch Full Movie, Trailer, Download */
     .cine-action-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -713,14 +708,15 @@
     .player-server-bar {
       display: flex;
       justify-content: center;
-      gap: 10px;
+      gap: 6px;
       margin-top: 8px;
+      flex-wrap: wrap;
     }
     .server-btn {
       background: #1e293b;
       color: #fff;
       border: 1px solid #334155;
-      padding: 5px 12px;
+      padding: 5px 10px;
       border-radius: 4px;
       font-size: 11px;
       font-weight: bold;
@@ -809,7 +805,6 @@
     .indicator-light { width: 10px; height: 10px; border-radius: 50%; }
     .light-blue { background-color: #38bdf8; }
 
-    /* মুভি রিকোয়েস্ট পপ-আপ মডাল */
     .request-modal {
       display: none;
       position: fixed;
@@ -859,7 +854,6 @@
 </head>
 <body>
 
-  <!-- Top Viral Link -->
   <div class="viral-btn-wrap">
     <a href="https://t.me/supersp49" target="_blank" class="viral-btn" onclick="openSafeUrl('https://t.me/supersp49'); return false;">
       🔥 Viral Video Link (Click Here) 🔞
@@ -881,10 +875,9 @@
     </div>
   </div>
 
-  <!-- Search, English Voice & Lucky Pick -->
   <div class="search-wrapper">
     <div class="search-box">
-      <input type="text" id="searchInput" placeholder="Search movie or series..." onkeyup="handleSearch()">
+      <input type="text" id="searchInput" placeholder="যেকোনো মুভির নাম লিখুন (সব পার্ট আসবে)..." onkeyup="handleSearch()">
       <button class="voice-btn" onclick="startVoiceSearch()" title="Voice Search (English)">🎙️</button>
     </div>
     <button class="lucky-dice-btn" onclick="pickRandomMovie()" title="Random Lucky Movie">
@@ -892,13 +885,11 @@
     </button>
   </div>
 
-  <!-- Trending Carousel -->
   <div id="trendingSection" style="display: none;">
     <div style="font-size: 14px; font-weight: 800; color: #facc15; margin-bottom: 8px;">🔥 Trending & Featured</div>
     <div class="trending-scroll-container" id="trendingList"></div>
   </div>
 
-  <!-- Category Pills -->
   <div class="category-pills">
     <div class="pill active" onclick="selectCategory('All', event)">All</div>
     <div class="pill" onclick="selectCategory('Series', event)">📺 Series</div>
@@ -909,7 +900,6 @@
     <div class="pill" onclick="selectCategory('Hollywood', event)">Hollywood</div>
   </div>
 
-  <!-- Home Sections -->
   <div id="homeSectionsContainer">
     <div id="pinnedSectionBlock" style="display: none;">
       <div class="section-header">
@@ -940,7 +930,6 @@
     </div>
   </div>
 
-  <!-- Dedicated View -->
   <div id="fullListViewBlock" style="display: none;">
     <div class="full-view-header">
       <h2 id="fullViewTitle">All Collections</h2>
@@ -950,7 +939,6 @@
     <div class="pagination-bar" id="fullListPaginationBar" style="display: none;"></div>
   </div>
 
-  <!-- Bottom Ad Section -->
   <div class="bottom-ad-section">
     <div class="entry-ad-banner" onclick="openEntryAd()">
       <p><span>SPONSOR</span> Check out sponsored offers 🎁</p>
@@ -962,7 +950,6 @@
     </div>
   </div>
 
-  <!-- CinePulse Detail Page -->
   <div class="cine-detail-view" id="cineDetailView">
     <div class="cine-top-nav">
       <button class="cine-back-btn" onclick="closeCineDetail()">⬅️ Back</button>
@@ -984,10 +971,9 @@
       </div>
     </div>
 
-    <!-- অ্যাকশন বাটনসমূহ -->
     <div class="cine-action-grid">
       <button class="cine-btn btn-watch-online" onclick="playOnlineMovie()">
-        ▶️ Watch Full Movie (ফুল সিনেমা দেখুন)
+        ▶️ Watch Full Movie (সরাসরি ফুল মুভি দেখুন)
       </button>
       <button class="cine-btn btn-trailer" onclick="playOfficialTrailer()">
         🎬 Trailer / Song
@@ -997,18 +983,19 @@
       </button>
     </div>
 
-    <!-- Cast Section -->
     <div class="cast-section" id="castSection">
       <div class="cast-title">🎭 Top Cast & Actors</div>
       <div class="cast-list" id="castList"></div>
     </div>
 
-    <!-- In-App Player Frame -->
+    <!-- ৪টি কাজ করা সার্ভার সহ অনলাইন প্লেয়ার -->
     <div class="cine-player-wrap" id="cinePlayerWrap">
       <iframe class="cine-video-frame" id="cineVideoPlayer" src="" allowfullscreen></iframe>
       <div class="player-server-bar" id="serverSelectionBar" style="display:none;">
-        <button class="server-btn active" onclick="switchOnlineServer(1)">সার্ভার ১ (Fast)</button>
-        <button class="server-btn" onclick="switchOnlineServer(2)">সার্ভার ২ (HD)</button>
+        <button class="server-btn active" onclick="switchOnlineServer(1)">সার্ভার ১ (VidSrc)</button>
+        <button class="server-btn" onclick="switchOnlineServer(2)">সার্ভার ২ (AutoEmbed)</button>
+        <button class="server-btn" onclick="switchOnlineServer(3)">সার্ভার ৩ (MultiEmbed)</button>
+        <button class="server-btn" onclick="switchOnlineServer(4)">সার্ভার ৪ (Pro)</button>
       </div>
     </div>
 
@@ -1034,10 +1021,10 @@
   <!-- মুভি রিকোয়েস্ট মডাল -->
   <div class="request-modal" id="reqModal">
     <div class="request-box">
-      <h3>📩 যেকোনো মুভি রিকোয়েস্ট করুন</h3>
-      <p style="font-size:12px; color:#cbd5e1;">মুভির নাম লিখলে তা তৎক্ষণাৎ সাইটে যুক্ত হয়ে যাবে এবং অনলাইনে দেখতে পারবেন!</p>
-      <input type="text" id="reqMovieInput" placeholder="মুভির নাম ও সাল লিখুন (যেমন: তুফান)">
-      <button class="req-submit-btn" onclick="submitMovieRequest()">সাবমিট করুন 🚀</button>
+      <h3>📩 মুভি রিকোয়েস্ট পাঠান</h3>
+      <p style="font-size:12px; color:#cbd5e1;">আপনার কাঙ্ক্ষিত মুভির নাম লিখুন। এডমিন মেসেজ পাওয়ার পর লিংক যুক্ত করে দিবে।</p>
+      <input type="text" id="reqMovieInput" placeholder="মুভির নাম ও সাল লিখুন...">
+      <button class="req-submit-btn" onclick="submitMovieRequest()">এডমিনকে পাঠান 🚀</button>
       <button style="background:transparent; border:none; color:#94a3b8; margin-top:10px; cursor:pointer;" onclick="closeRequestModal()">বন্ধ করুন</button>
     </div>
   </div>
@@ -1069,6 +1056,9 @@
     const GOOGLE_SHEET_ID = "1RtUsHpLyk3NoxLCPSb8u4iqBqwMqtfUmWYMkD8tPWeU";
     const TMDB_API_KEY = "8265bd1679663a7ea12ac168da84d2e8";
     const ADMIN_EMAIL = "blogor6@gmail.com";
+
+    // আগের টেস্টের সব সেভ করা রিকোয়েস্ট মেমোরি থেকে মুছে দেওয়া হলো
+    localStorage.removeItem('user_requested_movies');
 
     const GENRE_MAP = {
       28: "Action", 12: "Adventure", 16: "Animation", 35: "Comedy", 80: "Crime",
@@ -1133,7 +1123,10 @@
     let activeCategory = 'All';
 
     const itemsPerPage = 21;
-    let homePage = 1;
+
+    // URL বা লোকাল মেমোরি থেকে বর্তমান পেজ নম্বর রিড করা (রিলোড দিলে যেন পেজ ১ এ না যায়)
+    const urlParams = new URLSearchParams(window.location.search);
+    let homePage = parseInt(urlParams.get('page')) || parseInt(localStorage.getItem('cine_current_page')) || 1;
     let fullListPage = 1;
     let fullListCurrentMovies = [];
 
@@ -1160,7 +1153,7 @@
       return String(c[index].v).trim();
     }
 
-    /* স্মার্ট অটোমেটিক ডাটা ফিলিং */
+    /* স্মার্ট অটোমেটিক ডাটা ফিলিং (ভুল অ্যাক্টর প্রতিরোধক) */
     async function autoFillMovieData(movie) {
       const rawTitle = movie.title;
       let extractedYear = "";
@@ -1176,18 +1169,18 @@
         let data = await res.json();
         
         if (data.results && data.results.length > 0) {
-          const valid = data.results.find(r => r.original_language === 'bn' || r.original_language === 'hi' || r.original_language === 'en');
-          tmdb = valid || data.results[0];
+          // সাল চেক করা (২০২৬ এর মুভিতে ২০১২ এর ইংলিশ রেজাল্ট ঢুকবে না)
+          const valid = data.results.find(r => {
+            const rYear = (r.release_date || r.first_air_date || '').split('-')[0];
+            if (extractedYear && Math.abs(parseInt(rYear) - parseInt(extractedYear)) > 3) return false;
+            return true;
+          });
+          tmdb = valid || null;
         }
 
-        if (!tmdb) {
-          res = await fetch(`https://api.themoviedb.org/3/search/tv?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(cleanTitle)}`);
-          data = await res.json();
-          if (data.results && data.results.length > 0) tmdb = data.results[0];
-        }
-
-        if (tmdb && (rawTitle.toLowerCase().includes('mandir') || movie.category.toLowerCase().includes('bangla')) && tmdb.original_language === 'sr') {
-          tmdb = null;
+        // The Paradise বা কোনো অমিল হলে ভুল রেজাল্ট বাদ
+        if (tmdb && (cleanTitle.toLowerCase().includes('paradise') || movie.category.toLowerCase().includes('bangla')) && tmdb.original_language === 'en' && extractedYear == '2026') {
+          tmdb = null; // ব্রিটিশ সিরিজ বাদ দেওয়া হলো
         }
 
         if (tmdb) {
@@ -1202,7 +1195,7 @@
           const ratingScore = (tmdb.vote_average || 8.0).toFixed(1);
           movie.rating = `⭐ ${ratingScore}`;
 
-          const genres = (tmdb.genre_ids || []).map(id => GENRE_MAP[id]).filter(Boolean).slice(0, 3).join(', ') || 'Mystery, Horror';
+          const genres = (tmdb.genre_ids || []).map(id => GENRE_MAP[id]).filter(Boolean).slice(0, 3).join(', ') || 'Drama, Mystery';
           const lang = LANG_MAP[tmdb.original_language] || 'Bengali (বাংলা)';
           const rawReleaseDate = tmdb.release_date || tmdb.first_air_date;
           const fullReleaseDate = formatFullReleaseDate(rawReleaseDate || extractedYear);
@@ -1223,7 +1216,7 @@
             <div style="margin-top:6px; color:#94a3b8; font-size:11px;">📝 ${tmdb.overview ? tmdb.overview.slice(0, 140) + '...' : 'HD Quality Full Movie with Fast Online Streaming.'}</div>
           `;
 
-          if (movie.links.length === 0 && !movie.isRequested) {
+          if (movie.links.length === 0) {
             movie.links = [
               { label: "Download [480p • 450 MB]", link: `https://dl.vidsrc.vip/movie/${tmdb.id}` },
               { label: "Download [720p • 950 MB]", link: `https://dl.vidsrc.vip/movie/${tmdb.id}` },
@@ -1232,6 +1225,7 @@
           }
 
         } else {
+          // নিখুঁত দেশি ফলব্যাক
           const fallbackDate = extractedYear ? `06 November ${extractedYear}` : '6 November 2026';
           movie.details = `
             <div>⭐ <b>IMDb:</b> 8.0/10</div>
@@ -1240,6 +1234,12 @@
             <div>📺 <b>Quality:</b> 1080p WEB-DL</div>
             <div>📅 <b>Released:</b> ${fallbackDate}</div>
           `;
+          if (movie.links.length === 0) {
+            movie.links = [
+              { label: "Download [720p • HD]", link: `https://www.google.com/search?q=${encodeURIComponent(cleanTitle)}+movie+download` },
+              { label: "Download [1080p • Full HD]", link: `https://www.google.com/search?q=${encodeURIComponent(cleanTitle)}+full+movie` }
+            ];
+          }
         }
       } catch (err) {}
       return movie;
@@ -1328,8 +1328,7 @@
               trending: isTrending,
               isSeries: isSeries,
               castNames: castNames,
-              trailerUrl: trailerLink,
-              isRequested: false
+              trailerUrl: trailerLink
             });
           }
 
@@ -1339,10 +1338,7 @@
             await autoFillMovieData(m);
           }
 
-          // ইউজারের লোকাল রিকোয়েস্ট করা মুভিগুলো ওপরে যোগ করা
-          const userRequests = JSON.parse(localStorage.getItem('user_requested_movies') || '[]');
-          allMovies = [...userRequests, ...rawMovies];
-
+          allMovies = rawMovies;
           pinnedMovies = allMovies.filter(m => m.pinned);
           banglaMovies = allMovies.filter(m => m.category.toLowerCase().includes('bangla') || m.details.toLowerCase().includes('bengali'));
 
@@ -1428,6 +1424,11 @@
 
       renderPagination(allMovies.length, homePage, 'homePaginationBar', (p) => {
         homePage = p;
+        // পেজ নম্বর লোকাল মেমোরি ও URL-এ সেভ রাখা যেন রিলোড দিলে পেজ না হারায়
+        localStorage.setItem('cine_current_page', p);
+        const newUrl = window.location.pathname + '?page=' + p;
+        window.history.replaceState({ path: newUrl }, '', newUrl);
+
         renderRecentMovies();
         window.scrollTo({ top: 0, behavior: 'smooth' });
       });
@@ -1482,6 +1483,8 @@
       document.getElementById('fullListViewBlock').style.display = 'none';
       document.getElementById('homeSectionsContainer').style.display = 'block';
       homePage = 1;
+      localStorage.setItem('cine_current_page', 1);
+      window.history.replaceState({}, '', window.location.pathname);
       renderRecentMovies();
       document.getElementById('searchInput').value = '';
       selectCategoryPill('All');
@@ -1507,7 +1510,7 @@
       prev.onclick = () => onPageChange(currentPage - 1);
       bar.appendChild(prev);
 
-      for (let i = 1; i <= Math.min(totalPages, 5); i++) {
+      for (let i = 1; i <= Math.min(totalPages, 6); i++) {
         const btn = document.createElement('button');
         btn.className = `page-btn ${i === currentPage ? 'active' : ''}`;
         btn.innerText = i;
@@ -1616,32 +1619,62 @@
       });
     }
 
-    /* স্মার্ট সার্চ: ট্রেন্ডিং/নতুনগুলো ওপরে থাকবে, পুরোনো/অপরিচিতগুলো নিচে */
+    /* গ্লোবাল সার্চ: নাম লিখলে TMDB থেকে ওই নামের সব পার্ট ও মুভি দেখাবে */
+    let searchDebounce;
     function handleSearch() {
-      const q = document.getElementById('searchInput').value.toLowerCase().trim();
+      clearTimeout(searchDebounce);
+      const q = document.getElementById('searchInput').value.trim();
       if (!q) {
         goHome();
         return;
       }
 
-      document.getElementById('homeSectionsContainer').style.display = 'none';
-      document.getElementById('trendingSection').style.display = 'none';
-      document.getElementById('fullListViewBlock').style.display = 'block';
-      document.getElementById('fullViewTitle').innerText = `Search results for: "${q}"`;
+      searchDebounce = setTimeout(async () => {
+        document.getElementById('homeSectionsContainer').style.display = 'none';
+        document.getElementById('trendingSection').style.display = 'none';
+        document.getElementById('fullListViewBlock').style.display = 'block';
+        document.getElementById('fullViewTitle').innerText = `"${q}" নামের সকল সিনেমা:`;
 
-      fullListPage = 1;
-      
-      let matched = allMovies.filter(m => m.title.toLowerCase().includes(q));
+        fullListPage = 1;
 
-      // পপুলারিটি ও ট্রেন্ডিং অনুযায়ী সাজানো (ট্রেন্ডিং উপরে, পুরোনো নিচে)
-      matched.sort((a, b) => {
-        if (a.trending && !b.trending) return -1;
-        if (!a.trending && b.trending) return 1;
-        return (b.id - a.id);
-      });
+        try {
+          // TMDB থেকে ওই নামের সব রেজাল্ট নিয়ে আসা
+          const res = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(q)}`);
+          const data = await res.json();
+          
+          let results = (data.results || []).filter(item => item.poster_path).map((item, idx) => {
+            const isTv = item.media_type === 'tv' || !!item.first_air_date;
+            const releaseDate = item.release_date || item.first_air_date || '';
+            const year = releaseDate ? releaseDate.split('-')[0] : '';
 
-      fullListCurrentMovies = matched;
-      renderFullListPage();
+            return {
+              id: item.id,
+              tmdbId: item.id,
+              title: item.title || item.name,
+              category: isTv ? 'Series' : 'Movie',
+              rating: `⭐ ${(item.vote_average || 7.5).toFixed(1)}`,
+              image: `https://image.tmdb.org/t/p/w500${item.poster_path}`,
+              backdrop: `https://image.tmdb.org/t/p/original${item.backdrop_path || item.poster_path}`,
+              badge: isTv ? 'SERIES' : `${year} HD`,
+              details: `<div>⭐ <b>IMDb:</b> ${(item.vote_average || 7.5).toFixed(1)}/10</div><div>📅 <b>Released:</b> ${releaseDate || 'N/A'}</div><div style="margin-top:6px; color:#94a3b8; font-size:11px;">📝 ${item.overview || 'HD Quality Movie'}</div>`,
+              links: [
+                { label: "Download [720p • HD]", link: `https://dl.vidsrc.vip/movie/${item.id}` },
+                { label: "Download [1080p • Full HD]", link: `https://dl.vidsrc.vip/movie/${item.id}` }
+              ],
+              isSeries: isTv,
+              pinned: false,
+              trending: false
+            };
+          });
+
+          fullListCurrentMovies = results;
+          renderFullListPage();
+
+        } catch (err) {
+          fullListCurrentMovies = allMovies.filter(m => m.title.toLowerCase().includes(q.toLowerCase()));
+          renderFullListPage();
+        }
+      }, 400);
     }
 
     function toggleMenu(event) {
@@ -1656,7 +1689,6 @@
     });
 
     function checkDirectMovieLink() {
-      const urlParams = new URLSearchParams(window.location.search);
       const movieId = urlParams.get('id') || localStorage.getItem('last_opened_id');
       if (movieId) {
         const found = allMovies.find(m => m.id == movieId);
@@ -1683,6 +1715,7 @@
       castList.innerHTML = '';
       castSection.style.display = 'none';
 
+      // শিটের কলাম N এর অ্যাক্টরদের অগ্রাধিকার
       if (movie.castNames && movie.castNames.trim()) {
         const names = movie.castNames.split(/,|\n/).map(n => n.trim()).filter(Boolean);
         names.forEach(actor => {
@@ -1698,6 +1731,7 @@
         return;
       }
 
+      // যদি মুভিতে ভুল অ্যাক্টর আসার শঙ্কা থাকে
       if (!movie.tmdbId) return;
 
       try {
@@ -1706,10 +1740,6 @@
         const data = await res.json();
         
         let cast = (data.cast || []).filter(c => c.profile_path).slice(0, 8);
-        if (cast.length > 0 && cast[0].name.includes('Strahinja')) {
-          cast = [];
-        }
-
         if (cast.length > 0) {
           cast.forEach(actor => {
             const chip = document.createElement('div');
@@ -1726,12 +1756,11 @@
     }
 
     function openCineDetail(id) {
-      currentMovie = allMovies.find(m => m.id === id);
+      // যদি লোকাল লিস্টে না থাকে (যেমন গ্লোবাল সার্চের ফলাফল)
+      currentMovie = allMovies.find(m => m.id === id) || fullListCurrentMovies.find(m => m.id === id);
       if (!currentMovie) return;
 
       localStorage.setItem('last_opened_id', id);
-      const newUrl = window.location.pathname + '?id=' + id;
-      window.history.replaceState({ path: newUrl }, '', newUrl);
 
       adStep = 1;
       clearInterval(timerInterval);
@@ -1777,23 +1806,18 @@
     function closeCineDetail() {
       clearInterval(timerInterval);
       localStorage.removeItem('last_opened_id');
-      window.history.replaceState({}, '', window.location.pathname);
       document.getElementById('cineVideoPlayer').src = '';
       document.getElementById('cineDetailView').style.display = 'none';
       if (tg?.BackButton) tg.BackButton.hide();
     }
 
-    /* ১ নম্বর ফিচার: সরাসরি ফুল মুভি অনলাইনে দেখার প্লেয়ার */
+    /* ৪টি নতুন ফাস্ট সার্ভার সহ অনলাইন প্লেয়ার */
     function playOnlineMovie() {
       if (!currentMovie) return;
       const playerWrap = document.getElementById('cinePlayerWrap');
-      const player = document.getElementById('cineVideoPlayer');
       const serverBar = document.getElementById('serverSelectionBar');
 
-      const tmdbId = currentMovie.tmdbId || currentMovie.id;
-      const type = currentMovie.isSeries ? 'tv' : 'movie';
-      
-      player.src = `https://vidsrc.to/embed/${type}/${tmdbId}`;
+      switchOnlineServer(1);
       playerWrap.style.display = 'block';
       serverBar.style.display = 'flex';
       playerWrap.scrollIntoView({ behavior: 'smooth' });
@@ -1809,10 +1833,15 @@
         b.classList.toggle('active', i === (num - 1));
       });
 
+      // ৪টি সেরা সার্ভার লিংক
       if (num === 1) {
-        player.src = `https://vidsrc.to/embed/${type}/${tmdbId}`;
-      } else {
+        player.src = `https://vidsrc.xyz/embed/${type}/${tmdbId}`;
+      } else if (num === 2) {
+        player.src = `https://autoembed.co/${type}/tmdb/${tmdbId}`;
+      } else if (num === 3) {
         player.src = `https://multiembed.mov/?video_id=${tmdbId}&tmdb=1`;
+      } else {
+        player.src = `https://vidsrc.cc/v2/embed/${type}/${tmdbId}`;
       }
     }
 
@@ -1894,20 +1923,6 @@
     }
 
     function showMovieOrSeriesLinks() {
-      // যদি ইউজার রিকোয়েস্ট করা মুভি হয় যার লিংক এডমিন এখনো শিটে দেয়নি
-      if (currentMovie.isRequested) {
-        const container = document.getElementById('qualityContainer');
-        container.innerHTML = `
-          <div style="background:#0f172a; padding:15px; border-radius:8px; border:1px dashed #f59e0b; text-align:center;">
-            <p style="color:#f59e0b; font-weight:bold; font-size:13px;">⏳ এডমিন শীঘ্রই এই মুভির ডাউনলোড লিংক যুক্ত করবে!</p>
-            <p style="color:#cbd5e1; font-size:11.5px; margin-top:5px;">আপনি উপরে 'Watch Full Movie' বাটনে ক্লিক করে এখনই সম্পূর্ণ সিনেমাটি অনলাইনে উপভোগ করুন।</p>
-          </div>
-        `;
-        document.getElementById('seriesContainer').style.display = 'none';
-        container.style.display = 'flex';
-        return;
-      }
-
       if (currentMovie.isSeries) {
         const container = document.getElementById('seriesContainer');
         const grid = document.getElementById('episodesGrid');
@@ -1953,7 +1968,7 @@
       }
     }
 
-    /* মুভি রিকোয়েস্ট হ্যান্ডলার + অ্যাডমিনকে অটো ইমেইল পাঠানো */
+    /* রিকোয়েস্ট শুধু ইমেইলে যাবে, সাইটে যুক্ত হবে না */
     function openRequestModal() {
       document.getElementById('reqModal').style.display = 'flex';
     }
@@ -1970,39 +1985,7 @@
         return;
       }
 
-      // ১. TMDB থেকে স্বয়ংক্রিয়ভাবে ডাটা এনে মুভি অবজেক্ট তৈরি
-      let newReqMovie = {
-        id: Date.now(),
-        title: movieName,
-        category: 'All',
-        rating: '⭐ 8.0',
-        image: '',
-        backdrop: '',
-        ad1: ENTRY_AD_URL,
-        ad2: DEFAULT_AD2,
-        badge: 'NEW REQ',
-        details: '',
-        links: [],
-        pinned: true,
-        trending: true,
-        isSeries: false,
-        castNames: '',
-        trailerUrl: '',
-        isRequested: true // রিকোয়েস্টেড ফ্ল্যাগ
-      };
-
-      await autoFillMovieData(newReqMovie);
-
-      // লোকাল স্টোরেজে মুভি সংরক্ষণ (যাতে সঙ্গে সঙ্গে সাইটে দেখা যায়)
-      let savedReqs = JSON.parse(localStorage.getItem('user_requested_movies') || '[]');
-      savedReqs.unshift(newReqMovie);
-      localStorage.setItem('user_requested_movies', JSON.stringify(savedReqs));
-
-      allMovies.unshift(newReqMovie);
-      renderRecentMovies();
-      renderTrendingSlider(allMovies);
-
-      // ২. অ্যাডমিনের ইমেইলে নোটিফিকেশন পাঠানো (blogor6@gmail.com)
+      // অ্যাডমিনের ইমেইলে নোটিফিকেশন পাঠানো
       try {
         fetch(`https://formsubmit.co/ajax/${ADMIN_EMAIL}`, {
           method: "POST",
@@ -2011,16 +1994,15 @@
             'Accept': 'application/json'
           },
           body: JSON.stringify({
-            Subject: `🚨 নতুন মুভি রিকোয়েস্ট: ${movieName}`,
-            Message: `একজন ইউজার একটি মুভি রিকোয়েস্ট করেছে: "${movieName}"। সিনেমাটি সাইটে যোগ হয়েছে এবং অনলাইনে দেখা যাচ্ছে। আজকে শিটে গিয়ে এর ডাউনলোড লিংক এড করতে হবে।`
+            Subject: `🚨 মুভি রিকোয়েস্ট: ${movieName}`,
+            Message: `ইউজার "${movieName}" মুভিটি চেয়ে রিকোয়েস্ট করেছে। আপনার ভালো লাগলে গুগল শিটে এই নামটি যোগ করবেন।`
           })
         });
       } catch (e) {}
 
       closeRequestModal();
       input.value = '';
-      alert(`🎉 "${movieName}" মুভিটি তৎক্ষণাৎ যুক্ত করা হয়েছে! আপনি এখনই অনলাইনে দেখতে পারবেন।`);
-      openCineDetail(newReqMovie.id);
+      alert(`✅ ধন্যবাদ! আপনার "${movieName}" মুভির রিকোয়েস্ট এডমিনের কাছে সফলভাবে পৌঁছেছে। শীঘ্রই এটি সাইটে যুক্ত করা হবে।`);
     }
 
     fetchMoviesFromSheet();
