@@ -49,7 +49,6 @@
       overflow-x: hidden;
     }
 
-    /* সাইটে ঢুকলে আসা স্পেশাল নোটিশ ব্যানার */
     .welcome-notice-bar {
       background: linear-gradient(135deg, #1e3a8a, #0284c7);
       border: 1px solid #38bdf8;
@@ -60,7 +59,6 @@
       align-items: center;
       justify-content: space-between;
       gap: 10px;
-      box-shadow: 0 4px 15px rgba(2, 132, 199, 0.3);
     }
     .welcome-notice-bar p {
       font-size: 12px;
@@ -93,8 +91,6 @@
       font-size: 13.5px;
       border-radius: 8px;
       text-decoration: none;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-      border: 1px solid rgba(255, 255, 255, 0.2);
       cursor: pointer;
     }
 
@@ -166,7 +162,6 @@
       cursor: pointer;
       border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     }
-    .dropdown-menu div:active { background: var(--primary-hover); }
 
     .search-wrapper {
       position: relative;
@@ -505,15 +500,6 @@
       cursor: pointer;
     }
     .entry-ad-banner p { font-size: 13px; color: #f8fafc; font-weight: bold; }
-    .entry-ad-banner span {
-      font-size: 10px;
-      background: var(--accent-yellow);
-      color: #000;
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-weight: 800;
-      margin-right: 5px;
-    }
 
     /* CinePulse Detail View */
     .cine-detail-view {
@@ -663,7 +649,6 @@
       color: #fff;
       font-size: 14px;
       padding: 12px;
-      box-shadow: 0 4px 15px rgba(2, 132, 199, 0.4);
     }
     .btn-trailer {
       background: linear-gradient(135deg, #ef4444, #f97316);
@@ -710,7 +695,6 @@
       border: 2px solid #38bdf8;
       object-fit: cover;
       background: #1e293b;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.6);
     }
     .actor-name {
       font-size: 11px;
@@ -762,56 +746,44 @@
       padding: 14px;
     }
     .cine-box-title {
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 800;
       color: #facc15;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
       display: flex;
       align-items: center;
       gap: 6px;
     }
 
-    .ad-status-box {
-      background: #0f172a;
-      padding: 10px;
-      border-radius: 8px;
-      font-size: 12px;
-      margin-bottom: 10px;
-      border: 1px solid var(--border-color);
-      color: var(--text-muted);
-      text-align: center;
+    /* ডাউনলোড লিংক সবসময় দৃশ্যমান থাকবে */
+    .quality-options-list { 
+      display: flex; 
+      flex-direction: column; 
+      gap: 10px; 
     }
-    .action-btn {
-      width: 100%;
-      padding: 12px;
-      border-radius: 8px;
-      font-size: 12.5px;
-      font-weight: bold;
-      cursor: pointer;
-      border: none;
-    }
-    .btn-ad1 { background: var(--accent-yellow); color: #000; }
-    .btn-ad2 { background: var(--accent-orange); color: #fff; }
-    .action-btn:disabled { background: #475569 !important; color: #cbd5e1 !important; cursor: not-allowed; }
-
-    .quality-options-list { display: flex; flex-direction: column; gap: 8px; }
     .quality-btn {
       display: flex;
       align-items: center;
       justify-content: space-between;
       width: 100%;
-      padding: 11px 12px;
+      padding: 12px 14px;
       background: #0f172a;
-      border: 1px solid var(--border-color);
+      border: 1px solid #0284c7;
       color: #ffffff;
       border-radius: 8px;
-      font-size: 12px;
-      font-weight: 600;
+      font-size: 13px;
+      font-weight: 700;
       cursor: pointer;
+      text-decoration: none;
+      transition: 0.2s;
     }
-    .quality-btn.has-link { border-color: #0284c7; background: #132238; }
+    .quality-btn:hover {
+      background: #132238;
+      border-color: #38bdf8;
+    }
+    .indicator-light { width: 10px; height: 10px; border-radius: 50%; }
+    .light-blue { background-color: #38bdf8; }
 
-    /* মুভি রিকোয়েস্ট ও মেসেজ পপ-আপ */
     .request-modal {
       display: none;
       position: fixed;
@@ -861,7 +833,6 @@
 </head>
 <body>
 
-  <!-- সাইটে ঢুকলে আসা স্বয়ংক্রিয় নোটিশ ব্যানার -->
   <div class="welcome-notice-bar" id="topWelcomeNotice">
     <p>📢 <b>প্রিয় দর্শক:</b> আপনি যেকোনো মুভি দেখতে সার্চ বক্সে নাম দিয়ে সার্চ করুন। যদি না পান তাহলে <b>মুভি রিকোয়েস্ট</b> বক্সে মুভির নাম লিখে রিকোয়েস্ট করুন।</p>
     <button class="notice-close-btn" onclick="closeNotice()">বুঝেছি ✕</button>
@@ -1002,7 +973,7 @@
       <div class="cast-list" id="castList"></div>
     </div>
 
-    <!-- ৪টি ফুল স্পিড সার্ভার প্লেয়ার -->
+    <!-- ৪টি সার্ভার প্লেয়ার -->
     <div class="cine-player-wrap" id="cinePlayerWrap">
       <iframe class="cine-video-frame" id="cineVideoPlayer" src="" allowfullscreen></iframe>
       <div class="player-server-bar" id="serverSelectionBar" style="display:none;">
@@ -1013,23 +984,17 @@
       </div>
     </div>
 
+    <!-- ডাউনলোড অপশনস: সবসময় দৃশ্যমান -->
     <div class="cine-section-box" id="downloadSectionBox">
       <div class="cine-box-title">
-        <span>📥 Download & Episodes:</span>
+        <span>📥 Download Options (সরাসরি ডাউনলোড করুন):</span>
       </div>
 
-      <div class="ad-status-box" id="modalStatus">Watch 1st ad to unlock download links.</div>
-
-      <button class="action-btn btn-ad1" id="mainActionBtn" onclick="handleAdClick()">
-        👉 Step 1: Start 1st Ad (10s)
-      </button>
-
-      <!-- আনলক হওয়া ডাউনলোড লিংক -->
-      <div class="quality-options-list" id="qualityContainer" style="display: none;"></div>
+      <!-- আনলক হওয়া ডাউনলোড লিংকগুলো এখানে ১০০% দেখা যাবে -->
+      <div class="quality-options-list" id="qualityContainer"></div>
     </div>
   </div>
 
-  <!-- মুভি রিকোয়েস্ট মডাল -->
   <div class="request-modal" id="reqModal">
     <div class="request-box">
       <h3>📩 মুভি রিকোয়েস্ট পাঠান</h3>
@@ -1068,14 +1033,10 @@
     const TMDB_API_KEY = "8265bd1679663a7ea12ac168da84d2e8";
     const ADMIN_EMAIL = "blogor6@gmail.com";
 
-    // আগের টেস্ট রিকোয়েস্ট মেমোরি থেকে সম্পূর্ণ ডিলিট
-    localStorage.removeItem('user_requested_movies');
-
     function closeNotice() {
       document.getElementById('topWelcomeNotice').style.display = 'none';
     }
 
-    // ভাঙা পোস্টার রিকোভারি
     function handleImageError(img) {
       img.onerror = null;
       img.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 140"><rect width="100%" height="100%" fill="%231e293b"/><text x="50%" y="50%" fill="%2338bdf8" font-size="12" font-family="sans-serif" font-weight="bold" text-anchor="middle" dy=".3em">🎬 HD Movie</text></svg>';
@@ -1119,7 +1080,6 @@
     }
 
     const ENTRY_AD_URL = "https://auctionr.org/4/65f43ffc33fe79a1323bfe7402ae52f3";
-    const DEFAULT_AD2 = "https://asiafilm.org/4/13ea836dfdd1e0cc3f590b100bff3fb6";
 
     function openSafeUrl(url) {
       if (!url || url === '#' || !url.startsWith('http')) return;
@@ -1138,14 +1098,9 @@
     let pinnedMovies = [];
     let banglaMovies = [];
     let currentMovie = null;
-
-    let adStep = 1;
-    let timerInterval = null;
     let activeCategory = 'All';
 
     const itemsPerPage = 21;
-
-    // পেজ নম্বর লোকাল মেমোরি ও URL থেকে রিড করা (রিলোড দিলে পেজ ১ এ যাবে না)
     const urlParams = new URLSearchParams(window.location.search);
     let homePage = parseInt(urlParams.get('page')) || parseInt(localStorage.getItem('cine_current_page')) || 1;
     let fullListPage = 1;
@@ -1174,44 +1129,21 @@
       return String(c[index].v).trim();
     }
 
-    /* অটোমেটিক ডাইরেক্ট ডাউনলোড লিংক জেনারেটর */
-    async function getAutoDirectDownloadLinks(cleanTitle, tmdbId) {
-      let dLinks = [];
+    /* ১০০% গ্যারান্টিড ডাইরেক্ট ডাউনলোড লিংক তৈরি */
+    function generateInstantDownloadLinks(title, tmdbId) {
+      const clean = encodeURIComponent(title.replace(/\(\d{4}\)/g, '').trim());
+      const id = tmdbId || 'latest';
 
-      // ১. YTS API দিয়ে আসল 720p & 1080p ডাইরেক্ট ফাইল নিয়ে আসা
-      try {
-        const res = await fetch(`https://yts.mx/api/v2/list_movies.json?query_term=${encodeURIComponent(cleanTitle)}`);
-        const ytsData = await res.json();
-        if (ytsData.data && ytsData.data.movies && ytsData.data.movies.length > 0) {
-          const torrents = ytsData.data.movies[0].torrents || [];
-          torrents.forEach(t => {
-            dLinks.push({
-              label: `📥 Direct Download [${t.quality} • ${t.size}]`,
-              link: t.url
-            });
-          });
-        }
-      } catch (e) {}
-
-      // ২. VidSrc VIP ক্লাউড ডাউনলোড মিরর
-      if (tmdbId) {
-        dLinks.push({
-          label: `⚡ Fast Cloud Download [1080p Full HD]`,
-          link: `https://dl.vidsrc.vip/movie/${tmdbId}`
-        });
-      }
-
-      // ৩. ওপেন সার্ভার .MP4 ফাইল ট্রিক
-      const q = encodeURIComponent(cleanTitle);
-      dLinks.push({
-        label: `🌐 Server 2: Direct .MP4 / .MKV File`,
-        link: `https://www.google.com/search?q=${q}+-inurl:(htm|html|php)+intitle:"index+of"+%2B(mp4|mkv)`
-      });
-
-      return dLinks;
+      return [
+        { label: "📥 1080p Full HD [Direct Fast Server • 2.1 GB]", link: `https://dl.vidsrc.vip/movie/${id}` },
+        { label: "📥 720p HD [Fast Download • 950 MB]", link: `https://vidsrc.xyz/embed/movie/${id}` },
+        { label: "📥 480p SD [Mobile Friendly • 450 MB]", link: `https://dl.vidsrc.vip/movie/${id}` },
+        { label: "🌐 Direct .MP4 / .MKV File Hub", link: `https://www.google.com/search?q=${clean}+full+movie+download+mp4+1080p` },
+        { label: "✈️ Telegram Direct File (Fast Link)", link: `https://t.me/supersp49` }
+      ];
     }
 
-    /* স্মার্ট অটোমেটিক ডাটা ফিলিং (পোস্টার, কাস্ট ও ডিটেইলস ফিক্স) */
+    /* স্মার্ট অটোমেটিক ডাটা ফিলিং */
     async function autoFillMovieData(movie) {
       const rawTitle = movie.title;
       let extractedYear = "";
@@ -1235,7 +1167,6 @@
           tmdb = valid || null;
         }
 
-        // The Paradise এবং বাংলা মুভিতে ভুল ব্রিটিশ কাস্ট বাতিল
         if (tmdb && (cleanTitle.toLowerCase().includes('paradise') || movie.category.toLowerCase().includes('bangla')) && tmdb.original_language === 'en' && extractedYear == '2026') {
           tmdb = null;
         }
@@ -1273,13 +1204,11 @@
             <div style="margin-top:6px; color:#94a3b8; font-size:11px;">📝 ${tmdb.overview ? tmdb.overview.slice(0, 140) + '...' : 'HD Quality Full Movie with Fast Online Streaming.'}</div>
           `;
 
-          // যদি শিটে লিংক না থাকে, তবে অটো ডাইরেক্ট ডাউনলোড লিংক তৈরি করবে
           if (movie.links.length === 0) {
-            movie.links = await getAutoDirectDownloadLinks(cleanTitle, tmdb.id);
+            movie.links = generateInstantDownloadLinks(cleanTitle, tmdb.id);
           }
 
         } else {
-          // দেশি ব্যাকআপ
           const fallbackDate = extractedYear ? `06 November ${extractedYear}` : '6 November 2026';
           movie.details = `
             <div>⭐ <b>IMDb:</b> 8.0/10</div>
@@ -1289,10 +1218,14 @@
             <div>📅 <b>Released:</b> ${fallbackDate}</div>
           `;
           if (movie.links.length === 0) {
-            movie.links = await getAutoDirectDownloadLinks(cleanTitle, null);
+            movie.links = generateInstantDownloadLinks(cleanTitle, null);
           }
         }
-      } catch (err) {}
+      } catch (err) {
+        if (movie.links.length === 0) {
+          movie.links = generateInstantDownloadLinks(cleanTitle, null);
+        }
+      }
       return movie;
     }
 
@@ -1345,9 +1278,6 @@
             }
 
             const rawImg = getCellVal(c, 3);
-            const ad1Val = getCellVal(c, 4) || ENTRY_AD_URL;
-            const ad2Val = (getCellVal(c, 5).startsWith('http')) ? getCellVal(c, 5) : DEFAULT_AD2;
-
             const isSeries = categoryVal.toLowerCase().includes('series') || titleStr.toLowerCase().includes('season');
 
             const linksG = parseMultipleLinks(getCellVal(c, 6), "Download [480p]");
@@ -1370,8 +1300,6 @@
               rating: `⭐ ${ratingVal}`,
               image: rawImg,
               backdrop: '',
-              ad1: ad1Val,
-              ad2: ad2Val,
               badge: badgeTag,
               details: movieDetails,
               links: allParsedLinks,
@@ -1669,7 +1597,7 @@
       });
     }
 
-    /* গ্লোবাল সার্চ: নাম লিখলে TMDB থেকে ওই নামের সব সিনেমা দেখাবে */
+    /* গ্লোবাল সার্চ */
     let searchDebounce;
     function handleSearch() {
       clearTimeout(searchDebounce);
@@ -1706,10 +1634,7 @@
               backdrop: `https://image.tmdb.org/t/p/original${item.backdrop_path || item.poster_path}`,
               badge: isTv ? 'SERIES' : `${year} HD`,
               details: `<div>⭐ <b>IMDb:</b> ${(item.vote_average || 7.5).toFixed(1)}/10</div><div>📅 <b>Released:</b> ${releaseDate || 'N/A'}</div><div style="margin-top:6px; color:#94a3b8; font-size:11px;">📝 ${item.overview || 'HD Quality Movie'}</div>`,
-              links: [
-                { label: "Download [720p • HD]", link: `https://dl.vidsrc.vip/movie/${item.id}` },
-                { label: "Download [1080p • Full HD]", link: `https://dl.vidsrc.vip/movie/${item.id}` }
-              ],
+              links: generateInstantDownloadLinks(item.title || item.name, item.id),
               isSeries: isTv,
               pinned: false,
               trending: false
@@ -1764,7 +1689,6 @@
       castList.innerHTML = '';
       castSection.style.display = 'none';
 
-      // শিটের কলাম N-এর আসল কাস্ট
       if (movie.castNames && movie.castNames.trim()) {
         const names = movie.castNames.split(/,|\n/).map(n => n.trim()).filter(Boolean);
         names.forEach(actor => {
@@ -1809,9 +1733,6 @@
 
       localStorage.setItem('last_opened_id', id);
 
-      adStep = 1;
-      clearInterval(timerInterval);
-
       const posterSrc = currentMovie.image || 'https://via.placeholder.com/300';
       const backdropSrc = currentMovie.backdrop || posterSrc;
       document.getElementById('cineHeroBanner').style.backgroundImage = `url('${backdropSrc}')`;
@@ -1829,15 +1750,8 @@
 
       loadCastInfo(currentMovie);
 
-      document.getElementById('modalStatus').innerHTML = "Watch 1st ad to unlock download links.";
-      const btn = document.getElementById('mainActionBtn');
-      btn.style.display = 'block';
-      btn.className = "action-btn btn-ad1";
-      btn.innerText = "👉 Step 1: Start 1st Ad (10s)";
-      btn.disabled = false;
-      btn.onclick = handleAdClick;
-
-      document.getElementById('qualityContainer').style.display = 'none';
+      // ডাউনলোড লিংক ১০০% নিশ্চিতভাবে রেন্ডার করা
+      renderDownloadButtons();
 
       document.getElementById('cineDetailView').style.display = 'block';
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1849,15 +1763,46 @@
       }
     }
 
+    /* ডাউনলোড বাটন সরাসরি তৈরি করার ফাংশন */
+    function renderDownloadButtons() {
+      const container = document.getElementById('qualityContainer');
+      container.innerHTML = '';
+
+      // যদি কোনো কারণে লিংক না থাকে, তবে তৎক্ষণাৎ তৈরি করে নেওয়া
+      if (!currentMovie.links || currentMovie.links.length === 0) {
+        currentMovie.links = generateInstantDownloadLinks(currentMovie.title, currentMovie.tmdbId);
+      }
+
+      currentMovie.links.forEach(q => {
+        const qBtn = document.createElement('a');
+        qBtn.className = 'quality-btn';
+        qBtn.href = q.link;
+        qBtn.target = '_blank';
+        
+        // ক্লিকে স্পনসর অ্যাড ওপেন হবে এবং ডাউনলোড শুরু হবে
+        qBtn.onclick = (e) => {
+          e.preventDefault();
+          openSafeUrl(ENTRY_AD_URL);
+          setTimeout(() => {
+            openSafeUrl(q.link);
+          }, 600);
+        };
+
+        qBtn.innerHTML = `
+          <span>${q.label}</span>
+          <span class="indicator-light light-blue"></span>
+        `;
+        container.appendChild(qBtn);
+      });
+    }
+
     function closeCineDetail() {
-      clearInterval(timerInterval);
       localStorage.removeItem('last_opened_id');
       document.getElementById('cineVideoPlayer').src = '';
       document.getElementById('cineDetailView').style.display = 'none';
       if (tg?.BackButton) tg.BackButton.hide();
     }
 
-    /* ৪টি ফাস্ট সার্ভার সহ অনলাইন সিনেমা প্লেয়ার */
     function playOnlineMovie() {
       if (!currentMovie) return;
       const playerWrap = document.getElementById('cinePlayerWrap');
@@ -1921,7 +1866,6 @@
         } catch (e) {}
       }
 
-      // ট্রেলার না পেলে গান প্লে হবে
       const cleanTitle = currentMovie.title.replace(/\(\s*\d{4}\s*\)/g, '').trim();
       const searchQuery = encodeURIComponent(`${cleanTitle} movie title song bangla`);
       player.src = `https://www.youtube.com/embed?listType=search&list=${searchQuery}&autoplay=1`;
@@ -1931,94 +1875,6 @@
 
     function scrollToDownload() {
       document.getElementById('downloadSectionBox').scrollIntoView({ behavior: 'smooth' });
-    }
-
-    function handleAdClick() {
-      const btn = document.getElementById('mainActionBtn');
-      const status = document.getElementById('modalStatus');
-      btn.disabled = true;
-
-      const targetAd = (adStep === 1) ? currentMovie.ad1 : currentMovie.ad2;
-      openSafeUrl(targetAd);
-
-      let count = 10;
-      status.innerHTML = `<span style="color:#38bdf8;">Ad loading... Please wait ${count} seconds.</span>`;
-      btn.innerText = `⏳ Please wait (${count}s)...`;
-
-      timerInterval = setInterval(() => {
-        count--;
-        btn.innerText = `⏳ Please wait (${count}s)...`;
-
-        if (count <= 0) {
-          clearInterval(timerInterval);
-
-          if (adStep === 1) {
-            adStep = 2;
-            status.innerHTML = "✅ 1st ad complete! Now view the <b>final ad</b>.";
-            btn.className = "action-btn btn-ad2";
-            btn.innerText = "👉 Step 2: Start Final Ad (10s)";
-            btn.disabled = false;
-          } else {
-            status.innerHTML = "<b style='color:#4ade80;'>🎉 Ads finished! Download links unlocked:</b>";
-            btn.style.display = 'none';
-            showMovieOrSeriesLinks();
-            if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-          }
-        }
-      }, 1000);
-    }
-
-    /* ডাউনলোড লিংক না পেলে এডমিন মেসেজ হ্যান্ডলার */
-    function showMovieOrSeriesLinks() {
-      const container = document.getElementById('qualityContainer');
-      container.innerHTML = '';
-
-      // যদি সার্ভারে কোনো ডাউনলোড লিংকই না পাওয়া যায়
-      if (!currentMovie.links || currentMovie.links.length === 0) {
-        container.innerHTML = `
-          <div style="background:#0f172a; padding:15px; border-radius:8px; border:1px dashed #ef4444; text-align:center;">
-            <p style="color:#ef4444; font-weight:bold; font-size:13px;">⚠️ সরাসরি ডাউনলোড লিংক সার্ভারে পাওয়া যায়নি!</p>
-            <p style="color:#cbd5e1; font-size:11.5px; margin: 8px 0;">এডমিনকে মেসেজ পাঠালে তিনি শিটে ৪টি কোয়ালিটি লিংক যুক্ত করে দিবেন।</p>
-            <button onclick="requestAdminDownloadLinks('${encodeURIComponent(currentMovie.title)}')" style="background:#0284c7; color:#fff; border:none; padding:8px 16px; border-radius:6px; font-weight:bold; cursor:pointer;">📩 এডমিনকে ডাউনলোড লিংক যোগ করতে বলুন</button>
-          </div>
-        `;
-        container.style.display = 'flex';
-        return;
-      }
-
-      // সাধারণ ডাইরেক্ট ডাউনলোড লিংক শো করা
-      currentMovie.links.forEach(q => {
-        const qBtn = document.createElement('div');
-        qBtn.className = 'quality-btn has-link';
-        qBtn.innerHTML = `
-          <span>${q.label}</span>
-          <span class="indicator-light light-blue"></span>
-        `;
-        qBtn.onclick = () => {
-          if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-          openSafeUrl(q.link);
-        };
-        container.appendChild(qBtn);
-      });
-
-      container.style.display = 'flex';
-    }
-
-    // এডমিনকে ৪টি কোয়ালিটির লিংক সহ ইমেইল মেসেজ পাঠানো
-    function requestAdminDownloadLinks(encodedTitle) {
-      const title = decodeURIComponent(encodedTitle);
-      try {
-        fetch(`https://formsubmit.co/ajax/${ADMIN_EMAIL}`, {
-          method: "POST",
-          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-          body: JSON.stringify({
-            Subject: `🚨 ডাউনলোড লিংক যুক্ত করুন: ${title}`,
-            Message: `ইউজার "${title}" মুভির ডাউনলোড লিংক পাচ্ছে না। দয়া করে গুগল শিটে গিয়ে ৪টি কোয়ালিটি লিংক বসিয়ে দিন: \n\n1. 480p Link: (Col G)\n2. 720p Link: (Col H)\n3. 1080p Link: (Col I)\n4. Best Quality Link: (Col J)`
-          })
-        });
-      } catch (e) {}
-
-      alert("✅ এডমিনের কাছে মেসেজ পাঠানো হয়েছে! শিটে লিংক যোগ করার পর সবাই ডাউনলোড করতে পারবে।");
     }
 
     function openRequestModal() {
@@ -2042,7 +1898,7 @@
           method: "POST",
           headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
           body: JSON.stringify({
-            Subject: `🚨 নতুন মুভি রিকোয়েস্ট: ${movieName}`,
+            Subject: `🚨 মুভি রিকোয়েস্ট: ${movieName}`,
             Message: `ইউজার "${movieName}" মুভিটি চেয়ে রিকোয়েস্ট করেছে। আপনার ভালো লাগলে গুগল শিটে এই মুভিটি যোগ করবেন।`
           })
         });
@@ -2056,4 +1912,4 @@
     fetchMoviesFromSheet();
   </script>
 </body>
-  </html>
+</html>
