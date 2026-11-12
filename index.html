@@ -213,7 +213,7 @@
     }
     .trending-scroll-container::-webkit-scrollbar { display: none; }
     .trending-card {
-      flex: 0 0 115px;
+      flex: 0 0 110px;
       background: var(--card-bg);
       border-radius: 8px;
       overflow: hidden;
@@ -223,7 +223,7 @@
     }
     .trending-card img {
       width: 100%;
-      height: 150px;
+      height: 140px;
       object-fit: cover;
       display: block;
       background: #0f172a;
@@ -333,9 +333,10 @@
       border-radius: 3px;
       z-index: 5;
     }
+
     .movie-poster-wrap {
       width: 100%;
-      height: 145px;
+      height: 135px;
       background: #0f172a;
       position: relative;
       overflow: hidden;
@@ -392,17 +393,24 @@
       border-radius: 4px;
       border: 1px solid rgba(250, 204, 21, 0.2);
     }
+
+    /* এক লাইনে Watch & Download ফিক্স */
     .dl-trigger-btn {
       background: var(--primary-hover);
       color: #fff;
       border: none;
-      padding: 5px;
+      padding: 6px 2px;
       border-radius: 4px;
-      font-size: 10.5px;
-      font-weight: bold;
+      font-size: 9.5px;
+      font-weight: 800;
       cursor: pointer;
       text-align: center;
       width: 100%;
+      white-space: nowrap; /* লেখা কখনো দুই লাইনে ভাঙবে না */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      letter-spacing: -0.2px;
     }
 
     .full-view-header {
@@ -489,7 +497,7 @@
     }
     .entry-ad-banner p { font-size: 13px; color: #f8fafc; font-weight: bold; }
 
-    /* Movie Detail Page (Fixed overlay with independent scroll) */
+    /* Movie Detail Page (Overlay) */
     .cine-detail-view {
       position: fixed;
       top: 0;
@@ -558,10 +566,11 @@
       display: flex;
       gap: 14px;
     }
+
     .cine-poster {
-      width: 110px;
-      height: 160px;
-      border-radius: 10px;
+      width: 105px;
+      height: 148px;
+      border-radius: 8px;
       object-fit: cover;
       box-shadow: 0 8px 25px rgba(0, 0, 0, 0.9);
       border: 2px solid #334155;
@@ -706,20 +715,41 @@
       border: 1px solid #334155;
       background: #000;
     }
-    .player-server-bar {
+
+    .player-control-group {
+      margin-top: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .quality-switch-bar, .player-server-bar {
       display: flex;
       justify-content: center;
       gap: 6px;
-      margin-top: 8px;
       flex-wrap: wrap;
     }
+    .quality-pill-btn {
+      background: #0f172a;
+      color: var(--primary);
+      border: 1px solid var(--primary);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .quality-pill-btn.active {
+      background: var(--primary);
+      color: #000;
+    }
+
     .server-btn {
       background: #1e293b;
       color: #fff;
       border: 1px solid #334155;
-      padding: 5px 10px;
+      padding: 5px 9px;
       border-radius: 4px;
-      font-size: 11px;
+      font-size: 10.5px;
       font-weight: bold;
       cursor: pointer;
     }
@@ -740,6 +770,49 @@
       display: flex;
       align-items: center;
       gap: 6px;
+    }
+
+    .tg-feedback-alert {
+      background: linear-gradient(135deg, rgba(2, 132, 199, 0.25), rgba(15, 23, 42, 0.95));
+      border: 1px solid #0284c7;
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 14px;
+      text-align: center;
+      display: none;
+    }
+    .tg-feedback-alert p {
+      font-size: 12.5px;
+      color: #e2e8f0;
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+    .tg-alert-buttons {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .tg-cancel-btn {
+      flex: 1;
+      background: #334155;
+      color: #fff;
+      border: none;
+      padding: 9px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .tg-req-btn {
+      flex: 1.4;
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #fff;
+      border: none;
+      padding: 9px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
     }
 
     .ad-unlock-box {
@@ -795,7 +868,30 @@
     .indicator-light { width: 10px; height: 10px; border-radius: 50%; }
     .light-blue { background-color: #38bdf8; }
 
-    /* Modals */
+    .social-ad-toast {
+      position: fixed;
+      bottom: 75px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #ef4444, #f97316);
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 30px;
+      font-size: 12px;
+      font-weight: 800;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.8);
+      z-index: 9999;
+      display: none;
+      align-items: center;
+      gap: 8px;
+      animation: bounceToast 0.4s ease;
+      white-space: nowrap;
+    }
+    @keyframes bounceToast {
+      0% { transform: translate(-50%, 20px); opacity: 0; }
+      100% { transform: translate(-50%, 0); opacity: 1; }
+    }
+
     .request-modal {
       display: none;
       position: fixed;
@@ -869,6 +965,11 @@
   </style>
 </head>
 <body>
+
+  <div class="social-ad-toast" id="socialAdToast">
+    <span>📢 বিজ্ঞাপনে মাত্র ১ বার ক্লিক করে ব্যাক আসুন!</span>
+    <span onclick="this.parentElement.style.display='none'" style="cursor:pointer; font-weight:900;">✕</span>
+  </div>
 
   <div class="welcome-notice-bar" id="topWelcomeNotice">
     <p>📢 <b>প্রিয় দর্শক:</b> আপনি যেকোনো মুভি দেখতে সার্চ বক্সে নাম দিয়ে সার্চ করুন। যদি না পান তাহলে <b>মুভি রিকোয়েস্ট</b> বক্সে মুভির নাম লিখে রিকোয়েস্ট করুন।</p>
@@ -1005,21 +1106,29 @@
       </button>
     </div>
 
-    <!-- কাস্ট সেকশন -->
     <div class="cast-section" id="castSection">
       <div class="cast-title">🎭 Top Cast & Actors</div>
       <div class="cast-list" id="castList"></div>
     </div>
 
-    <!-- ভিডিও প্লেয়ার ও ৫টি সার্ভার -->
     <div class="cine-player-wrap" id="cinePlayerWrap">
       <iframe class="cine-video-frame" id="cineVideoPlayer" src="" allowfullscreen></iframe>
-      <div class="player-server-bar" id="serverSelectionBar" style="display:none;">
-        <button class="server-btn active" id="btnServer1" onclick="switchOnlineServer(1)">সার্ভার ১ (VidSrc)</button>
-        <button class="server-btn" id="btnServer2" onclick="switchOnlineServer(2)">সার্ভার ২ (AutoEmbed)</button>
-        <button class="server-btn" id="btnServer3" onclick="switchOnlineServer(3)">সার্ভার ৩ (MultiEmbed)</button>
-        <button class="server-btn" id="btnServer4" onclick="switchOnlineServer(4)">সার্ভার ৪ (Pro)</button>
-        <button class="server-btn" id="btnServer5" onclick="switchOnlineServer(5)">সার্ভার ৫ (Smashy)</button>
+      
+      <div class="player-control-group">
+        <div class="quality-switch-bar">
+          <button class="quality-pill-btn active" onclick="switchStreamQuality('1080')">1080p FHD</button>
+          <button class="quality-pill-btn" onclick="switchStreamQuality('720')">720p HD</button>
+          <button class="quality-pill-btn" onclick="switchStreamQuality('480')">480p SD</button>
+          <button class="quality-pill-btn" onclick="switchStreamQuality('360')">360p Low</button>
+        </div>
+
+        <div class="player-server-bar" id="serverSelectionBar">
+          <button class="server-btn active" id="btnServer1" onclick="switchOnlineServer(1)">সার্ভার ১</button>
+          <button class="server-btn" id="btnServer2" onclick="switchOnlineServer(2)">সার্ভার ২</button>
+          <button class="server-btn" id="btnServer3" onclick="switchOnlineServer(3)">সার্ভার ৩</button>
+          <button class="server-btn" id="btnServer4" onclick="switchOnlineServer(4)">সার্ভার ৪</button>
+          <button class="server-btn" id="btnServer5" onclick="switchOnlineServer(5)">সার্ভার ৫</button>
+        </div>
       </div>
     </div>
 
@@ -1027,6 +1136,15 @@
     <div class="cine-section-box" id="downloadSectionBox">
       <div class="cine-box-title">
         <span>📥 Download Options:</span>
+      </div>
+
+      <!-- টেলিগ্রাম রিটার্ন নোটিশ -->
+      <div class="tg-feedback-alert" id="tgFeedbackAlert">
+        <p>📢 <b>টেলিগ্রামে মুভিটি পাননি?</b><br>যদি টেলিগ্রামে মুভিটি না পেয়ে থাকেন তাহলে নিচের রিকোয়েস্ট বাটনে ক্লিক করুন, এডমিন সাথে সাথে আপলোড করে দিবে। আর পেয়ে থাকলে বাতিল করুন।</p>
+        <div class="tg-alert-buttons">
+          <button class="tg-cancel-btn" onclick="dismissTgFeedback()">বাতিল করুন ✕</button>
+          <button class="tg-req-btn" onclick="sendAutoDetailRequest()">📩 মুভি রিকোয়েস্ট করুন</button>
+        </div>
       </div>
 
       <div class="ad-unlock-box" id="adUnlockBox">
@@ -1042,7 +1160,6 @@
     </div>
   </div>
 
-  <!-- ৩য় ক্লিকে টেলিগ্রাম নোটিশ -->
   <div class="request-modal" id="autoTelegramNoticeModal">
     <div class="request-box" style="border-color:#f59e0b;">
       <h3 style="color:#f59e0b;">⚠️ টেলিগ্রাম মুভি নোটিশ</h3>
@@ -1056,7 +1173,6 @@
     </div>
   </div>
 
-  <!-- ইউজারের সার্চ মোডাল -->
   <div class="request-modal" id="userSearchesModal">
     <div class="request-box" style="max-width: 400px;">
       <h3>🔥 ইউজারের সার্চ করা মুভি</h3>
@@ -1066,11 +1182,10 @@
     </div>
   </div>
 
-  <!-- মুভি রিকোয়েস্ট মোডাল -->
   <div class="request-modal" id="reqModal">
     <div class="request-box">
       <h3>📩 মুভি রিকোয়েস্ট পাঠান</h3>
-      <p style="font-size:12px; color:#cbd5e1;">যে মুভিটি দেখতে চান তার নাম লিখুন। সরাসরি এডমিনের কাছে চলে যাবে।</p>
+      <p style="font-size:12px; color:#cbd5e1;">যে মুভিটি দেখতে চান তার নাম লিখুন। ছবি ও তথ্যসহ এডমিনের কাছে চলে যাবে।</p>
       <input type="text" id="reqMovieInput" placeholder="মুভির নাম ও সাল লিখুন...">
       <button class="req-submit-btn" onclick="submitMovieRequest()">এডমিনকে পাঠান 🚀</button>
       <button style="background:transparent; border:none; color:#94a3b8; margin-top:10px; cursor:pointer;" onclick="closeRequestModal()">বন্ধ করুন</button>
@@ -1135,10 +1250,7 @@
 
     let currentUnlockStep = 1;
     let stepCountdownTimer = null;
-
-    // মেমরি স্ক্রল পজিশন ভ্যারিয়েবল (যেখানে ইউজার ছিলেন)
     let previousScrollPosition = 0;
-
     const actorPhotoCache = {};
 
     const isInsideTelegram = !!(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData);
@@ -1146,6 +1258,21 @@
     if (tg) {
       try { tg.ready(); tg.expand(); } catch (e) {}
     }
+
+    function monitorSocialBarAd() {
+      const observer = new MutationObserver(() => {
+        const adElements = document.querySelectorAll("iframe[src*='bancadeltempoidea'], div[class*='bancadeltempoidea'], div[id*='container-ae890ff8c15af92741885bc6b17aa434'] iframe");
+        if (adElements.length > 0) {
+          const toast = document.getElementById('socialAdToast');
+          if (toast && toast.style.display !== 'flex') {
+            toast.style.display = 'flex';
+            setTimeout(() => { toast.style.display = 'none'; }, 8000);
+          }
+        }
+      });
+      observer.observe(document.body, { childList: true, subtree: true });
+    }
+    monitorSocialBarAd();
 
     function closeNotice() {
       document.getElementById('topWelcomeNotice').style.display = 'none';
@@ -1698,14 +1825,11 @@
       }, 350);
     }
 
-    /* মুভি ওপেন করার সময় বর্তমান স্ক্রল পজিশন সেভ রাখা */
     function openCineDetail(id) {
       currentMovie = allMovies.find(m => m.id === id) || fullListCurrentMovies.find(m => m.id === id);
       if (!currentMovie) return;
 
-      // ১. ইউজার পেজের যে জায়গায় আছেন সেই পজিশনটি সেভ রাখা
       previousScrollPosition = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
-
       localStorage.setItem('last_opened_id', id);
 
       const posterSrc = currentMovie.image || 'https://via.placeholder.com/300';
@@ -1721,19 +1845,34 @@
 
       document.getElementById('cinePlayerWrap').style.display = 'none';
       document.getElementById('cineVideoPlayer').src = '';
-      document.getElementById('serverSelectionBar').style.display = 'none';
 
       loadCastInfoWithRealPhotos(currentMovie);
 
       currentUnlockStep = 1;
       clearInterval(stepCountdownTimer);
-      document.getElementById('adUnlockBox').style.display = 'block';
       document.getElementById('qualityContainer').style.display = 'none';
+
+      const tgAlert = document.getElementById('tgFeedbackAlert');
+      const unlockBox = document.getElementById('adUnlockBox');
+
+      if (currentMovie.isFromSheet) {
+        tgAlert.style.display = 'none';
+        unlockBox.style.display = 'block';
+      } else {
+        const wasTelegramClicked = sessionStorage.getItem('tg_clicked_' + currentMovie.id);
+        if (wasTelegramClicked) {
+          tgAlert.style.display = 'block';
+          unlockBox.style.display = 'none';
+        } else {
+          tgAlert.style.display = 'none';
+          unlockBox.style.display = 'block';
+        }
+      }
+
       document.getElementById('adStepBtn').disabled = false;
       document.getElementById('adStepBtn').innerText = '🚀 ১ ক্লিকে ডাউনলোড লিংক আনলক করুন (স্টেপ ১/২)';
       document.getElementById('adStepNotice').innerText = 'ডাউনলোড লিংক আনলক করতে নিচের বাটনে ক্লিক করুন:';
 
-      // ডিটেইলস পেজ ওপেন ও এর ভেতরের স্ক্রল শুরুতে নেওয়া
       const detailView = document.getElementById('cineDetailView');
       detailView.style.display = 'block';
       detailView.scrollTop = 0;
@@ -1745,7 +1884,6 @@
       }
     }
 
-    /* ব্যাক বাটনে চাপ দিলে ঠিক পূর্বের স্ক্রল জায়গায় ফিরে যাওয়া */
     function closeCineDetail() {
       localStorage.removeItem('last_opened_id');
       clearInterval(stepCountdownTimer);
@@ -1753,7 +1891,6 @@
       document.getElementById('cineDetailView').style.display = 'none';
       if (tg?.BackButton) tg.BackButton.hide();
 
-      // ঠিক আগের স্ক্রল করা জায়গায় রিস্টোর করা
       window.scrollTo({
         top: previousScrollPosition,
         behavior: 'auto'
@@ -1768,18 +1905,15 @@
 
       if (movie.castNames && movie.castNames.trim()) {
         const names = movie.castNames.split(/,|\n/).map(n => n.trim()).filter(Boolean);
-        
         castSection.style.display = 'block';
         for (let name of names) {
           const chip = document.createElement('div');
           chip.className = 'actor-chip';
-
           chip.innerHTML = `
             <img class="actor-avatar" src="https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=0284c7&color=fff&size=128" alt="${name}" loading="lazy">
             <span class="actor-name">${name}</span>
           `;
           castList.appendChild(chip);
-
           fetchActorRealProfilePic(name, chip);
         }
         return;
@@ -1816,7 +1950,6 @@
         chipElement.querySelector('img').src = actorPhotoCache[actorName];
         return;
       }
-
       try {
         const res = await fetch(`https://api.themoviedb.org/3/search/person?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(actorName)}`);
         const data = await res.json();
@@ -1914,14 +2047,54 @@
       }
     }
 
+    function dismissTgFeedback() {
+      if (currentMovie) {
+        sessionStorage.removeItem('tg_clicked_' + currentMovie.id);
+      }
+      document.getElementById('tgFeedbackAlert').style.display = 'none';
+      document.getElementById('adUnlockBox').style.display = 'block';
+    }
+
+    async function sendAutoDetailRequest() {
+      if (!currentMovie) return;
+      
+      const reqPayload = {
+        Subject: `🚨 অটো মুভি রিকোয়েস্ট: ${currentMovie.title}`,
+        "মুভির নাম": currentMovie.title,
+        "পোস্টার ছবি": currentMovie.image || "N/A",
+        "মুভির রেটিং": currentMovie.rating,
+        "তারিখ ও সময়": new Date().toLocaleString()
+      };
+
+      try {
+        fetch(`https://formsubmit.co/ajax/${ADMIN_EMAIL}`, {
+          method: "POST",
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify(reqPayload)
+        });
+      } catch(e) {}
+
+      sessionStorage.removeItem('tg_clicked_' + currentMovie.id);
+      document.getElementById('tgFeedbackAlert').style.display = 'none';
+      document.getElementById('adUnlockBox').style.display = 'block';
+      alert(`✅ ধন্যবাদ! "${currentMovie.title}" মুভিটির ছবি ও বিস্তারিত তথ্য এডমিনের কাছে পাঠানো হয়েছে। খুব দ্রুত আপলোড করা হবে!`);
+    }
+
     function openTelegramNoticeModal(movieTitle) {
       const modal = document.getElementById('autoTelegramNoticeModal');
       const botBtn = document.getElementById('btnForwardTelegramBot');
       
       botBtn.onclick = function() {
+        if (currentMovie) {
+          sessionStorage.setItem('tg_clicked_' + currentMovie.id, 'true');
+        }
         const safeQuery = encodeURIComponent(movieTitle.replace(/\s+/g, '_'));
         const botUrl = `https://t.me/IMDBReview_bot?start=${safeQuery}`;
         openSafeUrl(botUrl);
+        closeTelegramNoticeModal();
+
+        document.getElementById('tgFeedbackAlert').style.display = 'block';
+        document.getElementById('adUnlockBox').style.display = 'none';
       };
 
       modal.style.display = 'flex';
@@ -1931,28 +2104,29 @@
       document.getElementById('autoTelegramNoticeModal').style.display = 'none';
     }
 
+    let currentServerIndex = 1;
     function playOnlineMovie() {
       if (!currentMovie) return;
       const playerWrap = document.getElementById('cinePlayerWrap');
-      const serverBar = document.getElementById('serverSelectionBar');
 
       if (currentMovie.customWatchUrl && currentMovie.customWatchUrl.startsWith('http')) {
         const player = document.getElementById('cineVideoPlayer');
         player.src = currentMovie.customWatchUrl;
-        serverBar.style.display = 'none';
+        document.getElementById('serverSelectionBar').style.display = 'none';
         playerWrap.style.display = 'block';
         playerWrap.scrollIntoView({ behavior: 'smooth' });
         return;
       }
 
+      document.getElementById('serverSelectionBar').style.display = 'flex';
       switchOnlineServer(1);
       playerWrap.style.display = 'block';
-      serverBar.style.display = 'flex';
       playerWrap.scrollIntoView({ behavior: 'smooth' });
     }
 
     function switchOnlineServer(num) {
       if (!currentMovie) return;
+      currentServerIndex = num;
       const player = document.getElementById('cineVideoPlayer');
       const tmdbId = currentMovie.tmdbId || currentMovie.id;
       const type = currentMovie.isSeries ? 'tv' : 'movie';
@@ -1966,6 +2140,19 @@
       else if (num === 3) player.src = `https://multiembed.mov/?video_id=${tmdbId}&tmdb=1`;
       else if (num === 4) player.src = `https://vidsrc.cc/v2/embed/${type}/${tmdbId}`;
       else if (num === 5) player.src = `https://player.smashystream.com/embed/${type}/${tmdbId}`;
+    }
+
+    function switchStreamQuality(res) {
+      document.querySelectorAll('.quality-pill-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.innerText.includes(res));
+      });
+
+      if (currentMovie.customWatchUrl && currentMovie.customWatchUrl.includes('quality/')) {
+        const updated = currentMovie.customWatchUrl.replace(/quality\/\d+/, `quality/${res}`);
+        document.getElementById('cineVideoPlayer').src = updated;
+      } else {
+        switchOnlineServer(currentServerIndex);
+      }
     }
 
     async function playOfficialTrailer() {
@@ -2105,20 +2292,31 @@
 
       recordUserSearchQuery(movieName);
 
+      let posterLink = "N/A";
+      try {
+        const res = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(movieName)}`);
+        const data = await res.json();
+        if (data.results && data.results[0] && data.results[0].poster_path) {
+          posterLink = `https://image.tmdb.org/t/p/w500${data.results[0].poster_path}`;
+        }
+      } catch(e) {}
+
       try {
         fetch(`https://formsubmit.co/ajax/${ADMIN_EMAIL}`, {
           method: "POST",
           headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
           body: JSON.stringify({
             Subject: `🚨 মুভি রিকোয়েস্ট: ${movieName}`,
-            Message: `ইউজার "${movieName}" মুভিটি চেয়ে রিকোয়েস্ট করেছে।`
+            "মুভির নাম": movieName,
+            "পোস্টার লিংক": posterLink,
+            "তারিখ ও সময়": new Date().toLocaleString()
           })
         });
       } catch (e) {}
 
       closeRequestModal();
       input.value = '';
-      alert(`✅ ধন্যবাদ! আপনার "${movieName}" মুভির রিকোয়েস্ট এডমিনের কাছে সফলভাবে পৌঁছেছে।`);
+      alert(`✅ ধন্যবাদ! আপনার "${movieName}" মুভির রিকোয়েস্ট পোস্টার ছবি সহ সফলভাবে এডমিনের কাছে পৌঁছেছে।`);
     }
 
     fetchMoviesFromSheet();
