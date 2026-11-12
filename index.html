@@ -489,7 +489,7 @@
     }
     .entry-ad-banner p { font-size: 13px; color: #f8fafc; font-weight: bold; }
 
-    /* Movie Detail Page */
+    /* Movie Detail Page (Fixed overlay with independent scroll) */
     .cine-detail-view {
       position: fixed;
       top: 0;
@@ -501,6 +501,7 @@
       overflow-y: auto;
       display: none;
       padding-bottom: 50px;
+      -webkit-overflow-scrolling: touch;
     }
     
     .cine-top-nav {
@@ -598,7 +599,6 @@
     .chip-yellow { color: #facc15; border-color: rgba(250, 204, 21, 0.3); }
     .chip-blue { color: #38bdf8; border-color: rgba(56, 189, 248, 0.3); }
 
-    /* আপনার চাওয়া স্পেসিফিক ডিটেইলস ফরম্যাট */
     .cine-details-desc-box {
       font-size: 12px;
       color: #e2e8f0;
@@ -646,7 +646,6 @@
       color: #fff;
     }
 
-    /* Cast Styles */
     .cast-section {
       margin: 14px 14px 8px 14px;
       text-align: left;
@@ -743,7 +742,6 @@
       gap: 6px;
     }
 
-    /* ডাউনলোড আনলক স্টেপ বক্স ও বাটন */
     .ad-unlock-box {
       background: #0f172a;
       border: 1px solid #334155;
@@ -973,7 +971,7 @@
     </div>
   </div>
 
-  <!-- Movie Detail Page -->
+  <!-- Movie Detail Page (Overlay) -->
   <div class="cine-detail-view" id="cineDetailView">
     <div class="cine-top-nav">
       <button class="cine-back-btn" onclick="closeCineDetail()">⬅️ Back</button>
@@ -1013,7 +1011,7 @@
       <div class="cast-list" id="castList"></div>
     </div>
 
-    <!-- ভিডিও প্লেয়ার ও জনপ্রিয় ৫টি সার্ভার -->
+    <!-- ভিডিও প্লেয়ার ও ৫টি সার্ভার -->
     <div class="cine-player-wrap" id="cinePlayerWrap">
       <iframe class="cine-video-frame" id="cineVideoPlayer" src="" allowfullscreen></iframe>
       <div class="player-server-bar" id="serverSelectionBar" style="display:none;">
@@ -1025,7 +1023,7 @@
       </div>
     </div>
 
-    <!-- ৩ স্টেপ অ্যাড ও ডাউনলোড সেকশন -->
+    <!-- ৩ স্টেপ ডাউনলোড সেকশন -->
     <div class="cine-section-box" id="downloadSectionBox">
       <div class="cine-box-title">
         <span>📥 Download Options:</span>
@@ -1044,7 +1042,7 @@
     </div>
   </div>
 
-  <!-- ৩য় ক্লিকের পর টেলিগ্রাম নোটিশ মোডাল -->
+  <!-- ৩য় ক্লিকে টেলিগ্রাম নোটিশ -->
   <div class="request-modal" id="autoTelegramNoticeModal">
     <div class="request-box" style="border-color:#f59e0b;">
       <h3 style="color:#f59e0b;">⚠️ টেলিগ্রাম মুভি নোটিশ</h3>
@@ -1058,7 +1056,7 @@
     </div>
   </div>
 
-  <!-- ইউজারের সার্চ করা মুভির লিস্ট মোডাল -->
+  <!-- ইউজারের সার্চ মোডাল -->
   <div class="request-modal" id="userSearchesModal">
     <div class="request-box" style="max-width: 400px;">
       <h3>🔥 ইউজারের সার্চ করা মুভি</h3>
@@ -1116,14 +1114,11 @@
       10759: "Action & Adventure", 10762: "Kids", 10765: "Sci-Fi & Fantasy"
     };
 
-    const LANG_MAP = {
-      bn: "Bengali (বাংলা)",
-      hi: "Hindi (हिंदी)",
-      en: "English",
-      ta: "Tamil",
-      te: "Telugu",
-      ml: "Malayalam",
-      ko: "Korean"
+    const ACCURATE_LANG_MAP = {
+      hi: "Hindi (हिंदी)", en: "English", bn: "Bengali (বাংলা)",
+      ta: "Tamil (தமிழ்)", te: "Telugu (తెలుగు)", ml: "Malayalam (മലയാളം)",
+      kn: "Kannada (ಕನ್ನಡ)", ko: "Korean (한국어)", ja: "Japanese (日本語)",
+      zh: "Chinese (中文)", es: "Spanish (Español)", tr: "Turkish (Türkçe)"
     };
 
     let allMovies = [];
@@ -1138,9 +1133,13 @@
     let fullListPage = 1;
     let fullListCurrentMovies = [];
 
-    // ডাউনলোড আনলক স্টেট (১ম ক্লিক এড ১০ সেকেন্ড, ২য় ক্লিক এড ১০ সেকেন্ড, ৩য় ক্লিকে কোয়ালিটি)
     let currentUnlockStep = 1;
     let stepCountdownTimer = null;
+
+    // মেমরি স্ক্রল পজিশন ভ্যারিয়েবল (যেখানে ইউজার ছিলেন)
+    let previousScrollPosition = 0;
+
+    const actorPhotoCache = {};
 
     const isInsideTelegram = !!(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData);
     const tg = isInsideTelegram ? window.Telegram.WebApp : null;
@@ -1232,46 +1231,92 @@
       document.getElementById('userSearchesModal').style.display = 'none';
     }
 
-    /* আপনার চাওয়া স্পেসিফিক ডিটেইলস বানানোর ফাংশন */
     function formatMovieDetailsHTML(rating, genre, language, quality, resolution, relDate) {
       return `
         <div>⭐ <b>IMDb:</b> ${rating || '8.0'}/10</div>
-        <div>🎬 <b>Genre:</b> ${genre || 'Drama, Action, Thriller'}</div>
-        <div>🗣️ <b>Language:</b> ${language || 'Bengali (বাংলা)'}</div>
+        <div>🎬 <b>Genre:</b> ${genre || 'Action, Drama'}</div>
+        <div>🗣️ <b>Language:</b> ${language}</div>
         <div>📺 <b>Quality:</b> ${quality || '1080p WEB-DL'}</div>
         <div>🖥️ <b>Resolution:</b> ${resolution || '1920x1080 FHD'}</div>
         <div>📅 <b>Released date:</b> ${relDate || '2026'}</div>
       `;
     }
 
-    /* TMDB থেকে পোস্টার, ব্যাকড্রপ ও ডিটেইলস অটো নিয়ে আসা */
+    function detectAccurateLanguage(title, category, tmdbLang) {
+      const t = title.toLowerCase();
+      const c = category.toLowerCase();
+
+      if (t.includes('hindi') || c.includes('hindi') || c.includes('bollywood')) return "Hindi (हिंदी)";
+      if (t.includes('bangla') || t.includes('bengali') || c.includes('bangla')) return "Bengali (বাংলা)";
+      if (t.includes('tamil') || c.includes('tamil')) return "Tamil (தமிழ்)";
+      if (t.includes('telugu') || c.includes('telugu')) return "Telugu (తెలుగు)";
+      if (t.includes('english') || c.includes('hollywood')) return "English";
+
+      if (tmdbLang && ACCURATE_LANG_MAP[tmdbLang]) {
+        if (c.includes('bangla') && tmdbLang !== 'bn') return "Bengali (বাংলা)";
+        return ACCURATE_LANG_MAP[tmdbLang];
+      }
+
+      if (c.includes('bangla')) return "Bengali (বাংলা)";
+      return "Hindi (हिंदी)";
+    }
+
     async function completeSheetMovieDetails(movie) {
-      const cleanTitle = movie.title.replace(/\(\s*\d{4}\s*\)/g, '').replace(/\[\s*\d{4}\s*\]/g, '').trim();
+      const rawTitle = movie.title;
+      let extractedYear = "";
+      const yearMatch = rawTitle.match(/\b(19\d{2}|20\d{2})\b/);
+      if (yearMatch) extractedYear = yearMatch[1];
+
+      let cleanTitle = rawTitle.replace(/\(\s*\d{4}\s*\)/g, '').replace(/\[\s*\d{4}\s*\]/g, '').replace(/\b(19\d{2}|20\d{2})\b/g, '').replace(/\bhindi\b/gi, '').replace(/\bbangla\b/gi, '').trim();
+      if (!cleanTitle) cleanTitle = rawTitle;
 
       try {
-        const res = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(cleanTitle)}`);
+        const queryUrl = `https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(cleanTitle)}`;
+        const res = await fetch(queryUrl);
         const data = await res.json();
+        
+        let bestMatch = null;
         if (data.results && data.results.length > 0) {
-          const tmdb = data.results[0];
-          movie.tmdbId = tmdb.id;
-          if (!movie.image) {
-            movie.image = tmdb.poster_path ? `https://image.tmdb.org/t/p/w500${tmdb.poster_path}` : '';
+          bestMatch = data.results.find(item => {
+            const rel = item.release_date || item.first_air_date || '';
+            if (extractedYear && rel) {
+              const itemYear = rel.split('-')[0];
+              if (Math.abs(parseInt(itemYear) - parseInt(extractedYear)) > 3) return false;
+            }
+            return true;
+          }) || data.results[0];
+
+          if (movie.category.toLowerCase().includes('bangla') && bestMatch && bestMatch.original_language === 'en') {
+            bestMatch = null;
+          }
+        }
+
+        if (bestMatch) {
+          movie.tmdbId = bestMatch.id;
+          movie.mediaType = bestMatch.media_type || (bestMatch.first_air_date ? 'tv' : 'movie');
+
+          if (!movie.image || movie.image.length < 5) {
+            movie.image = bestMatch.poster_path ? `https://image.tmdb.org/t/p/w500${bestMatch.poster_path}` : '';
           }
           if (!movie.backdrop) {
-            movie.backdrop = tmdb.backdrop_path ? `https://image.tmdb.org/t/p/original${tmdb.backdrop_path}` : movie.image;
+            movie.backdrop = bestMatch.backdrop_path ? `https://image.tmdb.org/t/p/original${bestMatch.backdrop_path}` : movie.image;
           }
 
-          const ratingVal = (tmdb.vote_average || 8.0).toFixed(1);
-          const genres = (tmdb.genre_ids || []).map(id => GENRE_MAP[id]).filter(Boolean).slice(0, 3).join(', ') || 'Drama, Thriller';
-          const lang = LANG_MAP[tmdb.original_language] || 'Bengali (বাংলা)';
-          const relDate = tmdb.release_date || tmdb.first_air_date || '2026';
+          const ratingVal = (bestMatch.vote_average && bestMatch.vote_average > 0) ? bestMatch.vote_average.toFixed(1) : '7.8';
+          const genres = (bestMatch.genre_ids || []).map(id => GENRE_MAP[id]).filter(Boolean).slice(0, 3).join(', ') || 'Action, Drama';
+          
+          const actualLang = detectAccurateLanguage(rawTitle, movie.category, bestMatch.original_language);
+          const relDate = bestMatch.release_date || bestMatch.first_air_date || (extractedYear ? `${extractedYear}-01-01` : '2026');
 
-          movie.details = formatMovieDetailsHTML(ratingVal, genres, lang, '1080p WEB-DL', '1920x1080 FHD', relDate);
+          movie.details = formatMovieDetailsHTML(ratingVal, genres, actualLang, '1080p WEB-DL', '1920x1080 FHD', relDate);
         } else {
-          movie.details = formatMovieDetailsHTML('8.0', 'Action, Drama', 'Bengali (বাংলা)', '1080p WEB-DL', '1920x1080 FHD', '2026');
+          const actualLang = detectAccurateLanguage(rawTitle, movie.category, null);
+          const relDate = extractedYear ? `${extractedYear}-05-15` : '2026';
+          movie.details = formatMovieDetailsHTML('8.0', 'Drama, Thriller', actualLang, '1080p WEB-DL', '1920x1080 FHD', relDate);
         }
       } catch (e) {
-        movie.details = formatMovieDetailsHTML('8.0', 'Drama, Mystery', 'Bengali (বাংলা)', '1080p WEB-DL', '1920x1080 FHD', '2026');
+        const actualLang = detectAccurateLanguage(rawTitle, movie.category, null);
+        movie.details = formatMovieDetailsHTML('8.0', 'Action, Drama', actualLang, '1080p WEB-DL', '1920x1080 FHD', '2026');
       }
 
       if (!movie.image) {
@@ -1280,7 +1325,6 @@
       return movie;
     }
 
-    /* গুগল শিট থেকে মুভি ফেচ করা */
     function fetchMoviesFromSheet() {
       const cached = localStorage.getItem('cine_movies_cache');
       if (cached) {
@@ -1326,12 +1370,11 @@
             }
 
             const rawImg = getCellVal(c, 3);
-            const ad1 = getCellVal(c, 4) || ENTRY_AD_URL; // কলাম E (Ad 1)
-            const ad2 = getCellVal(c, 5) || ENTRY_AD_URL; // কলাম F (Ad 2)
+            const ad1 = getCellVal(c, 4) || ENTRY_AD_URL;
+            const ad2 = getCellVal(c, 5) || ENTRY_AD_URL;
 
             const isSeries = categoryVal.toLowerCase().includes('series') || titleStr.toLowerCase().includes('season');
 
-            // শিটে দেওয়া আসল কোয়ালিটি লিংক
             const linksG = parseMultipleLinks(getCellVal(c, 6), "📥 Download 480p [SD]");
             const linksH = parseMultipleLinks(getCellVal(c, 7), "📥 Download 720p [HD]");
             const linksI = parseMultipleLinks(getCellVal(c, 8), "📥 Download 1080p [FHD]");
@@ -1342,7 +1385,7 @@
             const badgeTag = getCellVal(c, 10) || (isSeries ? 'SERIES' : '1080p');
             const castNames = getCellVal(c, 13);
             const trailerLink = getCellVal(c, 14);
-            const customWatchLink = getCellVal(c, 15); // কলাম P: ওয়াচ ফুল মুভির নিজস্ব লিংক
+            const customWatchLink = getCellVal(c, 15);
             const isTrending = categoryVal.toLowerCase().includes('trending') || isPinned;
 
             let movieObj = {
@@ -1371,7 +1414,6 @@
 
           rawMovies.reverse();
 
-          // শিটে দেওয়া নাম অনুযায়ী TMDB থেকে স্বয়ংক্রিয়ভাবে ডিটেইলস ও কাস্ট পূরণ
           for (let m of rawMovies) {
             await completeSheetMovieDetails(m);
           }
@@ -1589,7 +1631,6 @@
       });
     }
 
-    /* সার্চ হ্যান্ডলিং */
     let searchDebounce;
     function handleSearch() {
       clearTimeout(searchDebounce);
@@ -1606,17 +1647,14 @@
         document.getElementById('fullViewTitle').innerText = `"${q}" সার্চ ফলাফল:`;
         fullListPage = 1;
 
-        // ১. আগে নিজের শিটে সার্চ
         const localMatches = allMovies.filter(m => m.title.toLowerCase().includes(q.toLowerCase()));
 
         if (localMatches.length > 0) {
           fullListCurrentMovies = localMatches;
           renderFullListPage();
         } else {
-          // ২. শিটে না থাকলে ইউজার সার্চ ট্র্যাকিং
           recordUserSearchQuery(q);
 
-          // ৩. TMDB থেকে অটো নিয়ে আসা ও নিখুঁত ফরম্যাট তৈরি
           try {
             const res = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(q)}`);
             const data = await res.json();
@@ -1626,20 +1664,21 @@
               const releaseDate = item.release_date || item.first_air_date || '2026';
               const year = releaseDate ? releaseDate.split('-')[0] : '2026';
               const titleName = item.title || item.name;
-              const ratingVal = (item.vote_average || 7.5).toFixed(1);
-              const genres = (item.genre_ids || []).map(id => GENRE_MAP[id]).filter(Boolean).slice(0, 3).join(', ') || 'Drama, Action';
-              const lang = LANG_MAP[item.original_language] || 'Bengali (বাংলা)';
+              const ratingVal = (item.vote_average && item.vote_average > 0) ? item.vote_average.toFixed(1) : '7.5';
+              const genres = (item.genre_ids || []).map(id => GENRE_MAP[id]).filter(Boolean).slice(0, 3).join(', ') || 'Action, Drama';
+              const actualLang = ACCURATE_LANG_MAP[item.original_language] || "Hindi (हिंदी)";
 
               return {
                 id: item.id,
                 tmdbId: item.id,
+                mediaType: isTv ? 'tv' : 'movie',
                 title: titleName,
                 category: isTv ? 'Series' : 'Movie',
                 rating: `⭐ ${ratingVal}`,
                 image: `https://image.tmdb.org/t/p/w500${item.poster_path}`,
                 backdrop: `https://image.tmdb.org/t/p/original${item.backdrop_path || item.poster_path}`,
                 badge: isTv ? 'SERIES' : `${year} HD`,
-                details: formatMovieDetailsHTML(ratingVal, genres, lang, '1080p WEB-DL', '1920x1080 FHD', releaseDate),
+                details: formatMovieDetailsHTML(ratingVal, genres, actualLang, '1080p WEB-DL', '1920x1080 FHD', releaseDate),
                 links: [],
                 ad1: ENTRY_AD_URL,
                 ad2: ENTRY_AD_URL,
@@ -1659,10 +1698,13 @@
       }, 350);
     }
 
-    /* মুভি ডিটেইলস পেজ ওপেন */
+    /* মুভি ওপেন করার সময় বর্তমান স্ক্রল পজিশন সেভ রাখা */
     function openCineDetail(id) {
       currentMovie = allMovies.find(m => m.id === id) || fullListCurrentMovies.find(m => m.id === id);
       if (!currentMovie) return;
+
+      // ১. ইউজার পেজের যে জায়গায় আছেন সেই পজিশনটি সেভ রাখা
+      previousScrollPosition = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
 
       localStorage.setItem('last_opened_id', id);
 
@@ -1675,16 +1717,14 @@
       document.getElementById('cineRatingChip').innerText = currentMovie.rating;
       document.getElementById('cineQualityChip').innerText = currentMovie.badge;
       
-      document.getElementById('cineDetailsDescBox').innerHTML = currentMovie.details || formatMovieDetailsHTML('8.0', 'Drama, Thriller', 'Bengali (বাংলা)', '1080p WEB-DL', '1920x1080 FHD', '2026');
+      document.getElementById('cineDetailsDescBox').innerHTML = currentMovie.details;
 
       document.getElementById('cinePlayerWrap').style.display = 'none';
       document.getElementById('cineVideoPlayer').src = '';
       document.getElementById('serverSelectionBar').style.display = 'none';
 
-      // কাস্ট লোড করা
-      loadCastInfo(currentMovie);
+      loadCastInfoWithRealPhotos(currentMovie);
 
-      // ৩ স্টেপ ডাউনলোড স্টেট রিসেট করা
       currentUnlockStep = 1;
       clearInterval(stepCountdownTimer);
       document.getElementById('adUnlockBox').style.display = 'block';
@@ -1693,8 +1733,10 @@
       document.getElementById('adStepBtn').innerText = '🚀 ১ ক্লিকে ডাউনলোড লিংক আনলক করুন (স্টেপ ১/২)';
       document.getElementById('adStepNotice').innerText = 'ডাউনলোড লিংক আনলক করতে নিচের বাটনে ক্লিক করুন:';
 
-      document.getElementById('cineDetailView').style.display = 'block';
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      // ডিটেইলস পেজ ওপেন ও এর ভেতরের স্ক্রল শুরুতে নেওয়া
+      const detailView = document.getElementById('cineDetailView');
+      detailView.style.display = 'block';
+      detailView.scrollTop = 0;
 
       if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
       if (tg?.BackButton) {
@@ -1703,47 +1745,53 @@
       }
     }
 
-    /* কাস্ট ও অ্যাক্টরদের তথ্য সঠিকভাবে দেখানো */
-    async function loadCastInfo(movie) {
+    /* ব্যাক বাটনে চাপ দিলে ঠিক পূর্বের স্ক্রল জায়গায় ফিরে যাওয়া */
+    function closeCineDetail() {
+      localStorage.removeItem('last_opened_id');
+      clearInterval(stepCountdownTimer);
+      document.getElementById('cineVideoPlayer').src = '';
+      document.getElementById('cineDetailView').style.display = 'none';
+      if (tg?.BackButton) tg.BackButton.hide();
+
+      // ঠিক আগের স্ক্রল করা জায়গায় রিস্টোর করা
+      window.scrollTo({
+        top: previousScrollPosition,
+        behavior: 'auto'
+      });
+    }
+
+    async function loadCastInfoWithRealPhotos(movie) {
       const castSection = document.getElementById('castSection');
       const castList = document.getElementById('castList');
       castList.innerHTML = '';
       castSection.style.display = 'none';
 
-      // ১. শিটে কাস্টের নাম দিলে
       if (movie.castNames && movie.castNames.trim()) {
         const names = movie.castNames.split(/,|\n/).map(n => n.trim()).filter(Boolean);
-        names.forEach(actor => {
+        
+        castSection.style.display = 'block';
+        for (let name of names) {
           const chip = document.createElement('div');
           chip.className = 'actor-chip';
+
           chip.innerHTML = `
-            <div class="actor-avatar" style="display:flex;align-items:center;justify-content:center;background:#0284c7;color:#fff;font-weight:bold;font-size:16px;">${actor[0]}</div>
-            <span class="actor-name">${actor}</span>
+            <img class="actor-avatar" src="https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=0284c7&color=fff&size=128" alt="${name}" loading="lazy">
+            <span class="actor-name">${name}</span>
           `;
           castList.appendChild(chip);
-        });
-        castSection.style.display = 'block';
+
+          fetchActorRealProfilePic(name, chip);
+        }
         return;
       }
 
-      // ২. শিটে কাস্ট না থাকলেও TMDB থেকে স্বয়ংক্রিয়ভাবে কাস্ট নিয়ে আসা
       let tmdbId = movie.tmdbId;
-      if (!tmdbId) {
-        try {
-          const cleanTitle = movie.title.replace(/\(\s*\d{4}\s*\)/g, '').trim();
-          const sRes = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(cleanTitle)}`);
-          const sData = await sRes.json();
-          if (sData.results && sData.results.length > 0) {
-            tmdbId = sData.results[0].id;
-            movie.tmdbId = tmdbId;
-          }
-        } catch(e) {}
-      }
+      let mediaType = movie.mediaType || (movie.isSeries ? 'tv' : 'movie');
 
       if (tmdbId) {
         try {
-          const type = movie.isSeries ? 'tv' : 'movie';
-          const res = await fetch(`https://api.themoviedb.org/3/${type}/${tmdbId}/credits?api_key=${TMDB_API_KEY}`);
+          const endpoint = mediaType === 'tv' ? 'tv' : 'movie';
+          const res = await fetch(`https://api.themoviedb.org/3/${endpoint}/${tmdbId}/credits?api_key=${TMDB_API_KEY}`);
           const data = await res.json();
           const cast = (data.cast || []).filter(c => c.profile_path).slice(0, 10);
           
@@ -1763,7 +1811,23 @@
       }
     }
 
-    /* ১ম ক্লিক এড ১০ সেকেন্ড, ২য় ক্লিক এড ১০ সেকেন্ড, ৩য় ক্লিকে কোয়ালিটি আনলক */
+    async function fetchActorRealProfilePic(actorName, chipElement) {
+      if (actorPhotoCache[actorName]) {
+        chipElement.querySelector('img').src = actorPhotoCache[actorName];
+        return;
+      }
+
+      try {
+        const res = await fetch(`https://api.themoviedb.org/3/search/person?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(actorName)}`);
+        const data = await res.json();
+        if (data.results && data.results[0] && data.results[0].profile_path) {
+          const photoUrl = `https://image.tmdb.org/t/p/w200${data.results[0].profile_path}`;
+          actorPhotoCache[actorName] = photoUrl;
+          chipElement.querySelector('img').src = photoUrl;
+        }
+      } catch(e) {}
+    }
+
     function handleAdUnlockStep() {
       const btn = document.getElementById('adStepBtn');
       const notice = document.getElementById('adStepNotice');
@@ -1867,21 +1931,11 @@
       document.getElementById('autoTelegramNoticeModal').style.display = 'none';
     }
 
-    function closeCineDetail() {
-      localStorage.removeItem('last_opened_id');
-      clearInterval(stepCountdownTimer);
-      document.getElementById('cineVideoPlayer').src = '';
-      document.getElementById('cineDetailView').style.display = 'none';
-      if (tg?.BackButton) tg.BackButton.hide();
-    }
-
-    /* ওয়াচ ফুল মুভি: শিটের কাস্টম লিংক অথবা জনপ্রিয় ৫টি সার্ভার */
     function playOnlineMovie() {
       if (!currentMovie) return;
       const playerWrap = document.getElementById('cinePlayerWrap');
       const serverBar = document.getElementById('serverSelectionBar');
 
-      // যদি শিটে নিজস্ব ওয়াচ লিংক দেওয়া থাকে
       if (currentMovie.customWatchUrl && currentMovie.customWatchUrl.startsWith('http')) {
         const player = document.getElementById('cineVideoPlayer');
         player.src = currentMovie.customWatchUrl;
@@ -1891,7 +1945,6 @@
         return;
       }
 
-      // না থাকলে জনপ্রিয় ৫টি সার্ভার দিয়ে চলবে
       switchOnlineServer(1);
       playerWrap.style.display = 'block';
       serverBar.style.display = 'flex';
@@ -1908,46 +1961,37 @@
         b.classList.toggle('active', i === (num - 1));
       });
 
-      if (num === 1) {
-        player.src = `https://vidsrc.xyz/embed/${type}/${tmdbId}`;
-      } else if (num === 2) {
-        player.src = `https://autoembed.co/${type}/tmdb/${tmdbId}`;
-      } else if (num === 3) {
-        player.src = `https://multiembed.mov/?video_id=${tmdbId}&tmdb=1`;
-      } else if (num === 4) {
-        player.src = `https://vidsrc.cc/v2/embed/${type}/${tmdbId}`;
-      } else if (num === 5) {
-        player.src = `https://player.smashystream.com/embed/${type}/${tmdbId}`;
-      }
+      if (num === 1) player.src = `https://vidsrc.xyz/embed/${type}/${tmdbId}`;
+      else if (num === 2) player.src = `https://autoembed.co/${type}/tmdb/${tmdbId}`;
+      else if (num === 3) player.src = `https://multiembed.mov/?video_id=${tmdbId}&tmdb=1`;
+      else if (num === 4) player.src = `https://vidsrc.cc/v2/embed/${type}/${tmdbId}`;
+      else if (num === 5) player.src = `https://player.smashystream.com/embed/${type}/${tmdbId}`;
     }
 
-    /* ট্রেইলার ফিক্স: ট্রেইলার না পেলে ট্রেন্ডিং গান চলবে, খালি থাকবে না */
     async function playOfficialTrailer() {
       if (!currentMovie) return;
       const playerWrap = document.getElementById('cinePlayerWrap');
       const player = document.getElementById('cineVideoPlayer');
       document.getElementById('serverSelectionBar').style.display = 'none';
 
-      // ১. শিটে ইউটিউব ট্রেইলার দেওয়া থাকলে
       if (currentMovie.trailerUrl && currentMovie.trailerUrl.includes('youtube')) {
         const match = currentMovie.trailerUrl.match(/(?:youtu\.be\/|watch\?v=)([\w-]{11})/);
         if (match) {
-          player.src = `https://www.youtube.com/embed/${match[1]}?autoplay=1&playsinline=1&rel=0`;
+          player.src = `https://www.youtube-nocookie.com/embed/${match[1]}?autoplay=1&rel=0`;
           playerWrap.style.display = 'block';
           playerWrap.scrollIntoView({ behavior: 'smooth' });
           return;
         }
       }
 
-      // ২. TMDB থেকে অফিশিয়াল ট্রেইলার খোঁজা
       if (currentMovie.tmdbId) {
         try {
           const type = currentMovie.isSeries ? 'tv' : 'movie';
           const res = await fetch(`https://api.themoviedb.org/3/${type}/${currentMovie.tmdbId}/videos?api_key=${TMDB_API_KEY}`);
           const data = await res.json();
-          const ytTrailer = (data.results || []).find(v => v.site === 'YouTube' && (v.type === 'Trailer' || v.type === 'Teaser'));
+          const ytTrailer = (data.results || []).find(v => v.site === 'YouTube' && (v.type === 'Trailer' || v.type === 'Teaser' || v.type === 'Clip'));
           if (ytTrailer) {
-            player.src = `https://www.youtube.com/embed/${ytTrailer.key}?autoplay=1&playsinline=1&rel=0`;
+            player.src = `https://www.youtube-nocookie.com/embed/${ytTrailer.key}?autoplay=1&rel=0`;
             playerWrap.style.display = 'block';
             playerWrap.scrollIntoView({ behavior: 'smooth' });
             return;
@@ -1955,12 +1999,9 @@
         } catch (e) {}
       }
 
-      // ৩. ট্রেইলার না পাওয়া গেলে ওই মুভির ট্রেন্ডিং গান অটো চলবে (কখনো খালি থাকবে না)
       const cleanTitle = currentMovie.title.replace(/\(\s*\d{4}\s*\)/g, '').trim();
-      const searchQuery = encodeURIComponent(`${cleanTitle} movie title song video`);
-      player.src = `https://www.youtube.com/embed?listType=search&list=${searchQuery}&autoplay=1`;
-      playerWrap.style.display = 'block';
-      playerWrap.scrollIntoView({ behavior: 'smooth' });
+      const ytDirectUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(cleanTitle + ' official trailer song')}`;
+      openSafeUrl(ytDirectUrl);
     }
 
     function scrollToDownload() {
