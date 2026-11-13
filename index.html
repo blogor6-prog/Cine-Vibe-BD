@@ -1377,7 +1377,7 @@
         ▶️ Watch Full Movie (সরাসরি ফুল সিনেমা দেখুন)
       </button>
       <button class="cine-btn btn-trailer" onclick="playOfficialTrailer()">
-        🎬 Trailer / Song
+        🎬 Watch Trailer
       </button>
       <button class="cine-btn btn-download" onclick="scrollToDownload()">
         📥 Download Options
@@ -1734,47 +1734,68 @@
         .trim();
     }
 
-    function isTitleMatch(cleanedQuery, tmdbItem) {
-      if (!cleanedQuery || !tmdbItem) return false;
-      const norm = s => (s || '').toLowerCase().replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
-      const qNorm = norm(cleanedQuery);
-      const qWords = qNorm.split(' ').filter(w => w.length > 1);
-      if (qWords.length === 0) return false;
+    function normStr(s) {
+      return (s || '').toLowerCase().replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
+    }
 
-      const candidates = [tmdbItem.title, tmdbItem.name, tmdbItem.original_title, tmdbItem.original_name, tmdbItem.trackName]
-        .map(norm)
+    function scoreCandidate(cleanedQuery, extractedYear, item) {
+      const qNorm = normStr(cleanedQuery);
+      if (!qNorm) return -1;
+      const qWords = qNorm.split(' ').filter(Boolean);
+
+      const candidates = [item.title, item.name, item.original_title, item.original_name, item.trackName]
+        .map(normStr)
         .filter(Boolean);
 
-      return candidates.some(c => {
-        if (c === qNorm || c.includes(qNorm) || qNorm.includes(c)) return true;
-        const cWords = c.split(' ');
-        const matchedCount = qWords.filter(w => cWords.includes(w)).length;
-        return matchedCount >= Math.ceil(qWords.length * 0.6);
-      });
+      let bestTitleScore = -1;
+      for (const c of candidates) {
+        if (c === qNorm) {
+          bestTitleScore = Math.max(bestTitleScore, 100);
+        } else {
+          const cWords = c.split(' ').filter(Boolean);
+          const allQInC = qWords.every(w => cWords.includes(w));
+          const allCInQ = cWords.every(w => qWords.includes(w));
+          if (allQInC && cWords.length <= qWords.length + 3) {
+            bestTitleScore = Math.max(bestTitleScore, 70 - Math.abs(cWords.length - qWords.length) * 5);
+          } else if (allCInQ && qWords.length >= 2) {
+            bestTitleScore = Math.max(bestTitleScore, 55);
+          }
+        }
+      }
+
+      if (bestTitleScore < 0) return -1;
+
+      let totalScore = bestTitleScore;
+      const rel = item.release_date || item.first_air_date || item.releaseDate || '';
+      if (extractedYear && rel) {
+        const itemYear = parseInt(rel.split('-')[0], 10);
+        const targetYear = parseInt(extractedYear, 10);
+        if (itemYear === targetYear) totalScore += 50;
+        else if (Math.abs(itemYear - targetYear) <= 1) totalScore += 20;
+        else if (Math.abs(itemYear - targetYear) > 2) return -1;
+      }
+
+      totalScore += Math.min(item.popularity || 0, 20);
+      return totalScore;
     }
 
     function findBestTmdbMatch(results, cleanedTitle, extractedYear, isBanglaCat) {
       const validMedia = (results || []).filter(item => item.media_type === 'movie' || item.media_type === 'tv');
       if (validMedia.length === 0) return null;
 
-      let match = validMedia.find(item => {
-        if (isBanglaCat && item.original_language === 'en') return false;
-        const rel = item.release_date || item.first_air_date || '';
-        if (extractedYear && rel) {
-          const itemYear = parseInt(rel.split('-')[0], 10);
-          if (Math.abs(itemYear - parseInt(extractedYear, 10)) > 2) return false;
-        }
-        return isTitleMatch(cleanedTitle, item);
-      });
+      let bestItem = null;
+      let bestScore = -1;
 
-      if (!match) {
-        match = validMedia.find(item => {
-          if (isBanglaCat && item.original_language === 'en') return false;
-          return isTitleMatch(cleanedTitle, item);
-        }) || null;
+      for (const item of validMedia) {
+        if (isBanglaCat && item.original_language === 'en') continue;
+        const score = scoreCandidate(cleanedTitle, extractedYear, item);
+        if (score > bestScore) {
+          bestScore = score;
+          bestItem = item;
+        }
       }
 
-      return match;
+      return bestScore >= 45 ? bestItem : null;
     }
 
     async function completeSheetMovieDetails(movie) {
@@ -1842,7 +1863,7 @@
     }
 
     function fetchMoviesFromSheet() {
-      const cached = localStorage.getItem('cine_movies_cache_v3');
+      const cached = localStorage.getItem('cine_movies_cache_v4');
       if (cached) {
         try {
           allMovies = JSON.parse(cached);
@@ -1940,7 +1961,7 @@
           pinnedMovies = allMovies.filter(m => m.pinned);
           banglaMovies = allMovies.filter(m => m.category.toLowerCase().includes('bangla') || m.details?.toLowerCase().includes('bengali'));
 
-          localStorage.setItem('cine_movies_cache_v3', JSON.stringify(allMovies));
+          localStorage.setItem('cine_movies_cache_v4', JSON.stringify(allMovies));
 
           initHeroSlider(allMovies);
           renderContinueWatching();
@@ -2828,7 +2849,6 @@
       }
     }
 
-    // শুধু সরাসরি অ্যাড-ফ্রি MP4 স্ট্রিম নিয়ে আসার হেল্পার (কোনো YouTube Iframe ওপেন করবে না)
     async function fetchAdFreeMp4ForYouTubeKey(videoKey) {
       const streamEndpoints = [];
       if (CUSTOM_TRAILER_API && CUSTOM_TRAILER_API.trim()) {
@@ -2855,99 +2875,53 @@
       return null;
     }
 
-    async function playAdFreeVideoOrSong(videoKey, labelText) {
-      const iframePlayer = document.getElementById('cineVideoPlayer');
-      const directVideo = document.getElementById('cineDirectVideo');
-      const statusMsg = document.getElementById('trailerStatusMsg');
-
-      const directUrl = await fetchAdFreeMp4ForYouTubeKey(videoKey);
-      if (directUrl) {
-        iframePlayer.style.display = 'none';
-        directVideo.style.display = 'block';
-        directVideo.onerror = () => {
-          directVideo.onerror = null;
-          playTrendingSongFallback(iframePlayer, statusMsg);
-        };
-        directVideo.src = directUrl;
-        directVideo.play().catch(() => {});
-        if (labelText) {
-          statusMsg.innerText = labelText;
-          statusMsg.style.display = 'block';
-        }
-        return;
-      }
-
-      // ইউটিউবের অ্যাড এড়াতে YouTube Iframe একেবারেই ওপেন না করে সরাসরি অ্যাড-ফ্রি ট্রেন্ডিং গান চালাবে
-      await playTrendingSongFallback(iframePlayer, statusMsg);
-    }
-
-    async function tryItunesAdFreeHindiTrailer(cleanedTitle) {
+    async function tryItunesExactTrailer(cleanedTitle, extractedYear) {
       try {
-        const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(cleanedTitle)}&media=movie&country=IN&limit=8`);
+        const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(cleanedTitle)}&media=movie&country=IN&limit=10`);
         const data = await res.json();
-        const hit = (data.results || []).find(item => item.previewUrl && /\.(m4v|mp4)/i.test(item.previewUrl) && isTitleMatch(cleanedTitle, item));
+        const qNorm = normStr(cleanedTitle);
+        const hit = (data.results || []).find(item => {
+          if (!item.previewUrl || !/\.(m4v|mp4)/i.test(item.previewUrl)) return false;
+          const tNorm = normStr(item.trackName);
+          if (tNorm !== qNorm) return false;
+          if (extractedYear && item.releaseDate) {
+            const itemYear = parseInt(item.releaseDate.split('-')[0], 10);
+            if (Math.abs(itemYear - parseInt(extractedYear, 10)) > 2) return false;
+          }
+          return true;
+        });
         return hit ? hit.previewUrl : null;
       } catch (e) {
         return null;
       }
     }
 
-    async function playTrendingSongFallback(player, statusMsg) {
+    async function playExactTrailerKey(videoKey, labelText) {
+      const iframePlayer = document.getElementById('cineVideoPlayer');
       const directVideo = document.getElementById('cineDirectVideo');
-      statusMsg.innerText = '🎵 অ্যাড-ফ্রি ট্রেন্ডিং হিন্দি গান লোড হচ্ছে...';
-      statusMsg.style.display = 'block';
+      const statusMsg = document.getElementById('trailerStatusMsg');
 
-      // ১. Apple iTunes HD মিউজিক ভিডিও (১০০% অ্যাড-ফ্রি সরাসরি .m4v ভিডিও)
-      const searchTerms = ['hindi bollywood hit songs', 'arijit singh video song', 'new hindi song', 't-series hindi song'];
-      const shuffledTerms = searchTerms.sort(() => Math.random() - 0.5);
-
-      for (const term of shuffledTerms.slice(0, 2)) {
-        try {
-          const itunesRes = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(term)}&media=musicVideo&country=IN&limit=25`);
-          const itunesData = await itunesRes.json();
-          const videos = (itunesData.results || []).filter(item => item.previewUrl && /\.(m4v|mp4)/i.test(item.previewUrl));
-
-          if (videos.length > 0) {
-            const picked = videos[Math.floor(Math.random() * videos.length)];
-            player.style.display = 'none';
-            directVideo.style.display = 'block';
-            directVideo.onerror = null;
-            directVideo.src = picked.previewUrl;
-            directVideo.play().catch(() => {});
-            statusMsg.innerText = `🎵 ট্রেন্ডিং গান চলছে (অ্যাড-ফ্রি): ${picked.trackName} — ${picked.artistName}`;
-            return;
-          }
-        } catch (e) {}
+      // প্রথমে অ্যাড-ফ্রি MP4 চেষ্টা করবে; না পেলে ইউটিউব এমবেডে ওই নির্দিষ্ট মুভিরই ট্রেলার দেখাবে
+      const mp4Url = await fetchAdFreeMp4ForYouTubeKey(videoKey);
+      if (mp4Url) {
+        iframePlayer.style.display = 'none';
+        directVideo.style.display = 'block';
+        directVideo.onerror = () => {
+          directVideo.onerror = null;
+          directVideo.style.display = 'none';
+          iframePlayer.style.display = 'block';
+          iframePlayer.src = `https://www.youtube-nocookie.com/embed/${videoKey}?autoplay=1&rel=0&modestbranding=1&iv_load_policy=3`;
+        };
+        directVideo.src = mp4Url;
+        directVideo.play().catch(() => {});
+      } else {
+        directVideo.style.display = 'none';
+        iframePlayer.style.display = 'block';
+        iframePlayer.src = `https://www.youtube-nocookie.com/embed/${videoKey}?autoplay=1&rel=0&modestbranding=1&iv_load_policy=3`;
       }
 
-      // ২. ব্যাকআপ: TMDB থেকে সরাসরি MP4 স্ট্রিম চেষ্টা (কোনো YouTube Iframe নয়)
-      try {
-        const res = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&with_original_language=hi&sort_by=popularity.desc`);
-        const data = await res.json();
-        const candidates = (data.results || []).slice(0, 8).sort(() => Math.random() - 0.5);
-
-        for (const item of candidates) {
-          const vRes = await fetch(`https://api.themoviedb.org/3/movie/${item.id}/videos?api_key=${TMDB_API_KEY}&include_video_language=hi,en,null`);
-          const vData = await vRes.json();
-          const ytVideos = (vData.results || []).filter(v => v.site === 'YouTube' && v.key);
-          const songClip = ytVideos.find(v => /song|music|gana|track/i.test(v.name) || v.type === 'Clip') || ytVideos[0];
-
-          if (songClip) {
-            const mp4Url = await fetchAdFreeMp4ForYouTubeKey(songClip.key);
-            if (mp4Url) {
-              player.style.display = 'none';
-              directVideo.style.display = 'block';
-              directVideo.onerror = null;
-              directVideo.src = mp4Url;
-              directVideo.play().catch(() => {});
-              statusMsg.innerText = `🎵 ট্রেন্ডিং গান/ভিডিও চলছে (${item.title})`;
-              return;
-            }
-          }
-        }
-      } catch (e) {}
-
-      statusMsg.innerText = '⚠️ এই মুহূর্তে অ্যাড-ফ্রি গান বা ট্রেলার লোড করা যায়নি। নিচ থেকে ফুল মুভি দেখুন!';
+      statusMsg.innerText = labelText;
+      statusMsg.style.display = 'block';
     }
 
     async function playOfficialTrailer() {
@@ -2961,18 +2935,18 @@
       resetPlayerElements();
       document.getElementById('serverSelectionBar').style.display = 'none';
       if (qualityBar) qualityBar.style.display = 'none';
-      statusMsg.innerText = '⏳ অ্যাড-ফ্রি হিন্দি ট্রেলার খোঁজা হচ্ছে...';
+      statusMsg.innerText = `⏳ "${currentMovie.title}"-এর ট্রেলার লোড হচ্ছে...`;
       statusMsg.style.display = 'block';
       playerWrap.style.display = 'block';
       playerWrap.scrollIntoView({ behavior: 'smooth' });
 
-      // ১. শিটে দেওয়া কাস্টম ট্রেলার লিংক চেক (O কলাম)
+      // ১. শিটে দেওয়া কাস্টম ট্রেলার লিংক (O কলাম)
       if (currentMovie.trailerUrl && /^https?:\/\//i.test(currentMovie.trailerUrl.trim())) {
         const tUrl = currentMovie.trailerUrl.trim();
         if (tUrl.includes('youtube') || tUrl.includes('youtu.be')) {
           const match = tUrl.match(/(?:youtu\.be\/|watch\?v=|embed\/|shorts\/|v=)([\w-]{11})/);
           if (match) {
-            await playAdFreeVideoOrSong(match[1], `🎬 ${currentMovie.title} — ট্রেলার`);
+            await playExactTrailerKey(match[1], `🎬 ${currentMovie.title} — Official Trailer`);
             return;
           }
         } else {
@@ -2981,73 +2955,64 @@
         }
       }
 
-      // ২. মুভির আসল নাম দিয়ে সঠিক TMDB Movie/TV যাচাই করা
+      // ২. মুভির আসল নাম ও সাল দিয়ে সঠিক TMDB মুভি/সিরিজ খুঁজে নেওয়া
       const cleanedTitle = cleanTitleForSearch(currentMovie.title) || currentMovie.title;
+      const yearMatch = currentMovie.title.match(/\b(19\d{2}|20\d{2})\b/);
+      const extractedYear = yearMatch ? yearMatch[1] : (currentMovie.year || '');
+
       let tmdbId = currentMovie.tmdbId;
       let type = currentMovie.mediaType || (currentMovie.isSeries ? 'tv' : 'movie');
-      let origLang = currentMovie.originalLanguage || '';
 
       if (!tmdbId) {
         try {
-          const yearMatch = currentMovie.title.match(/\b(19\d{2}|20\d{2})\b/);
-          const extractedYear = yearMatch ? yearMatch[1] : '';
           const sRes = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(cleanedTitle)}`);
           const sData = await sRes.json();
           const hit = findBestTmdbMatch(sData.results, cleanedTitle, extractedYear, currentMovie.category.toLowerCase().includes('bangla'));
           if (hit) {
             tmdbId = hit.id;
             type = hit.media_type;
-            origLang = hit.original_language || '';
             currentMovie.tmdbId = tmdbId;
             currentMovie.mediaType = type;
-            currentMovie.originalLanguage = origLang;
           }
         } catch (e) {}
       }
 
-      const isHindiMovie = origLang === 'hi' || /hindi|bollywood/i.test(currentMovie.category || '') || /\bhindi\b/i.test(currentMovie.title || '');
-
-      // ৩. বলিউড/হিন্দি মুভি হলে প্রথমেই ১০০% অ্যাড-ফ্রি iTunes HD ট্রেলার (.m4v) খোঁজা
-      if (isHindiMovie) {
-        const adFreeUrl = await tryItunesAdFreeHindiTrailer(cleanedTitle);
-        if (adFreeUrl) {
-          player.style.display = 'none';
-          directVideo.style.display = 'block';
-          directVideo.onerror = null;
-          directVideo.src = adFreeUrl;
-          directVideo.play().catch(() => {});
-          statusMsg.innerText = `🎬 ${currentMovie.title} — হিন্দি ট্রেলার (অ্যাড-ফ্রি)`;
-          return;
-        }
+      // ৩. হুবহু নাম মিললে অ্যাড-ফ্রি iTunes ট্রেলার (.m4v) চেষ্টা করা
+      const exactItunesUrl = await tryItunesExactTrailer(cleanedTitle, extractedYear);
+      if (exactItunesUrl) {
+        player.style.display = 'none';
+        directVideo.style.display = 'block';
+        directVideo.onerror = null;
+        directVideo.src = exactItunesUrl;
+        directVideo.play().catch(() => {});
+        statusMsg.innerText = `🎬 ${currentMovie.title} — Official Trailer (Ad-Free)`;
+        return;
       }
 
-      // ৪. TMDB থেকে ওই মুভির হিন্দি ট্রেলার পেলে শুধু অ্যাড-ফ্রি MP4 হিসেবে চালানো (না পেলে অ্যাড-ফ্রি গান)
+      // ৪. TMDB থেকে শুধু এই নির্দিষ্ট মুভিরই ট্রেলার বের করা (প্রথমে হিন্দি, না থাকলে মুভির নিজের ভাষার ট্রেলার)
       if (tmdbId) {
         try {
-          const res = await fetch(`https://api.themoviedb.org/3/${type}/${tmdbId}/videos?api_key=${TMDB_API_KEY}&include_video_language=hi,en,null`);
+          const res = await fetch(`https://api.themoviedb.org/3/${type}/${tmdbId}/videos?api_key=${TMDB_API_KEY}&include_video_language=hi,bn,en,ta,te,ml,kn,ko,ja,null`);
           const data = await res.json();
           const videos = (data.results || []).filter(v => v.site === 'YouTube' && v.key);
 
-          let hindiTrailer =
+          const pickedTrailer =
             videos.find(v => (v.iso_639_1 === 'hi' || /hindi|हिन्दी|हिंदी/i.test(v.name || '')) && v.type === 'Trailer') ||
-            videos.find(v => (v.iso_639_1 === 'hi' || /hindi|हिन्दी|हिंदी/i.test(v.name || '')) && (v.type === 'Teaser' || v.type === 'Clip')) ||
-            videos.find(v => v.iso_639_1 === 'hi' || /hindi|हिन्दी|हिंदी/i.test(v.name || ''));
+            videos.find(v => v.type === 'Trailer') ||
+            videos.find(v => (v.iso_639_1 === 'hi' || /hindi/i.test(v.name || '')) && v.type === 'Teaser') ||
+            videos.find(v => v.type === 'Teaser') ||
+            videos[0];
 
-          if (!hindiTrailer && origLang === 'hi') {
-            hindiTrailer =
-              videos.find(v => v.type === 'Trailer') ||
-              videos.find(v => v.type === 'Teaser');
-          }
-
-          if (hindiTrailer) {
-            await playAdFreeVideoOrSong(hindiTrailer.key, `🎬 ${currentMovie.title} — হিন্দি ট্রেলার (অ্যাড-ফ্রি)`);
+          if (pickedTrailer) {
+            await playExactTrailerKey(pickedTrailer.key, `🎬 ${currentMovie.title} — Official Trailer`);
             return;
           }
         } catch (e) {}
       }
 
-      // ৫. হিন্দি ট্রেলার না পেলে সরাসরি অ্যাড-ফ্রি ট্রেন্ডিং গান চালু করা
-      await playTrendingSongFallback(player, statusMsg);
+      // ৫. এই মুভির কোনো ট্রেলার না পাওয়া গেলে অন্য মুভি বা গান চালাবে না
+      player.style.display = 'none';
+      statusMsg.innerText = `⚠️ দুঃখিত! "${currentMovie.title}" মুভিটির ট্রেলার পাওয়া যায়নি। তবে নিচ থেকে ফুল মুভি দেখতে পারবেন।`;
     }
 
     function scrollToDownload() {
