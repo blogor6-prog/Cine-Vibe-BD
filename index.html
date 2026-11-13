@@ -1263,10 +1263,11 @@
       </a>
     </div>
 
-    <!-- Continue Watching -->
+    <!-- Continue Watching with Refresh Button -->
     <div id="continueWatchingBlock" style="display: none;">
       <div class="section-header">
         <span class="section-title">Continue Watching</span>
+        <button class="see-all-btn" onclick="clearContinueWatching()" title="Continue Watching পরিষ্কার করুন">🔄 রিফ্রেশ</button>
       </div>
       <div class="horizontal-scroll-row" id="continueWatchingRow"></div>
     </div>
@@ -1391,7 +1392,14 @@
     <div class="cine-player-wrap" id="cinePlayerWrap">
       <div id="trailerStatusMsg" style="display:none; background:rgba(225,29,72,0.14); border:1px solid rgba(225,29,72,0.4); color:#facc15; font-size:12px; font-weight:700; padding:8px 12px; border-radius:8px; margin-bottom:8px; text-align:center;"></div>
       <iframe class="cine-video-frame" id="cineVideoPlayer" src="" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+      <video class="cine-video-frame" id="cineDirectVideo" controls autoplay playsinline style="display:none; object-fit:contain;"></video>
       
+      <div id="directExternalBar" style="display:none; margin-top:8px; text-align:center;">
+        <button id="btnDirectExternalOpen" class="quality-pill-btn" style="background:rgba(56,189,248,0.15); border-color:rgba(56,189,248,0.5); color:#38bdf8; padding:6px 14px;">
+          🔗 ভিডিও প্লে না হলে সরাসরি ব্রাউজারে দেখুন
+        </button>
+      </div>
+
       <div class="player-control-group">
         <div class="quality-switch-bar" id="qualitySwitchBar">
           <button class="quality-pill-btn active" onclick="switchStreamQuality('1080')">1080p FHD</button>
@@ -1434,6 +1442,21 @@
       </div>
 
       <div class="quality-options-list" id="qualityContainer" style="display: none;"></div>
+    </div>
+  </div>
+
+  <!-- শিটের বাইরের মুভির জন্য Watch Full Movie নোটিশ -->
+  <div class="request-modal" id="nonSheetWatchModal">
+    <div class="request-box" style="border-color: rgba(225, 29, 72, 0.6);">
+      <div style="font-size: 36px; margin-bottom: 6px;">🎬</div>
+      <h3 style="color:#facc15;">ভিডিও এখনো আপলোড হয় নি</h3>
+      <p style="font-size:13px; color:#e2e8f0; line-height:1.6; margin:12px 0 16px 0;">
+        দুঃখিত! এই মুভিটির ভিডিও এখনো সাইটে আপলোড হয় নি। তবে আপনি এটি আমাদের <b>টেলিগ্রামে</b> দেখতে পারবেন। নিচের বাটনে ক্লিক করে আনলক করুন:
+      </p>
+      <button class="req-submit-btn" style="background: linear-gradient(135deg, #e11d48, #be123c);" onclick="goToUnlockFromWatchMsg()">
+        🔓 আনলক করতে ক্লিক করুন
+      </button>
+      <button style="background:transparent; border:none; color:#94a3b8; margin-top:12px; cursor:pointer;" onclick="closeNonSheetWatchModal()">বন্ধ করুন</button>
     </div>
   </div>
 
@@ -1595,7 +1618,7 @@
     }
 
     function openSafeUrl(url) {
-      if (!url || url === '#' || !url.startsWith('http')) return;
+      if (!url || url === '#' || !/^https?:\/\//i.test(url)) return;
       if (tg && tg.openLink) {
         tg.openLink(url);
       } else {
@@ -1618,7 +1641,7 @@
         if (clean.includes('|')) {
           const parts = clean.split('|');
           results.push({ link: parts[0].trim(), label: parts[1].trim() });
-        } else if (clean.startsWith('http')) {
+        } else if (/^https?:\/\//i.test(clean)) {
           results.push({ link: clean, label: items.length > 1 ? `Episode ${idx + 1}` : defaultLabel });
         }
       });
@@ -1963,6 +1986,12 @@
       renderContinueWatching();
     }
 
+    function clearContinueWatching() {
+      localStorage.removeItem('cinevibebd_cw');
+      renderContinueWatching();
+      if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+    }
+
     function renderContinueWatching() {
       const block = document.getElementById('continueWatchingBlock');
       const row = document.getElementById('continueWatchingRow');
@@ -2297,10 +2326,8 @@
       
       document.getElementById('cineDetailsDescBox').innerHTML = currentMovie.details;
 
+      resetPlayerElements();
       document.getElementById('cinePlayerWrap').style.display = 'none';
-      document.getElementById('cineVideoPlayer').src = '';
-      document.getElementById('trailerStatusMsg').style.display = 'none';
-      document.getElementById('qualitySwitchBar').style.display = 'flex';
 
       loadCastInfoWithRealPhotos(currentMovie);
 
@@ -2340,10 +2367,32 @@
       }
     }
 
+    function resetPlayerElements() {
+      const iframePlayer = document.getElementById('cineVideoPlayer');
+      const directVideo = document.getElementById('cineDirectVideo');
+      const statusMsg = document.getElementById('trailerStatusMsg');
+      const externalBar = document.getElementById('directExternalBar');
+      const qualityBar = document.getElementById('qualitySwitchBar');
+
+      if (iframePlayer) {
+        iframePlayer.src = '';
+        iframePlayer.style.display = 'block';
+      }
+      if (directVideo) {
+        try { directVideo.pause(); } catch(e) {}
+        directVideo.removeAttribute('src');
+        directVideo.load();
+        directVideo.style.display = 'none';
+      }
+      if (statusMsg) statusMsg.style.display = 'none';
+      if (externalBar) externalBar.style.display = 'none';
+      if (qualityBar) qualityBar.style.display = 'flex';
+    }
+
     function closeCineDetail() {
       localStorage.removeItem('last_opened_id');
       clearInterval(stepCountdownTimer);
-      document.getElementById('cineVideoPlayer').src = '';
+      resetPlayerElements();
       document.getElementById('cineDetailView').style.display = 'none';
       if (tg?.BackButton) tg.BackButton.hide();
 
@@ -2501,7 +2550,7 @@
 
       linksToRender.forEach(q => {
         let finalLink = q.link.trim();
-        if (!finalLink.startsWith('http')) {
+        if (!/^https?:\/\//i.test(finalLink)) {
           finalLink = 'https://' + finalLink;
         }
 
@@ -2593,26 +2642,109 @@
       document.getElementById('autoTelegramNoticeModal').style.display = 'none';
     }
 
+    function closeNonSheetWatchModal() {
+      document.getElementById('nonSheetWatchModal').style.display = 'none';
+    }
+
+    function goToUnlockFromWatchMsg() {
+      closeNonSheetWatchModal();
+      const tgAlert = document.getElementById('tgFeedbackAlert');
+      const unlockBox = document.getElementById('adUnlockBox');
+      const qualityContainer = document.getElementById('qualityContainer');
+
+      if (tgAlert) tgAlert.style.display = 'none';
+      if (qualityContainer) qualityContainer.style.display = 'none';
+      if (unlockBox) unlockBox.style.display = 'block';
+
+      currentUnlockStep = 1;
+      clearInterval(stepCountdownTimer);
+      const btn = document.getElementById('adStepBtn');
+      btn.disabled = false;
+      btn.innerText = '🚀 ১ ক্লিকে ডাউনলোড লিংক আনলক করুন (স্টেপ ১/২)';
+      document.getElementById('adStepNotice').innerText = 'টেলিগ্রামে মুভিটি দেখতে নিচের আনলক বাটনে ক্লিক করুন:';
+
+      document.getElementById('downloadSectionBox').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function loadCustomUrlIntoPlayer(rawUrl) {
+      let url = rawUrl.trim();
+      if (!/^https?:\/\//i.test(url)) {
+        url = 'https://' + url;
+      }
+
+      const iframePlayer = document.getElementById('cineVideoPlayer');
+      const directVideo = document.getElementById('cineDirectVideo');
+      const externalBar = document.getElementById('directExternalBar');
+      const externalBtn = document.getElementById('btnDirectExternalOpen');
+
+      resetPlayerElements();
+
+      // সরাসরি দেখার ফ্যালব্যাক বাটন (বিশেষত http:// বা এমবেড-ব্লকড সাইটের জন্য)
+      if (externalBar && externalBtn) {
+        externalBar.style.display = 'block';
+        externalBtn.onclick = () => openSafeUrl(url);
+      }
+
+      // ১. সরাসরি ভিডিও ফাইল (.mp4, .mkv, .webm, .ogg, .mov)
+      if (/\.(mp4|webm|ogg|mkv|mov)(\?.*)?$/i.test(url)) {
+        iframePlayer.style.display = 'none';
+        directVideo.style.display = 'block';
+        directVideo.src = url;
+        directVideo.play().catch(() => {});
+        return;
+      }
+
+      // ২. YouTube লিংক হলে অটো এমবেডে রূপান্তর
+      if (url.includes('youtube.com') || url.includes('youtu.be')) {
+        const ytMatch = url.match(/(?:youtu\.be\/|watch\?v=|embed\/|shorts\/|v=)([\w-]{11})/);
+        if (ytMatch) {
+          iframePlayer.style.display = 'block';
+          iframePlayer.src = `https://www.youtube-nocookie.com/embed/${ytMatch[1]}?autoplay=1&rel=0`;
+          return;
+        }
+      }
+
+      // ৩. Google Drive লিংক হলে প্রিভিউ এমবেডে রূপান্তর
+      if (url.includes('drive.google.com')) {
+        const gdMatch = url.match(/\/file\/d\/([^\/?#]+)|[?&]id=([^&]+)/);
+        if (gdMatch) {
+          const fileId = gdMatch[1] || gdMatch[2];
+          iframePlayer.style.display = 'block';
+          iframePlayer.src = `https://drive.google.com/file/d/${fileId}/preview`;
+          return;
+        }
+      }
+
+      // ৪. যেকোনো http:// বা https:// ওয়েব/এমবেড লিংক সরাসরি আইফ্রেমে চালু
+      iframePlayer.style.display = 'block';
+      iframePlayer.src = url;
+    }
+
     let currentServerIndex = 1;
     function playOnlineMovie() {
       if (!currentMovie) return;
       const playerWrap = document.getElementById('cinePlayerWrap');
-      const statusMsg = document.getElementById('trailerStatusMsg');
-      const qualityBar = document.getElementById('qualitySwitchBar');
+      const customUrl = (currentMovie.customWatchUrl || '').trim();
 
-      if (statusMsg) statusMsg.style.display = 'none';
-      if (qualityBar) qualityBar.style.display = 'flex';
+      // শিটের বাইরের মুভি হলে এবং কাস্টম লিংক না থাকলে মেসেজ দেখাবে
+      if (!currentMovie.isFromSheet && !customUrl) {
+        document.getElementById('nonSheetWatchModal').style.display = 'flex';
+        return;
+      }
 
-      if (currentMovie.customWatchUrl && currentMovie.customWatchUrl.startsWith('http')) {
-        const player = document.getElementById('cineVideoPlayer');
-        player.src = currentMovie.customWatchUrl;
+      // P কলামে http:// বা https:// লিংক দেওয়া থাকলে সরাসরি প্লে করবে
+      if (customUrl && (/^https?:\/\//i.test(customUrl) || /^www\./i.test(customUrl))) {
         document.getElementById('serverSelectionBar').style.display = 'none';
+        document.getElementById('qualitySwitchBar').style.display = 'none';
+        loadCustomUrlIntoPlayer(customUrl);
         playerWrap.style.display = 'block';
         playerWrap.scrollIntoView({ behavior: 'smooth' });
         return;
       }
 
+      resetPlayerElements();
       document.getElementById('serverSelectionBar').style.display = 'flex';
+      document.getElementById('qualitySwitchBar').style.display = 'flex';
       switchOnlineServer(1);
       playerWrap.style.display = 'block';
       playerWrap.scrollIntoView({ behavior: 'smooth' });
@@ -2622,6 +2754,13 @@
       if (!currentMovie) return;
       currentServerIndex = num;
       const player = document.getElementById('cineVideoPlayer');
+      const directVideo = document.getElementById('cineDirectVideo');
+      if (directVideo) {
+        try { directVideo.pause(); } catch(e) {}
+        directVideo.style.display = 'none';
+      }
+      player.style.display = 'block';
+
       const tmdbId = currentMovie.tmdbId || currentMovie.id;
       const type = currentMovie.isSeries ? 'tv' : 'movie';
 
@@ -2703,15 +2842,16 @@
       const statusMsg = document.getElementById('trailerStatusMsg');
       const qualityBar = document.getElementById('qualitySwitchBar');
 
+      resetPlayerElements();
       document.getElementById('serverSelectionBar').style.display = 'none';
       if (qualityBar) qualityBar.style.display = 'none';
-      statusMsg.innerText = '⏳ ট্রেলার লোড হচ্ছে...';
+      statusMsg.innerText = '⏳ হিন্দি ট্রেলার খোঁজা হচ্ছে...';
       statusMsg.style.display = 'block';
       playerWrap.style.display = 'block';
       playerWrap.scrollIntoView({ behavior: 'smooth' });
 
-      // ১. শিটে দেওয়া কাস্টম ট্রেলার লিংক চেক (YouTube বা সরাসরি Embed লিংক)
-      if (currentMovie.trailerUrl && currentMovie.trailerUrl.trim().startsWith('http')) {
+      // ১. শিটে দেওয়া কাস্টম ট্রেলার লিংক চেক (YouTube বা সরাসরি Embed/Video লিংক)
+      if (currentMovie.trailerUrl && /^https?:\/\//i.test(currentMovie.trailerUrl.trim())) {
         const tUrl = currentMovie.trailerUrl.trim();
         if (tUrl.includes('youtube') || tUrl.includes('youtu.be')) {
           const match = tUrl.match(/(?:youtu\.be\/|watch\?v=|embed\/|shorts\/|v=)([\w-]{11})/);
@@ -2721,8 +2861,7 @@
             return;
           }
         } else {
-          statusMsg.style.display = 'none';
-          player.src = tUrl;
+          loadCustomUrlIntoPlayer(tUrl);
           return;
         }
       }
@@ -2744,13 +2883,15 @@
         } catch (e) {}
       }
 
-      // ৩. TMDB থেকে সব ভাষার (বাংলা, হিন্দি, ইংরেজি ইত্যাদি) ট্রেলার/ক্লিপ খোঁজা
+      // ৩. TMDB থেকে প্রথমে হিন্দি ট্রেলার, না পেলে অন্য ভাষার ট্রেলার খোঁজা
       if (tmdbId) {
         try {
-          const res = await fetch(`https://api.themoviedb.org/3/${type}/${tmdbId}/videos?api_key=${TMDB_API_KEY}&include_video_language=en,hi,bn,ta,te,ml,kn,ko,ja,null`);
+          const res = await fetch(`https://api.themoviedb.org/3/${type}/${tmdbId}/videos?api_key=${TMDB_API_KEY}&include_video_language=hi,bn,en,ta,te,ml,kn,ko,ja,null`);
           const data = await res.json();
           const videos = (data.results || []).filter(v => v.site === 'YouTube' && v.key);
           const ytTrailer =
+            videos.find(v => (v.iso_639_1 === 'hi' || /hindi/i.test(v.name)) && v.type === 'Trailer') ||
+            videos.find(v => v.iso_639_1 === 'hi' || /hindi/i.test(v.name)) ||
             videos.find(v => v.type === 'Trailer') ||
             videos.find(v => v.type === 'Teaser') ||
             videos.find(v => v.type === 'Clip') ||
