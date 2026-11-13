@@ -2856,9 +2856,7 @@
             directVideo.style.display = 'block';
             directVideo.onerror = () => {
               directVideo.onerror = null;
-              directVideo.style.display = 'none';
-              iframePlayer.style.display = 'block';
-              iframePlayer.src = `https://www.youtube-nocookie.com/embed/${videoKey}?autoplay=1&rel=0&modestbranding=1&iv_load_policy=3`;
+              await playTrendingSongFallback(iframePlayer, document.getElementById('trailerStatusMsg'));
             };
             directVideo.src = directUrl;
             directVideo.play().catch(() => {});
@@ -2867,10 +2865,7 @@
         } catch (e) {}
       }
 
-      directVideo.style.display = 'none';
-      iframePlayer.style.display = 'block';
-      iframePlayer.src = `https://www.youtube-nocookie.com/embed/${videoKey}?autoplay=1&rel=0&modestbranding=1&iv_load_policy=3`;
-    }
+      playTrendingSongFallback(iframePlayer, document.getElementById('trailerStatusMsg'));
 
     async function tryItunesAdFreeHindiTrailer(cleanedTitle) {
       try {
