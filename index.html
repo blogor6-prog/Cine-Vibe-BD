@@ -50,7 +50,7 @@
       overflow-x: hidden;
     }
 
-    /* Floating Glass Top Navigation (Screenshot Look) */
+    /* Floating Glass Top Navigation */
     .top-glass-header {
       position: fixed;
       top: 0;
@@ -240,7 +240,7 @@
       gap: 3px;
     }
 
-    /* Hero Banner Slider (Screenshot Look) */
+    /* Hero Banner Slider */
     .hero-banner-wrap {
       position: relative;
       width: 100%;
@@ -390,7 +390,7 @@
       padding: 0 12px;
     }
 
-    /* Notice & Viral Button (Sleek Dark Styling) */
+    /* Notice & Viral Button */
     .welcome-notice-bar {
       background: rgba(20, 21, 30, 0.9);
       border: 1px solid rgba(56, 189, 248, 0.35);
@@ -459,7 +459,7 @@
       cursor: pointer;
     }
 
-    /* Horizontal Carousel Row (Screenshot Look) */
+    /* Horizontal Carousel Row */
     .horizontal-scroll-row {
       display: flex;
       gap: 10px;
@@ -513,7 +513,7 @@
       display: block;
     }
 
-    /* Rating Badge Top-Left (Screenshot Look) */
+    /* Rating Badge Top-Left */
     .card-rating-badge {
       position: absolute;
       top: 6px;
@@ -1183,7 +1183,7 @@
     <span onclick="this.parentElement.style.display='none'" style="cursor:pointer; font-weight:900;">✕</span>
   </div>
 
-  <!-- Top Floating Glass Header (Screenshot Look) -->
+  <!-- Top Floating Glass Header -->
   <header class="top-glass-header" id="topGlassHeader">
     <div class="brand-logo" onclick="goHome()">
       <div class="brand-dot">▶</div>
@@ -1229,7 +1229,7 @@
     </div>
   </div>
 
-  <!-- Hero Featured Banner (Screenshot Look) -->
+  <!-- Hero Featured Banner -->
   <section class="hero-banner-wrap" id="heroBannerSection">
     <img id="heroBgImg" class="hero-bg-img" src="" alt="Featured Movie" onerror="handleImageError(this)">
     <div class="hero-gradient"></div>
@@ -1263,7 +1263,7 @@
       </a>
     </div>
 
-    <!-- Continue Watching (Screenshot Look) -->
+    <!-- Continue Watching -->
     <div id="continueWatchingBlock" style="display: none;">
       <div class="section-header">
         <span class="section-title">Continue Watching</span>
@@ -1389,10 +1389,11 @@
     </div>
 
     <div class="cine-player-wrap" id="cinePlayerWrap">
-      <iframe class="cine-video-frame" id="cineVideoPlayer" src="" allowfullscreen></iframe>
+      <div id="trailerStatusMsg" style="display:none; background:rgba(225,29,72,0.14); border:1px solid rgba(225,29,72,0.4); color:#facc15; font-size:12px; font-weight:700; padding:8px 12px; border-radius:8px; margin-bottom:8px; text-align:center;"></div>
+      <iframe class="cine-video-frame" id="cineVideoPlayer" src="" allowfullscreen allow="autoplay; encrypted-media"></iframe>
       
       <div class="player-control-group">
-        <div class="quality-switch-bar">
+        <div class="quality-switch-bar" id="qualitySwitchBar">
           <button class="quality-pill-btn active" onclick="switchStreamQuality('1080')">1080p FHD</button>
           <button class="quality-pill-btn" onclick="switchStreamQuality('720')">720p HD</button>
           <button class="quality-pill-btn" onclick="switchStreamQuality('480')">480p SD</button>
@@ -2298,6 +2299,8 @@
 
       document.getElementById('cinePlayerWrap').style.display = 'none';
       document.getElementById('cineVideoPlayer').src = '';
+      document.getElementById('trailerStatusMsg').style.display = 'none';
+      document.getElementById('qualitySwitchBar').style.display = 'flex';
 
       loadCastInfoWithRealPhotos(currentMovie);
 
@@ -2594,6 +2597,11 @@
     function playOnlineMovie() {
       if (!currentMovie) return;
       const playerWrap = document.getElementById('cinePlayerWrap');
+      const statusMsg = document.getElementById('trailerStatusMsg');
+      const qualityBar = document.getElementById('qualitySwitchBar');
+
+      if (statusMsg) statusMsg.style.display = 'none';
+      if (qualityBar) qualityBar.style.display = 'flex';
 
       if (currentMovie.customWatchUrl && currentMovie.customWatchUrl.startsWith('http')) {
         const player = document.getElementById('cineVideoPlayer');
@@ -2641,40 +2649,123 @@
       }
     }
 
+    function cleanTitleForSearch(rawTitle) {
+      return rawTitle
+        .replace(/\(\s*\d{4}\s*\)|\[\s*\d{4}\s*\]/g, '')
+        .replace(/\b(19\d{2}|20\d{2}|480p|720p|1080p|2160p|4k|hd|fhd|web-dl|hdrip|cam|dvdrip|full\s*movie|dual\s*audio|hindi|bangla|bengali|tamil|telugu|english|dubbed|subbed)\b/gi, '')
+        .replace(/\b(season|episode|ep|s\d+|e\d+)\b.*$/gi, '')
+        .replace(/[-_|]+/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
+    async function playTrendingSongFallback(player, statusMsg) {
+      statusMsg.innerText = '🎵 ট্রেলার পাওয়া যায়নি — ট্রেন্ডিং গান লোড হচ্ছে...';
+      statusMsg.style.display = 'block';
+
+      const fallbackEndpoints = [
+        `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&with_original_language=hi|bn&sort_by=popularity.desc`,
+        `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&with_genres=10402&sort_by=popularity.desc`,
+        `https://api.themoviedb.org/3/trending/movie/day?api_key=${TMDB_API_KEY}`
+      ];
+
+      for (const endpoint of fallbackEndpoints) {
+        try {
+          const res = await fetch(endpoint);
+          const data = await res.json();
+          const candidates = (data.results || []).slice(0, 12).sort(() => Math.random() - 0.5);
+
+          for (const item of candidates) {
+            const vRes = await fetch(`https://api.themoviedb.org/3/movie/${item.id}/videos?api_key=${TMDB_API_KEY}&include_video_language=hi,bn,en,null`);
+            const vData = await vRes.json();
+            const ytVideos = (vData.results || []).filter(v => v.site === 'YouTube' && v.key);
+            const songOrPromo =
+              ytVideos.find(v => /song|music|clip/i.test(v.name) || v.type === 'Clip') ||
+              ytVideos.find(v => v.type === 'Teaser' || v.type === 'Trailer') ||
+              ytVideos[0];
+
+            if (songOrPromo) {
+              player.src = `https://www.youtube-nocookie.com/embed/${songOrPromo.key}?autoplay=1&rel=0`;
+              statusMsg.innerText = `🎵 এই মুভির ট্রেলার পাওয়া যায়নি — ট্রেন্ডিং গান/ভিডিও চলছে (${item.title})`;
+              return;
+            }
+          }
+        } catch (e) {}
+      }
+
+      statusMsg.innerText = '⚠️ দুঃখিত, এই মুহূর্তে কোনো ট্রেলার বা ভিডিও পাওয়া যায়নি।';
+    }
+
     async function playOfficialTrailer() {
       if (!currentMovie) return;
       const playerWrap = document.getElementById('cinePlayerWrap');
       const player = document.getElementById('cineVideoPlayer');
-      document.getElementById('serverSelectionBar').style.display = 'none';
+      const statusMsg = document.getElementById('trailerStatusMsg');
+      const qualityBar = document.getElementById('qualitySwitchBar');
 
-      if (currentMovie.trailerUrl && currentMovie.trailerUrl.includes('youtube')) {
-        const match = currentMovie.trailerUrl.match(/(?:youtu\.be\/|watch\?v=)([\w-]{11})/);
-        if (match) {
-          player.src = `https://www.youtube-nocookie.com/embed/${match[1]}?autoplay=1&rel=0`;
-          playerWrap.style.display = 'block';
-          playerWrap.scrollIntoView({ behavior: 'smooth' });
+      document.getElementById('serverSelectionBar').style.display = 'none';
+      if (qualityBar) qualityBar.style.display = 'none';
+      statusMsg.innerText = '⏳ ট্রেলার লোড হচ্ছে...';
+      statusMsg.style.display = 'block';
+      playerWrap.style.display = 'block';
+      playerWrap.scrollIntoView({ behavior: 'smooth' });
+
+      // ১. শিটে দেওয়া কাস্টম ট্রেলার লিংক চেক (YouTube বা সরাসরি Embed লিংক)
+      if (currentMovie.trailerUrl && currentMovie.trailerUrl.trim().startsWith('http')) {
+        const tUrl = currentMovie.trailerUrl.trim();
+        if (tUrl.includes('youtube') || tUrl.includes('youtu.be')) {
+          const match = tUrl.match(/(?:youtu\.be\/|watch\?v=|embed\/|shorts\/|v=)([\w-]{11})/);
+          if (match) {
+            statusMsg.style.display = 'none';
+            player.src = `https://www.youtube-nocookie.com/embed/${match[1]}?autoplay=1&rel=0`;
+            return;
+          }
+        } else {
+          statusMsg.style.display = 'none';
+          player.src = tUrl;
           return;
         }
       }
 
-      if (currentMovie.tmdbId) {
+      // ২. TMDB ID না থাকলে পরিষ্কার নাম দিয়ে খোঁজা
+      let tmdbId = currentMovie.tmdbId;
+      let type = currentMovie.isSeries ? 'tv' : 'movie';
+
+      if (!tmdbId) {
         try {
-          const type = currentMovie.isSeries ? 'tv' : 'movie';
-          const res = await fetch(`https://api.themoviedb.org/3/${type}/${currentMovie.tmdbId}/videos?api_key=${TMDB_API_KEY}`);
+          const cleaned = cleanTitleForSearch(currentMovie.title) || currentMovie.title;
+          const sRes = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(cleaned)}`);
+          const sData = await sRes.json();
+          const hit = (sData.results || []).find(r => r.media_type === 'movie' || r.media_type === 'tv');
+          if (hit) {
+            tmdbId = hit.id;
+            type = hit.media_type;
+          }
+        } catch (e) {}
+      }
+
+      // ৩. TMDB থেকে সব ভাষার (বাংলা, হিন্দি, ইংরেজি ইত্যাদি) ট্রেলার/ক্লিপ খোঁজা
+      if (tmdbId) {
+        try {
+          const res = await fetch(`https://api.themoviedb.org/3/${type}/${tmdbId}/videos?api_key=${TMDB_API_KEY}&include_video_language=en,hi,bn,ta,te,ml,kn,ko,ja,null`);
           const data = await res.json();
-          const ytTrailer = (data.results || []).find(v => v.site === 'YouTube' && (v.type === 'Trailer' || v.type === 'Teaser' || v.type === 'Clip'));
+          const videos = (data.results || []).filter(v => v.site === 'YouTube' && v.key);
+          const ytTrailer =
+            videos.find(v => v.type === 'Trailer') ||
+            videos.find(v => v.type === 'Teaser') ||
+            videos.find(v => v.type === 'Clip') ||
+            videos[0];
+
           if (ytTrailer) {
+            statusMsg.style.display = 'none';
             player.src = `https://www.youtube-nocookie.com/embed/${ytTrailer.key}?autoplay=1&rel=0`;
-            playerWrap.style.display = 'block';
-            playerWrap.scrollIntoView({ behavior: 'smooth' });
             return;
           }
         } catch (e) {}
       }
 
-      const cleanTitle = currentMovie.title.replace(/\(\s*\d{4}\s*\)/g, '').trim();
-      const ytDirectUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(cleanTitle + ' official trailer song')}`;
-      openSafeUrl(ytDirectUrl);
+      // ৪. ট্রেলার না পেলে বাইরে না পাঠিয়ে প্লেয়ারেই ট্রেন্ডিং গান চালু করা
+      await playTrendingSongFallback(player, statusMsg);
     }
 
     function scrollToDownload() {
