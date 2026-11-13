@@ -14,7 +14,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700;800&display=swap" rel="stylesheet">
 
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <script type="text/javascript" data-cfasync="false" src="https://bancadeltempoidea.org/14/6ec3380071a63409857caac0c1180d7e"></script>
 
   <style>
     :root {
@@ -44,7 +43,7 @@
       background-color: var(--bg-dark);
       color: var(--text-main);
       padding: 10px;
-      padding-bottom: 80px;
+      padding-bottom: 85px;
       min-height: 100vh;
       overflow-x: hidden;
     }
@@ -394,7 +393,6 @@
       border: 1px solid rgba(250, 204, 21, 0.2);
     }
 
-    /* এক লাইনে Watch & Download */
     .dl-trigger-btn {
       background: var(--primary-hover);
       color: #fff;
@@ -485,19 +483,36 @@
     .nav-item.active { color: var(--primary); font-weight: bold; }
     .nav-icon { font-size: 18px; }
 
-    .bottom-ad-section { margin-top: 25px; padding-top: 15px; border-top: 1px solid var(--border-color); }
+    /* Bottom Ad Section - Clean & UX Friendly */
+    .bottom-ad-section {
+      margin-top: 25px;
+      padding-top: 15px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
     .entry-ad-banner {
       background: linear-gradient(135deg, #1e3a8a, #0284c7);
       border-radius: 10px;
       padding: 12px;
       text-align: center;
-      margin-bottom: 14px;
       border: 1px dashed var(--primary);
       cursor: pointer;
     }
     .entry-ad-banner p { font-size: 13px; color: #f8fafc; font-weight: bold; }
 
-    /* Movie Detail Page */
+    .ad-box-wrap {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      border-radius: 8px;
+      background: rgba(15, 23, 42, 0.5);
+    }
+
+    /* Movie Detail Page (Overlay) */
     .cine-detail-view {
       position: fixed;
       top: 0;
@@ -1061,14 +1076,31 @@
     <div class="pagination-bar" id="fullListPaginationBar" style="display: none;"></div>
   </div>
 
+  <!-- Ads Section (Smartlink + Banner 300x250 + Native Banner) -->
   <div class="bottom-ad-section">
+    <!-- Smartlink Sponsor Banner -->
     <div class="entry-ad-banner" onclick="openEntryAd()">
       <p><span>SPONSOR</span> Check out sponsored offers 🎁</p>
     </div>
 
-    <div style="margin-bottom: 15px; width: 100%; overflow: hidden; display: flex; justify-content: center; border-radius: 8px;">
-      <script async="async" data-cfasync="false" src="https://bancadeltempoidea.org/21/ae890ff8c15af92741885bc6b17aa434"></script>
-      <div id="container-ae890ff8c15af92741885bc6b17aa434"></div>
+    <!-- Banner 300x250 -->
+    <div class="ad-box-wrap" id="ad300x250Wrap">
+      <script>
+        atOptions = {
+          'key' : '6ca0efc6f46a904645aa70e1f122ac83',
+          'format' : 'iframe',
+          'height' : 250,
+          'width' : 300,
+          'params' : {}
+        };
+      </script>
+      <script src="https://bancadeltempoidea.org/22/6ca0efc6f46a904645aa70e1f122ac83"></script>
+    </div>
+
+    <!-- Native Banner -->
+    <div class="ad-box-wrap" id="nativeBannerWrap">
+      <script async="async" data-cfasync="false" src="https://bancadeltempoidea.org/21/19c38cb1841363cc1dfde284c96474d6"></script>
+      <div id="container-19c38cb1841363cc1dfde284c96474d6"></div>
     </div>
   </div>
 
@@ -1132,7 +1164,6 @@
       </div>
     </div>
 
-    <!-- ৩ স্টেপ ডাউনলোড সেকশন -->
     <div class="cine-section-box" id="downloadSectionBox">
       <div class="cine-box-title">
         <span>📥 Download Options:</span>
@@ -1219,7 +1250,11 @@
     const GOOGLE_SHEET_ID = "1RtUsHpLyk3NoxLCPSb8u4iqBqwMqtfUmWYMkD8tPWeU";
     const TMDB_API_KEY = "8265bd1679663a7ea12ac168da84d2e8";
     const ADMIN_EMAIL = "blogor6@gmail.com";
-    const ENTRY_AD_URL = "https://auctionr.org/4/65f43ffc33fe79a1323bfe7402ae52f3";
+    const ENTRY_AD_URL = "https://directyp.org/4/4efb0f438c711d6932662cc00c8e4d56";
+
+    // শিটের বাইরের মুভির স্টেপ ১ ও ২ আনলক বাটনের অ্যাড লিংক
+    const NON_SHEET_AD1_URL = "https://asiafilm.org/4/a555ec6bc7d6af27618f9ba45943fffd";
+    const NON_SHEET_AD2_URL = "https://asiafilm.org/4/a555ec6bc7d6af27618f9ba45943fffd";
 
     const GENRE_MAP = {
       28: "Action", 12: "Adventure", 16: "Animation", 35: "Comedy", 80: "Crime",
@@ -1260,13 +1295,25 @@
     }
 
     function monitorSocialBarAd() {
-      const observer = new MutationObserver(() => {
-        const adElements = document.querySelectorAll("iframe[src*='bancadeltempoidea'], div[class*='bancadeltempoidea'], div[id*='container-ae890ff8c15af92741885bc6b17aa434'] iframe");
-        if (adElements.length > 0) {
-          const toast = document.getElementById('socialAdToast');
-          if (toast && toast.style.display !== 'flex') {
-            toast.style.display = 'flex';
-            setTimeout(() => { toast.style.display = 'none'; }, 8000);
+      let toastShown = false;
+      const observer = new MutationObserver((mutations) => {
+        if (toastShown) return;
+        for (const mutation of mutations) {
+          for (const node of mutation.addedNodes) {
+            if (node.nodeType === 1 && !node.closest('#ad300x250Wrap') && !node.closest('#nativeBannerWrap')) {
+              const isSocialAd = node.matches?.("iframe[src*='bancadeltempoidea'], div[class*='bancadeltempoidea']") ||
+                                 node.querySelector?.("iframe[src*='bancadeltempoidea']");
+              if (isSocialAd) {
+                toastShown = true;
+                const toast = document.getElementById('socialAdToast');
+                if (toast) {
+                  toast.style.display = 'flex';
+                  setTimeout(() => { toast.style.display = 'none'; }, 7000);
+                }
+                observer.disconnect();
+                return;
+              }
+            }
           }
         }
       });
@@ -1774,7 +1821,17 @@
         document.getElementById('fullViewTitle').innerText = `"${q}" সার্চ ফলাফল:`;
         fullListPage = 1;
 
-        const localMatches = allMovies.filter(m => m.title.toLowerCase().includes(q.toLowerCase()));
+        let searchYear = "";
+        const yMatch = q.match(/\b(19\d{2}|20\d{2})\b/);
+        if (yMatch) searchYear = yMatch[1];
+        
+        let cleanQuery = q.replace(/\b(19\d{2}|20\d{2})\b/g, '').trim();
+        if (!cleanQuery) cleanQuery = q;
+
+        const localMatches = allMovies.filter(m => 
+          m.title.toLowerCase().includes(q.toLowerCase()) || 
+          m.title.toLowerCase().includes(cleanQuery.toLowerCase())
+        );
 
         if (localMatches.length > 0) {
           fullListCurrentMovies = localMatches;
@@ -1783,12 +1840,20 @@
           recordUserSearchQuery(q);
 
           try {
-            const res = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(q)}`);
-            const data = await res.json();
+            let tmdbQueryUrl = `https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(cleanQuery)}`;
+            if (searchYear) tmdbQueryUrl += `&year=${searchYear}`;
+
+            let res = await fetch(tmdbQueryUrl);
+            let data = await res.json();
+
+            if (!data.results || data.results.length === 0) {
+              res = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(cleanQuery)}`);
+              data = await res.json();
+            }
             
             let results = (data.results || []).filter(item => item.poster_path).map((item) => {
               const isTv = item.media_type === 'tv' || !!item.first_air_date;
-              const releaseDate = item.release_date || item.first_air_date || '2026';
+              const releaseDate = item.release_date || item.first_air_date || (searchYear ? `${searchYear}-01-01` : '2026');
               const year = releaseDate ? releaseDate.split('-')[0] : '2026';
               const titleName = item.title || item.name;
               const ratingVal = (item.vote_average && item.vote_average > 0) ? item.vote_average.toFixed(1) : '7.5';
@@ -1807,8 +1872,8 @@
                 badge: isTv ? 'SERIES' : `${year} HD`,
                 details: formatMovieDetailsHTML(ratingVal, genres, actualLang, '1080p WEB-DL', '1920x1080 FHD', releaseDate),
                 links: [],
-                ad1: ENTRY_AD_URL,
-                ad2: ENTRY_AD_URL,
+                ad1: NON_SHEET_AD1_URL,
+                ad2: NON_SHEET_AD2_URL,
                 isSeries: isTv,
                 isFromSheet: false
               };
@@ -1966,7 +2031,9 @@
       const notice = document.getElementById('adStepNotice');
 
       if (currentUnlockStep === 1) {
-        const ad1Link = currentMovie.ad1 || ENTRY_AD_URL;
+        const ad1Link = currentMovie.isFromSheet
+          ? (currentMovie.ad1 || ENTRY_AD_URL)
+          : (currentMovie.ad1 || NON_SHEET_AD1_URL);
         openSafeUrl(ad1Link);
 
         let timeLeft = 10;
@@ -1988,7 +2055,9 @@
         }, 1000);
 
       } else if (currentUnlockStep === 2) {
-        const ad2Link = currentMovie.ad2 || ENTRY_AD_URL;
+        const ad2Link = currentMovie.isFromSheet
+          ? (currentMovie.ad2 || ENTRY_AD_URL)
+          : (currentMovie.ad2 || NON_SHEET_AD2_URL);
         openSafeUrl(ad2Link);
 
         let timeLeft = 10;
@@ -2020,7 +2089,6 @@
       }
     }
 
-    /* ১০০% কাজ করা সরাসরি ডাউনলোড হ্যান্ডলার */
     function renderDownloadButtons() {
       const container = document.getElementById('qualityContainer');
       container.innerHTML = '';
@@ -2068,6 +2136,13 @@
       }
       document.getElementById('tgFeedbackAlert').style.display = 'none';
       document.getElementById('adUnlockBox').style.display = 'block';
+
+      currentUnlockStep = 1;
+      clearInterval(stepCountdownTimer);
+      const btn = document.getElementById('adStepBtn');
+      btn.disabled = false;
+      btn.innerText = '🚀 ১ ক্লিকে ডাউনলোড লিংক আনলক করুন (স্টেপ ১/২)';
+      document.getElementById('adStepNotice').innerText = 'ডাউনলোড লিংক আনলক করতে নিচের বাটনে ক্লিক করুন:';
     }
 
     async function sendAutoDetailRequest() {
@@ -2092,6 +2167,14 @@
       sessionStorage.removeItem('tg_clicked_' + currentMovie.id);
       document.getElementById('tgFeedbackAlert').style.display = 'none';
       document.getElementById('adUnlockBox').style.display = 'block';
+
+      currentUnlockStep = 1;
+      clearInterval(stepCountdownTimer);
+      const btn = document.getElementById('adStepBtn');
+      btn.disabled = false;
+      btn.innerText = '🚀 ১ ক্লিকে ডাউনলোড লিংক আনলক করুন (স্টেপ ১/২)';
+      document.getElementById('adStepNotice').innerText = 'ডাউনলোড লিংক আনলক করতে নিচের বাটনে ক্লিক করুন:';
+
       alert(`✅ ধন্যবাদ! "${currentMovie.title}" মুভিটির ছবি ও বিস্তারিত তথ্য এডমিনের কাছে পাঠানো হয়েছে। খুব দ্রুত আপলোড করা হবে!`);
     }
 
@@ -2336,5 +2419,8 @@
 
     fetchMoviesFromSheet();
   </script>
+
+  <!-- Social Bar Ad (Loads after main content for smooth UX) -->
+  <script data-cfasync="false" src="https://bancadeltempoidea.org/14/3c12a21d984165afb2e8c2dc456ef1d8"></script>
 </body>
 </html>
