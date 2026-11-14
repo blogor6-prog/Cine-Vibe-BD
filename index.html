@@ -962,39 +962,75 @@
       bottom: 0;
       left: 0;
       width: 100%;
-      background: linear-gradient(transparent, rgba(0,0,0,0.9));
-      padding: 14px 10px 8px 10px;
+      background: linear-gradient(transparent, rgba(0,0,0,0.92));
+      padding: 18px 10px 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      z-index: 25;
+    }
+    .cv-seek-wrap {
+      width: 100%;
       display: flex;
       align-items: center;
-      gap: 8px;
-      z-index: 20;
+      padding: 4px 0;
+    }
+    .cv-seek {
+      width: 100%;
+      min-width: 0;
+      -webkit-appearance: none;
+      appearance: none;
+      background: rgba(255,255,255,0.28);
+      height: 6px;
+      border-radius: 999px;
+      outline: none;
+      cursor: pointer;
+      touch-action: none;
+    }
+    .cv-seek::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #e11d48;
+      border: 2px solid #ffffff;
+      cursor: pointer;
+      box-shadow: 0 0 6px rgba(0,0,0,0.6);
+    }
+    .cv-controls-row {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+    .cv-left-group, .cv-right-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
     .cv-btn {
-      background: rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.16);
       border: none;
       color: #fff;
-      width: 28px;
+      min-width: 30px;
       height: 28px;
-      border-radius: 50%;
-      font-size: 12px;
+      padding: 0 7px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
     }
-    .cv-seek {
-      flex: 1;
-      accent-color: #e11d48;
-      height: 4px;
-      cursor: pointer;
-    }
     .cv-time {
       font-size: 10.5px;
       color: #e4e4e7;
       font-weight: 700;
       white-space: nowrap;
-      flex-shrink: 0;
     }
 
     .player-control-group {
