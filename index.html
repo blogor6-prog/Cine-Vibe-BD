@@ -1535,11 +1535,21 @@
       <div class="direct-video-box" id="directVideoBox" oncontextmenu="return false;">
         <video id="cineDirectVideo" playsinline preload="metadata" controlsList="nodownload noplaybackrate" disablePictureInPicture disableRemotePlayback oncontextmenu="return false;" onclick="toggleCustomVideoPlay()"></video>
         <div class="custom-video-controls" id="customVideoControls">
-          <button class="cv-btn" id="customPlayBtn" onclick="toggleCustomVideoPlay()">▶</button>
-          <span class="cv-time" id="customTimeText">00:00 / 00:00</span>
-          <input type="range" class="cv-seek" id="customSeekBar" min="0" max="100" value="0">
-          <button class="cv-btn" id="customMuteBtn" onclick="toggleCustomVideoMute()">🔊</button>
-          <button class="cv-btn" id="customFsBtn" onclick="toggleCustomVideoFullscreen()">⛶</button>
+          <div class="cv-seek-wrap">
+            <input type="range" class="cv-seek" id="customSeekBar" min="0" max="100" step="0.1" value="0">
+          </div>
+          <div class="cv-controls-row">
+            <div class="cv-left-group">
+              <button class="cv-btn" id="customPlayBtn" onclick="toggleCustomVideoPlay()">▶</button>
+              <button class="cv-btn" onclick="skipCustomVideo(-10)" title="10 সেকেন্ড পিছনে">⏪ 10s</button>
+              <button class="cv-btn" onclick="skipCustomVideo(10)" title="10 সেকেন্ড সামনে">10s ⏩</button>
+              <span class="cv-time" id="customTimeText">00:00 / 00:00</span>
+            </div>
+            <div class="cv-right-group">
+              <button class="cv-btn" id="customMuteBtn" onclick="toggleCustomVideoMute()">🔊</button>
+              <button class="cv-btn" id="customFsBtn" onclick="toggleCustomVideoFullscreen()">⛶</button>
+            </div>
+          </div>
         </div>
       </div>
       
@@ -2899,7 +2909,10 @@
         directVideo.removeAttribute('src');
         directVideo.load();
       }
-      if (seekBar) seekBar.value = 0;
+      if (seekBar) {
+        seekBar.value = 0;
+        updateSeekBarFill(seekBar, 0);
+      }
       if (timeText) timeText.innerText = '00:00 / 00:00';
       if (playBtn) playBtn.innerText = '▶';
       if (statusMsg) statusMsg.style.display = 'none';
@@ -3434,8 +3447,8 @@
       if (!tmdbId) {
         try {
           const sRes = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(cleanedTitle)}`);
-          const sData = await sRes.json();
-          const hit = findBestTmdbMatch(sData.results, cleanedTitle, extractedYear, currentMovie.category.toLowerCase().includes('bangla'));
+          const sData = await resJsonSafe(sRes);
+          const hit = findBestTmdbMatch(sData?.results, cleanedTitle, extractedYear, currentMovie.category.toLowerCase().includes('bangla'));
           if (hit) {
             tmdbId = hit.id;
             type = hit.media_type;
@@ -3616,4 +3629,4 @@
   <!-- Social Bar Ad (Loads after main content for smooth UX) -->
   <script data-cfasync="false" src="https://bancadeltempoidea.org/14/3c12a21d984165afb2e8c2dc456ef1d8"></script>
 </body>
-        </html>
+  </html>
