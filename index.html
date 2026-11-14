@@ -2783,6 +2783,12 @@
       return h > 0 ? `${h}:${mm}:${ss}` : `${mm}:${ss}`;
     }
 
+    let isUserSeeking = false;
+    function updateSeekBarFill(seekBar, pct) {
+      if (!seekBar) return;
+      seekBar.style.background = `linear-gradient(to right, #e11d48 0%, #e11d48 ${pct}%, rgba(255,255,255,0.28) ${pct}%, rgba(255,255,255,0.28) 100%)`;
+    }
+
     function initCustomVideoEvents() {
       const video = document.getElementById('cineDirectVideo');
       const playBtn = document.getElementById('customPlayBtn');
@@ -2794,21 +2800,53 @@
       video.onplay = () => { if (playBtn) playBtn.innerText = '⏸'; };
       video.onpause = () => { if (playBtn) playBtn.innerText = '▶'; };
       video.onvolumechange = () => { if (muteBtn) muteBtn.innerText = video.muted ? '🔇' : '🔊'; };
-      video.ontimeupdate = () => {
-        if (video.duration && !isNaN(video.duration)) {
-          if (seekBar) seekBar.value = (video.currentTime / video.duration) * 100;
-          if (timeText) timeText.innerText = `${formatVideoTime(video.currentTime)} / ${formatVideoTime(video.duration)}`;
+
+      const syncTimeUI = () => {
+        if (!video.duration || isNaN(video.duration)) return;
+        const pct = Math.min(100, Math.max(0, (video.currentTime / video.duration) * 100));
+        if (!isUserSeeking && seekBar) {
+          seekBar.value = pct;
+          updateSeekBarFill(seekBar, pct);
         }
+        if (timeText) timeText.innerText = `${formatVideoTime(video.currentTime)} / ${formatVideoTime(video.duration)}`;
       };
+
+      video.onloadedmetadata = syncTimeUI;
+      video.ondurationchange = syncTimeUI;
+      video.ontimeupdate = syncTimeUI;
+
       if (seekBar) {
-        seekBar.oninput = () => {
+        const startSeek = () => { isUserSeeking = true; };
+        const endSeek = () => {
           if (video.duration && !isNaN(video.duration)) {
-            video.currentTime = (seekBar.value / 100) * video.duration;
+            video.currentTime = (parseFloat(seekBar.value) / 100) * video.duration;
           }
+          isUserSeeking = false;
         };
+
+        seekBar.addEventListener('touchstart', startSeek, { passive: true });
+        seekBar.addEventListener('mousedown', startSeek);
+        seekBar.addEventListener('input', () => {
+          const pct = parseFloat(seekBar.value) || 0;
+          updateSeekBarFill(seekBar, pct);
+          if (video.duration && !isNaN(video.duration)) {
+            const targetTime = (pct / 100) * video.duration;
+            video.currentTime = targetTime;
+            if (timeText) timeText.innerText = `${formatVideoTime(targetTime)} / ${formatVideoTime(video.duration)}`;
+          }
+        });
+        seekBar.addEventListener('change', endSeek);
+        seekBar.addEventListener('touchend', endSeek);
+        seekBar.addEventListener('mouseup', endSeek);
       }
     }
     initCustomVideoEvents();
+
+    function skipCustomVideo(seconds) {
+      const video = document.getElementById('cineDirectVideo');
+      if (!video || !video.duration || isNaN(video.duration)) return;
+      video.currentTime = Math.min(video.duration, Math.max(0, video.currentTime + seconds));
+    }
 
     function toggleCustomVideoPlay() {
       const video = document.getElementById('cineDirectVideo');
