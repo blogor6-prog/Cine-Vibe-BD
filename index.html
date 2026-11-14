@@ -545,6 +545,9 @@
       z-index: 3;
     }
     .series-badge { background: linear-gradient(135deg, #a855f7, #6366f1) !important; }
+    .tmdb-part-badge { background: linear-gradient(135deg, #0284c7, #2563eb) !important; }
+    .current-part-badge { background: #e11d48 !important; }
+
     .pin-badge {
       position: absolute;
       bottom: 6px;
@@ -983,6 +986,37 @@
       gap: 6px;
     }
 
+    /* Related Parts Section inside Download Box */
+    .related-parts-wrap {
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border-color);
+      display: none;
+    }
+    .related-parts-title {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: #38bdf8;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .related-parts-row {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      scrollbar-width: none;
+    }
+    .related-parts-row::-webkit-scrollbar { display: none; }
+    .related-parts-row .movie-card {
+      flex: 0 0 108px;
+    }
+    .related-parts-row .movie-poster-wrap {
+      height: 152px;
+    }
+
     .tg-feedback-alert {
       background: rgba(225, 29, 72, 0.12);
       border: 1px solid rgba(225, 29, 72, 0.45);
@@ -1237,7 +1271,7 @@
       <div class="hero-type-tag" id="heroTypeTag">MOVIE</div>
       <h1 class="hero-title" id="heroTitle">CineVibeBD</h1>
       <div class="hero-meta-line">
-        <span class="hero-rating-pill" id="heroRatingPill">★ 8.0</span>
+        <span class="hero-rating-pill" id="heroRatingPill">★ 7.8</span>
         <span id="heroGenresText">HD Movies &amp; Web Series</span>
       </div>
       <p class="hero-desc" id="heroDescText">মুভি লোড হচ্ছে... অনুগ্রহ করে অপেক্ষা করুন।</p>
@@ -1365,7 +1399,7 @@
       <div class="cine-text-info">
         <h2 class="cine-title" id="cineMovieTitle">Movie Title</h2>
         <div class="cine-badges-wrap">
-          <span class="cine-chip chip-yellow" id="cineRatingChip">⭐ 8.0</span>
+          <span class="cine-chip chip-yellow" id="cineRatingChip">⭐ 7.8</span>
           <span class="cine-chip chip-blue" id="cineQualityChip">WEB-DL</span>
         </div>
         <div class="cine-details-desc-box" id="cineDetailsDescBox"></div>
@@ -1442,6 +1476,12 @@
       </div>
 
       <div class="quality-options-list" id="qualityContainer" style="display: none;"></div>
+
+      <!-- মুভির সব পার্ট (ডাউনলোড আনলক বাটনের নিচে) -->
+      <div class="related-parts-wrap" id="relatedPartsSection">
+        <div class="related-parts-title">🎞️ এই মুভির সব পার্ট (All Parts)</div>
+        <div class="related-parts-row" id="relatedPartsRow"></div>
+      </div>
     </div>
   </div>
 
@@ -1549,6 +1589,7 @@
     let heroAutoTimer = null;
 
     let currentMovie = null;
+    let currentRelatedParts = [];
     let activeCategory = 'All';
 
     const itemsPerPage = 21;
@@ -1696,7 +1737,7 @@
 
     function formatMovieDetailsHTML(rating, genre, language, quality, resolution, relDate) {
       return `
-        <div>⭐ <b>IMDb:</b> ${rating || '8.0'}/10</div>
+        <div>⭐ <b>IMDb:</b> ${rating || '7.5'}/10</div>
         <div>🎬 <b>Genre:</b> ${genre || 'Action, Drama'}</div>
         <div>🗣️ <b>Language:</b> ${language}</div>
         <div>📺 <b>Quality:</b> ${quality || '1080p WEB-DL'}</div>
@@ -1732,6 +1773,16 @@
         .replace(/[-_|()[\]]+/g, ' ')
         .replace(/\s+/g, ' ')
         .trim();
+    }
+
+    function extractBaseFranchiseTitle(rawTitle) {
+      let t = cleanTitleForSearch(rawTitle);
+      t = t.replace(/\b(part|chapter|vol|volume)\s*\d+\b/gi, '')
+           .replace(/\s+\d+$/, '')
+           .replace(/\s+(i|ii|iii|iv|v|vi)$/i, '')
+           .replace(/[:\-–]+$/, '')
+           .trim();
+      return t;
     }
 
     function normStr(s) {
@@ -1827,7 +1878,10 @@
             movie.backdrop = bestMatch.backdrop_path ? `https://image.tmdb.org/t/p/original${bestMatch.backdrop_path}` : movie.image;
           }
 
-          const ratingVal = (bestMatch.vote_average && bestMatch.vote_average > 0) ? bestMatch.vote_average.toFixed(1) : '7.8';
+          const tmdbRating = (bestMatch.vote_average && bestMatch.vote_average > 0) ? bestMatch.vote_average.toFixed(1) : '7.5';
+          const finalRating = movie.hasExplicitRating ? movie.explicitRating : tmdbRating;
+          movie.rating = `⭐ ${finalRating}`;
+
           const genres = (bestMatch.genre_ids || []).map(id => GENRE_MAP[id]).filter(Boolean).slice(0, 3).join(' · ') || 'Action · Drama';
           
           const actualLang = detectAccurateLanguage(rawTitle, movie.category, bestMatch.original_language);
@@ -1836,23 +1890,27 @@
           movie.year = relDate.split('-')[0] || '2026';
           movie.genreText = genres;
           movie.overview = bestMatch.overview || `${actualLang} · Watch & Download HD Movie on CineVibeBD.`;
-          movie.details = formatMovieDetailsHTML(ratingVal, genres.replace(/ · /g, ', '), actualLang, '1080p WEB-DL', '1920x1080 FHD', relDate);
+          movie.details = formatMovieDetailsHTML(finalRating, genres.replace(/ · /g, ', '), actualLang, '1080p WEB-DL', '1920x1080 FHD', relDate);
         } else {
           movie.tmdbId = null;
+          const finalRating = movie.hasExplicitRating ? movie.explicitRating : '7.5';
+          movie.rating = `⭐ ${finalRating}`;
           const actualLang = detectAccurateLanguage(rawTitle, movie.category, null);
           const relDate = extractedYear ? `${extractedYear}-05-15` : '2026';
           movie.year = extractedYear || '2026';
           movie.genreText = 'Drama · Thriller';
           movie.overview = `${actualLang} · Watch & Download HD Movie on CineVibeBD.`;
-          movie.details = formatMovieDetailsHTML('8.0', 'Drama, Thriller', actualLang, '1080p WEB-DL', '1920x1080 FHD', relDate);
+          movie.details = formatMovieDetailsHTML(finalRating, 'Drama, Thriller', actualLang, '1080p WEB-DL', '1920x1080 FHD', relDate);
         }
       } catch (e) {
         movie.tmdbId = null;
+        const finalRating = movie.hasExplicitRating ? movie.explicitRating : '7.5';
+        movie.rating = `⭐ ${finalRating}`;
         const actualLang = detectAccurateLanguage(rawTitle, movie.category, null);
         movie.year = extractedYear || '2026';
         movie.genreText = 'Action · Drama';
         movie.overview = `${actualLang} · Watch & Download HD Movie on CineVibeBD.`;
-        movie.details = formatMovieDetailsHTML('8.0', 'Action, Drama', actualLang, '1080p WEB-DL', '1920x1080 FHD', '2026');
+        movie.details = formatMovieDetailsHTML(finalRating, 'Action, Drama', actualLang, '1080p WEB-DL', '1920x1080 FHD', '2026');
       }
 
       if (!movie.image) {
@@ -1863,7 +1921,7 @@
     }
 
     function fetchMoviesFromSheet() {
-      const cached = localStorage.getItem('cine_movies_cache_v4');
+      const cached = localStorage.getItem('cine_movies_cache_v5');
       if (cached) {
         try {
           allMovies = JSON.parse(cached);
@@ -1899,13 +1957,20 @@
 
             const categoryVal = getCellVal(c, 1) || 'All';
             const rawRatingCol = getCellVal(c, 2);
-            let ratingVal = "8.0";
+            let explicitRating = "";
+            let hasExplicitRating = false;
             let isPinned = false;
 
             if (rawRatingCol) {
               if (rawRatingCol.toLowerCase().includes('yes')) isPinned = true;
-              const cleanRating = rawRatingCol.split(',')[0].replace(/yes/gi, '').trim();
-              if (cleanRating) ratingVal = cleanRating;
+              const numMatch = rawRatingCol.replace(/yes/gi, '').match(/(\d+(?:\.\d+)?)/);
+              if (numMatch) {
+                const parsed = parseFloat(numMatch[1]);
+                if (parsed > 0 && parsed <= 10) {
+                  explicitRating = parsed.toFixed(1);
+                  hasExplicitRating = true;
+                }
+              }
             }
 
             const rawImg = getCellVal(c, 3);
@@ -1931,7 +1996,9 @@
               id: i + 1,
               title: titleStr,
               category: categoryVal,
-              rating: `⭐ ${ratingVal}`,
+              rating: `⭐ ${hasExplicitRating ? explicitRating : '7.5'}`,
+              explicitRating: explicitRating,
+              hasExplicitRating: hasExplicitRating,
               image: rawImg,
               backdrop: rawImg,
               ad1: ad1,
@@ -1961,7 +2028,7 @@
           pinnedMovies = allMovies.filter(m => m.pinned);
           banglaMovies = allMovies.filter(m => m.category.toLowerCase().includes('bangla') || m.details?.toLowerCase().includes('bengali'));
 
-          localStorage.setItem('cine_movies_cache_v4', JSON.stringify(allMovies));
+          localStorage.setItem('cine_movies_cache_v5', JSON.stringify(allMovies));
 
           initHeroSlider(allMovies);
           renderContinueWatching();
@@ -2002,7 +2069,7 @@
       document.getElementById('heroBgImg').src = m.backdrop || m.image;
       document.getElementById('heroTypeTag').innerText = m.isSeries ? `SERIES · ${m.badge || 'HD'}` : `MOVIE · ${m.badge || 'HD'}`;
       document.getElementById('heroTitle').innerText = m.title;
-      document.getElementById('heroRatingPill').innerText = `★ ${String(m.rating).replace('⭐', '').trim()}`;
+      document.getElementById('heroRatingPill').innerText = `★ ${String(m.rating || '7.5').replace(/[⭐★]/g, '').trim()}`;
       document.getElementById('heroGenresText').innerText = m.genreText || m.category || 'HD Movie';
       document.getElementById('heroDescText').innerText = m.overview || 'Watch & Download HD Movie on CineVibeBD.';
 
@@ -2069,7 +2136,7 @@
 
       block.style.display = 'block';
       row.innerHTML = list.map(m => {
-        const cleanRate = String(m.rating || '8.0').replace('⭐', '').trim();
+        const cleanRate = String(m.rating || '7.5').replace(/[⭐★]/g, '').trim();
         const yearStr = m.year || '2026';
         return `
           <div class="movie-card" onclick="openCineDetail(${m.id})">
@@ -2091,7 +2158,7 @@
       const pinTag = m.pinned ? '<div class="pin-badge">📌</div>' : '';
       const seriesBadgeClass = m.isSeries ? 'series-badge' : '';
       const posterSrc = m.image ? m.image : 'https://via.placeholder.com/300x450/12131a/e11d48?text=' + encodeURIComponent(m.title);
-      const cleanRate = String(m.rating || '8.0').replace('⭐', '').trim();
+      const cleanRate = String(m.rating || '7.5').replace(/[⭐★]/g, '').trim();
       const yearStr = m.year || '2026';
 
       return `
@@ -2281,6 +2348,37 @@
       container.innerHTML = trendingItems.map(createMovieCardHTML).join('');
     }
 
+    function buildExternalMovieObj(item, fallbackYear) {
+      const isTv = item.media_type === 'tv' || !!item.first_air_date;
+      const releaseDate = item.release_date || item.first_air_date || (fallbackYear ? `${fallbackYear}-01-01` : '2026');
+      const year = releaseDate ? releaseDate.split('-')[0] : '2026';
+      const titleName = item.title || item.name;
+      const ratingVal = (item.vote_average && item.vote_average > 0) ? item.vote_average.toFixed(1) : '7.5';
+      const genres = (item.genre_ids || []).map(id => GENRE_MAP[id]).filter(Boolean).slice(0, 3).join(', ') || 'Action, Drama';
+      const actualLang = ACCURATE_LANG_MAP[item.original_language] || "Hindi (हिंदी)";
+
+      return {
+        id: item.id,
+        tmdbId: item.id,
+        mediaType: isTv ? 'tv' : 'movie',
+        originalLanguage: item.original_language || '',
+        title: titleName,
+        category: isTv ? 'Series' : 'Movie',
+        rating: `⭐ ${ratingVal}`,
+        year: year,
+        overview: item.overview || `${actualLang} · Watch & Download HD Movie`,
+        image: item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : '',
+        backdrop: (item.backdrop_path || item.poster_path) ? `https://image.tmdb.org/t/p/original${item.backdrop_path || item.poster_path}` : '',
+        badge: isTv ? 'SERIES' : `${year} HD`,
+        details: formatMovieDetailsHTML(ratingVal, genres, actualLang, '1080p WEB-DL', '1920x1080 FHD', releaseDate),
+        links: [],
+        ad1: NON_SHEET_AD1_URL,
+        ad2: NON_SHEET_AD2_URL,
+        isSeries: isTv,
+        isFromSheet: false
+      };
+    }
+
     let searchDebounce;
     function handleSearch() {
       clearTimeout(searchDebounce);
@@ -2327,36 +2425,9 @@
               data = await res.json();
             }
             
-            let results = (data.results || []).filter(item => (item.media_type === 'movie' || item.media_type === 'tv') && item.poster_path).map((item) => {
-              const isTv = item.media_type === 'tv' || !!item.first_air_date;
-              const releaseDate = item.release_date || item.first_air_date || (searchYear ? `${searchYear}-01-01` : '2026');
-              const year = releaseDate ? releaseDate.split('-')[0] : '2026';
-              const titleName = item.title || item.name;
-              const ratingVal = (item.vote_average && item.vote_average > 0) ? item.vote_average.toFixed(1) : '7.5';
-              const genres = (item.genre_ids || []).map(id => GENRE_MAP[id]).filter(Boolean).slice(0, 3).join(', ') || 'Action, Drama';
-              const actualLang = ACCURATE_LANG_MAP[item.original_language] || "Hindi (हिंदी)";
-
-              return {
-                id: item.id,
-                tmdbId: item.id,
-                mediaType: isTv ? 'tv' : 'movie',
-                originalLanguage: item.original_language || '',
-                title: titleName,
-                category: isTv ? 'Series' : 'Movie',
-                rating: `⭐ ${ratingVal}`,
-                year: year,
-                overview: item.overview || `${actualLang} · Watch & Download HD Movie`,
-                image: `https://image.tmdb.org/t/p/w500${item.poster_path}`,
-                backdrop: `https://image.tmdb.org/t/p/original${item.backdrop_path || item.poster_path}`,
-                badge: isTv ? 'SERIES' : `${year} HD`,
-                details: formatMovieDetailsHTML(ratingVal, genres, actualLang, '1080p WEB-DL', '1920x1080 FHD', releaseDate),
-                links: [],
-                ad1: NON_SHEET_AD1_URL,
-                ad2: NON_SHEET_AD2_URL,
-                isSeries: isTv,
-                isFromSheet: false
-              };
-            });
+            let results = (data.results || [])
+              .filter(item => (item.media_type === 'movie' || item.media_type === 'tv') && item.poster_path)
+              .map(item => buildExternalMovieObj(item, searchYear));
 
             fullListCurrentMovies = results;
             renderFullListPage();
@@ -2371,14 +2442,28 @@
 
     function openCineDetail(id) {
       const cwList = JSON.parse(localStorage.getItem('cinevibebd_cw') || '[]');
-      currentMovie = allMovies.find(m => m.id === id) ||
-                     fullListCurrentMovies.find(m => m.id === id) ||
-                     heroMovies.find(m => m.id === id) ||
-                     cwList.find(m => m.id === id);
-      if (!currentMovie) return;
+      const movieObj = allMovies.find(m => m.id === id) ||
+                       fullListCurrentMovies.find(m => m.id === id) ||
+                       heroMovies.find(m => m.id === id) ||
+                       cwList.find(m => m.id === id);
+      if (!movieObj) return;
+      openCineDetailWithObj(movieObj);
+    }
 
-      previousScrollPosition = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
-      localStorage.setItem('last_opened_id', id);
+    function openRelatedPart(idx) {
+      const partObj = currentRelatedParts[idx];
+      if (!partObj) return;
+      openCineDetailWithObj(partObj);
+    }
+
+    function openCineDetailWithObj(movieObj) {
+      if (!movieObj) return;
+      currentMovie = movieObj;
+
+      if (document.getElementById('cineDetailView').style.display !== 'block') {
+        previousScrollPosition = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+      }
+      localStorage.setItem('last_opened_id', currentMovie.id);
       saveToContinueWatching(currentMovie);
 
       const posterSrc = currentMovie.image || 'https://via.placeholder.com/300';
@@ -2387,7 +2472,7 @@
       document.getElementById('cinePosterImg').src = posterSrc;
 
       document.getElementById('cineMovieTitle').innerText = currentMovie.title;
-      document.getElementById('cineRatingChip').innerText = currentMovie.rating;
+      document.getElementById('cineRatingChip').innerText = `⭐ ${String(currentMovie.rating || '7.5').replace(/[⭐★]/g, '').trim()}`;
       document.getElementById('cineQualityChip').innerText = currentMovie.badge;
       
       document.getElementById('cineDetailsDescBox').innerHTML = currentMovie.details;
@@ -2396,6 +2481,7 @@
       document.getElementById('cinePlayerWrap').style.display = 'none';
 
       loadCastInfoWithRealPhotos(currentMovie);
+      loadRelatedParts(currentMovie);
 
       currentUnlockStep = 1;
       clearInterval(stepCountdownTimer);
@@ -2431,6 +2517,143 @@
         tg.BackButton.show();
         tg.BackButton.onClick(closeCineDetail);
       }
+    }
+
+    async function resJsonSafe(res) {
+      try { return await res.json(); } catch(e) { return null; }
+    }
+
+    function findSheetMatchForPart(partTmdbId, partTitle) {
+      const pNorm = normStr(cleanTitleForSearch(partTitle));
+      return allMovies.find(m =>
+        (partTmdbId && m.tmdbId && m.tmdbId === partTmdbId) ||
+        normStr(cleanTitleForSearch(m.title)) === pNorm
+      ) || null;
+    }
+
+    async function loadRelatedParts(movie) {
+      const section = document.getElementById('relatedPartsSection');
+      const row = document.getElementById('relatedPartsRow');
+      section.style.display = 'none';
+      row.innerHTML = '';
+      currentRelatedParts = [];
+
+      const partsMap = new Map();
+      const addPart = (partObj) => {
+        if (!partObj || !partObj.title) return;
+        const key = partObj.tmdbId ? `tmdb_${partObj.tmdbId}` : `title_${normStr(cleanTitleForSearch(partObj.title))}`;
+        if (!partsMap.has(key)) {
+          partsMap.set(key, partObj);
+        } else if (partObj.isFromSheet && !partsMap.get(key).isFromSheet) {
+          partsMap.set(key, partObj);
+        }
+      };
+
+      const baseTitle = extractBaseFranchiseTitle(movie.title);
+      const baseNorm = normStr(baseTitle);
+
+      // ১. প্রথমে Google Sheet-এ থাকা সব পার্ট খুঁজে আনা
+      if (baseNorm.length >= 3) {
+        allMovies.forEach(m => {
+          const mBase = normStr(extractBaseFranchiseTitle(m.title));
+          if (mBase === baseNorm) {
+            addPart(m);
+          }
+        });
+      }
+
+      // ২. TMDB Collection থেকে সব পার্ট আনা (শিটে থাকলে শিট, না থাকলে বাইরেরটা)
+      let tmdbId = movie.tmdbId;
+      if (!tmdbId && !movie.isSeries) {
+        try {
+          const cleaned = cleanTitleForSearch(movie.title) || movie.title;
+          const sRes = await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(cleaned)}`);
+          const sData = await resJsonSafe(sRes);
+          const hit = (sData?.results || []).find(r => normStr(r.title) === normStr(cleaned));
+          if (hit) tmdbId = hit.id;
+        } catch (e) {}
+      }
+
+      if (tmdbId && !movie.isSeries) {
+        try {
+          const mRes = await fetch(`https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${TMDB_API_KEY}`);
+          const mData = await resJsonSafe(mRes);
+          if (mData?.belongs_to_collection?.id) {
+            const colRes = await fetch(`https://api.themoviedb.org/3/collection/${mData.belongs_to_collection.id}?api_key=${TMDB_API_KEY}`);
+            const colData = await resJsonSafe(colRes);
+            for (const p of (colData?.parts || [])) {
+              if (!p.poster_path) continue;
+              const sheetMatch = findSheetMatchForPart(p.id, p.title);
+              addPart(sheetMatch || buildExternalMovieObj({ ...p, media_type: 'movie' }, ''));
+            }
+          }
+        } catch (e) {}
+      }
+
+      // ৩. যদি নতুন পার্ট বা কালেকশন মিসিং থাকে, মূল নাম দিয়ে TMDB-তে বাকি পার্ট খোঁজা
+      if (baseNorm.length >= 3 && partsMap.size <= 1) {
+        try {
+          const searchEndpoint = movie.isSeries ? 'tv' : 'movie';
+          const bRes = await fetch(`https://api.themoviedb.org/3/search/${searchEndpoint}?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(baseTitle)}`);
+          const bData = await resJsonSafe(bRes);
+          for (const item of (bData?.results || [])) {
+            if (!item.poster_path) continue;
+            const itemTitle = item.title || item.name || '';
+            const itemBase = normStr(extractBaseFranchiseTitle(itemTitle));
+            if (itemBase === baseNorm) {
+              const sheetMatch = findSheetMatchForPart(item.id, itemTitle);
+              addPart(sheetMatch || buildExternalMovieObj({ ...item, media_type: searchEndpoint }, ''));
+            }
+          }
+        } catch (e) {}
+      }
+
+      addPart(movie);
+
+      const finalParts = Array.from(partsMap.values()).sort((a, b) => {
+        const yA = parseInt(a.year || '9999', 10);
+        const yB = parseInt(b.year || '9999', 10);
+        if (yA !== yB) return yA - yB;
+        return a.title.localeCompare(b.title);
+      });
+
+      if (finalParts.length < 2) {
+        section.style.display = 'none';
+        return;
+      }
+
+      currentRelatedParts = finalParts;
+      section.style.display = 'block';
+      row.innerHTML = finalParts.map((p, idx) => {
+        const isCurrent = (p.id === movie.id && p.isFromSheet === movie.isFromSheet) ||
+                          (p.tmdbId && movie.tmdbId && p.tmdbId === movie.tmdbId);
+        const cleanRate = String(p.rating || '7.5').replace(/[⭐★]/g, '').trim();
+        const yearStr = p.year || '2026';
+        const posterSrc = p.image || 'https://via.placeholder.com/300x450/12131a/e11d48?text=' + encodeURIComponent(p.title);
+
+        let badgeHtml = '';
+        if (isCurrent) {
+          badgeHtml = '<span class="quality-badge current-part-badge">NOW</span>';
+        } else if (p.isFromSheet) {
+          badgeHtml = `<span class="quality-badge">${p.badge || 'SHEET'}</span>`;
+        } else {
+          badgeHtml = '<span class="quality-badge tmdb-part-badge">TMDB</span>';
+        }
+
+        return `
+          <div class="movie-card ${p.isFromSheet ? 'is-pinned' : ''}" onclick="openRelatedPart(${idx})">
+            <div class="movie-poster-wrap">
+              <div class="card-rating-badge"><span>★</span> ${cleanRate}</div>
+              ${badgeHtml}
+              <img src="${posterSrc}" alt="${p.title}" loading="lazy" onerror="handleImageError(this)">
+            </div>
+            <div class="movie-info">
+              <div class="movie-title" title="${p.title}">${p.title}</div>
+              <div class="movie-submeta">${yearStr} · ${p.isFromSheet ? 'শিটে আছে' : 'বাইরের লিংক'}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
 
     function resetPlayerElements() {
@@ -2901,7 +3124,6 @@
       const directVideo = document.getElementById('cineDirectVideo');
       const statusMsg = document.getElementById('trailerStatusMsg');
 
-      // প্রথমে অ্যাড-ফ্রি MP4 চেষ্টা করবে; না পেলে ইউটিউব এমবেডে ওই নির্দিষ্ট মুভিরই ট্রেলার দেখাবে
       const mp4Url = await fetchAdFreeMp4ForYouTubeKey(videoKey);
       if (mp4Url) {
         iframePlayer.style.display = 'none';
@@ -2989,7 +3211,7 @@
         return;
       }
 
-      // ৪. TMDB থেকে শুধু এই নির্দিষ্ট মুভিরই ট্রেলার বের করা (প্রথমে হিন্দি, না থাকলে মুভির নিজের ভাষার ট্রেলার)
+      // ৪. TMDB থেকে শুধু এই নির্দিষ্ট মুভিরই ট্রেলার বের করা
       if (tmdbId) {
         try {
           const res = await fetch(`https://api.themoviedb.org/3/${type}/${tmdbId}/videos?api_key=${TMDB_API_KEY}&include_video_language=hi,bn,en,ta,te,ml,kn,ko,ja,null`);
@@ -3151,4 +3373,4 @@
   <!-- Social Bar Ad (Loads after main content for smooth UX) -->
   <script data-cfasync="false" src="https://bancadeltempoidea.org/14/3c12a21d984165afb2e8c2dc456ef1d8"></script>
 </body>
-</html>
+  </html>
