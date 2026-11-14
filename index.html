@@ -929,6 +929,74 @@
       background: #000;
     }
 
+    /* Custom No-3-Dots Video Player Box */
+    .direct-video-box {
+      position: relative;
+      width: 100%;
+      height: 220px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      background: #000;
+      overflow: hidden;
+      display: none;
+      user-select: none;
+    }
+    .direct-video-box:fullscreen {
+      width: 100vw;
+      height: 100vh;
+      border-radius: 0;
+      border: none;
+    }
+    .direct-video-box video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: #000;
+      display: block;
+    }
+    .direct-video-box video::-webkit-media-controls {
+      display: none !important;
+    }
+    .custom-video-controls {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: linear-gradient(transparent, rgba(0,0,0,0.9));
+      padding: 14px 10px 8px 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 20;
+    }
+    .cv-btn {
+      background: rgba(255,255,255,0.12);
+      border: none;
+      color: #fff;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .cv-seek {
+      flex: 1;
+      accent-color: #e11d48;
+      height: 4px;
+      cursor: pointer;
+    }
+    .cv-time {
+      font-size: 10.5px;
+      color: #e4e4e7;
+      font-weight: 700;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
     .player-control-group {
       margin-top: 8px;
       display: flex;
@@ -1426,7 +1494,18 @@
     <div class="cine-player-wrap" id="cinePlayerWrap">
       <div id="trailerStatusMsg" style="display:none; background:rgba(225,29,72,0.14); border:1px solid rgba(225,29,72,0.4); color:#facc15; font-size:12px; font-weight:700; padding:8px 12px; border-radius:8px; margin-bottom:8px; text-align:center;"></div>
       <iframe class="cine-video-frame" id="cineVideoPlayer" src="" allowfullscreen allow="autoplay; encrypted-media"></iframe>
-      <video class="cine-video-frame" id="cineDirectVideo" controls autoplay playsinline style="display:none; object-fit:contain;"></video>
+
+      <!-- ৩-ডট ছাড়া কাস্টম ভিডিও প্লেয়ার -->
+      <div class="direct-video-box" id="directVideoBox" oncontextmenu="return false;">
+        <video id="cineDirectVideo" playsinline preload="metadata" controlsList="nodownload noplaybackrate" disablePictureInPicture disableRemotePlayback oncontextmenu="return false;" onclick="toggleCustomVideoPlay()"></video>
+        <div class="custom-video-controls" id="customVideoControls">
+          <button class="cv-btn" id="customPlayBtn" onclick="toggleCustomVideoPlay()">▶</button>
+          <span class="cv-time" id="customTimeText">00:00 / 00:00</span>
+          <input type="range" class="cv-seek" id="customSeekBar" min="0" max="100" value="0">
+          <button class="cv-btn" id="customMuteBtn" onclick="toggleCustomVideoMute()">🔊</button>
+          <button class="cv-btn" id="customFsBtn" onclick="toggleCustomVideoFullscreen()">⛶</button>
+        </div>
+      </div>
       
       <div id="directExternalBar" style="display:none; margin-top:8px; text-align:center;">
         <button id="btnDirectExternalOpen" class="quality-pill-btn" style="background:rgba(56,189,248,0.15); border-color:rgba(56,189,248,0.5); color:#38bdf8; padding:6px 14px;">
@@ -2656,24 +2735,99 @@
       }).join('');
     }
 
+    /* কাস্টম ৩-ডট ছাড়া ভিডিও প্লেয়ার কন্ট্রোল */
+    function formatVideoTime(sec) {
+      if (!sec || isNaN(sec)) return '00:00';
+      sec = Math.floor(sec);
+      const h = Math.floor(sec / 3600);
+      const m = Math.floor((sec % 3600) / 60);
+      const s = sec % 60;
+      const mm = String(m).padStart(2, '0');
+      const ss = String(s).padStart(2, '0');
+      return h > 0 ? `${h}:${mm}:${ss}` : `${mm}:${ss}`;
+    }
+
+    function initCustomVideoEvents() {
+      const video = document.getElementById('cineDirectVideo');
+      const playBtn = document.getElementById('customPlayBtn');
+      const seekBar = document.getElementById('customSeekBar');
+      const timeText = document.getElementById('customTimeText');
+      const muteBtn = document.getElementById('customMuteBtn');
+      if (!video) return;
+
+      video.onplay = () => { if (playBtn) playBtn.innerText = '⏸'; };
+      video.onpause = () => { if (playBtn) playBtn.innerText = '▶'; };
+      video.onvolumechange = () => { if (muteBtn) muteBtn.innerText = video.muted ? '🔇' : '🔊'; };
+      video.ontimeupdate = () => {
+        if (video.duration && !isNaN(video.duration)) {
+          if (seekBar) seekBar.value = (video.currentTime / video.duration) * 100;
+          if (timeText) timeText.innerText = `${formatVideoTime(video.currentTime)} / ${formatVideoTime(video.duration)}`;
+        }
+      };
+      if (seekBar) {
+        seekBar.oninput = () => {
+          if (video.duration && !isNaN(video.duration)) {
+            video.currentTime = (seekBar.value / 100) * video.duration;
+          }
+        };
+      }
+    }
+    initCustomVideoEvents();
+
+    function toggleCustomVideoPlay() {
+      const video = document.getElementById('cineDirectVideo');
+      if (!video) return;
+      if (video.paused) video.play().catch(() => {});
+      else video.pause();
+    }
+
+    function toggleCustomVideoMute() {
+      const video = document.getElementById('cineDirectVideo');
+      if (!video) return;
+      video.muted = !video.muted;
+    }
+
+    function toggleCustomVideoFullscreen() {
+      const box = document.getElementById('directVideoBox');
+      const video = document.getElementById('cineDirectVideo');
+      if (!box) return;
+      if (document.fullscreenElement || document.webkitFullscreenElement) {
+        if (document.exitFullscreen) document.exitFullscreen();
+        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+      } else {
+        if (box.requestFullscreen) box.requestFullscreen().catch(() => {});
+        else if (box.webkitRequestFullscreen) box.webkitRequestFullscreen();
+        else if (video && video.webkitEnterFullscreen) video.webkitEnterFullscreen();
+      }
+    }
+
     function resetPlayerElements() {
       const iframePlayer = document.getElementById('cineVideoPlayer');
+      const directBox = document.getElementById('directVideoBox');
       const directVideo = document.getElementById('cineDirectVideo');
       const statusMsg = document.getElementById('trailerStatusMsg');
       const externalBar = document.getElementById('directExternalBar');
       const qualityBar = document.getElementById('qualitySwitchBar');
+      const seekBar = document.getElementById('customSeekBar');
+      const timeText = document.getElementById('customTimeText');
+      const playBtn = document.getElementById('customPlayBtn');
 
       if (iframePlayer) {
         iframePlayer.src = '';
         iframePlayer.style.display = 'block';
+      }
+      if (directBox) {
+        directBox.style.display = 'none';
       }
       if (directVideo) {
         directVideo.onerror = null;
         try { directVideo.pause(); } catch(e) {}
         directVideo.removeAttribute('src');
         directVideo.load();
-        directVideo.style.display = 'none';
       }
+      if (seekBar) seekBar.value = 0;
+      if (timeText) timeText.innerText = '00:00 / 00:00';
+      if (playBtn) playBtn.innerText = '▶';
       if (statusMsg) statusMsg.style.display = 'none';
       if (externalBar) externalBar.style.display = 'none';
       if (qualityBar) qualityBar.style.display = 'flex';
@@ -2963,25 +3117,15 @@
       }
 
       const iframePlayer = document.getElementById('cineVideoPlayer');
+      const directBox = document.getElementById('directVideoBox');
       const directVideo = document.getElementById('cineDirectVideo');
       const externalBar = document.getElementById('directExternalBar');
       const externalBtn = document.getElementById('btnDirectExternalOpen');
+      const statusMsg = document.getElementById('trailerStatusMsg');
 
       resetPlayerElements();
 
-      if (externalBar && externalBtn) {
-        externalBar.style.display = 'block';
-        externalBtn.onclick = () => openSafeUrl(url);
-      }
-
-      if (/\.(mp4|m4v|webm|ogg|mkv|mov)(\?.*)?$/i.test(url)) {
-        iframePlayer.style.display = 'none';
-        directVideo.style.display = 'block';
-        directVideo.src = url;
-        directVideo.play().catch(() => {});
-        return;
-      }
-
+      // ১. YouTube লিংক
       if (url.includes('youtube.com') || url.includes('youtu.be')) {
         const ytMatch = url.match(/(?:youtu\.be\/|watch\?v=|embed\/|shorts\/|v=)([\w-]{11})/);
         if (ytMatch) {
@@ -2991,6 +3135,7 @@
         }
       }
 
+      // ২. Google Drive লিংক
       if (url.includes('drive.google.com')) {
         const gdMatch = url.match(/\/file\/d\/([^\/?#]+)|[?&]id=([^&]+)/);
         if (gdMatch) {
@@ -3001,6 +3146,32 @@
         }
       }
 
+      // ৩. সরাসরি ভিডিও ফাইল ও Cloudflare R2 (r2.dev / .mkv / .mp4) — ৩-ডট ছাড়া কাস্টম প্লেয়ারে প্লে হবে
+      const isKnownEmbed = /embed|player|vidsrc|autoembed|multiembed|smashystream|streamtape|dood|mixdrop|filemoon|voe\.sx|ok\.ru|dailymotion|vimeo/i.test(url);
+      const isDirectVideoHost = /\.(mp4|m4v|webm|ogg|mkv|mov)(\?.*)?$/i.test(url) ||
+                                /r2\.dev|r2\.cloudflarestorage\.com|workers\.dev|firebasestorage|digitaloceanspaces|b-cdn\.net|backblazeb2/i.test(url);
+
+      if (isDirectVideoHost && !isKnownEmbed) {
+        iframePlayer.style.display = 'none';
+        directBox.style.display = 'block';
+        if (externalBar) externalBar.style.display = 'none'; // সরাসরি ডাউনলোড লিংক গোপন থাকবে
+        directVideo.onerror = () => {
+          directVideo.onerror = null;
+          if (statusMsg) {
+            statusMsg.innerText = '⚠️ এই ভিডিওটি এই ডিভাইসের ব্রাউজারে সাপোর্ট করছে না।';
+            statusMsg.style.display = 'block';
+          }
+        };
+        directVideo.src = url;
+        directVideo.play().catch(() => {});
+        return;
+      }
+
+      // ৪. অন্যান্য ওয়েব/এমবেড লিংক
+      if (externalBar && externalBtn) {
+        externalBar.style.display = 'block';
+        externalBtn.onclick = () => openSafeUrl(url);
+      }
       iframePlayer.style.display = 'block';
       iframePlayer.src = url;
     }
@@ -3037,11 +3208,12 @@
       if (!currentMovie) return;
       currentServerIndex = num;
       const player = document.getElementById('cineVideoPlayer');
+      const directBox = document.getElementById('directVideoBox');
       const directVideo = document.getElementById('cineDirectVideo');
+      if (directBox) directBox.style.display = 'none';
       if (directVideo) {
         directVideo.onerror = null;
         try { directVideo.pause(); } catch(e) {}
-        directVideo.style.display = 'none';
       }
       player.style.display = 'block';
 
@@ -3121,23 +3293,24 @@
 
     async function playExactTrailerKey(videoKey, labelText) {
       const iframePlayer = document.getElementById('cineVideoPlayer');
+      const directBox = document.getElementById('directVideoBox');
       const directVideo = document.getElementById('cineDirectVideo');
       const statusMsg = document.getElementById('trailerStatusMsg');
 
       const mp4Url = await fetchAdFreeMp4ForYouTubeKey(videoKey);
       if (mp4Url) {
         iframePlayer.style.display = 'none';
-        directVideo.style.display = 'block';
+        directBox.style.display = 'block';
         directVideo.onerror = () => {
           directVideo.onerror = null;
-          directVideo.style.display = 'none';
+          directBox.style.display = 'none';
           iframePlayer.style.display = 'block';
           iframePlayer.src = `https://www.youtube-nocookie.com/embed/${videoKey}?autoplay=1&rel=0&modestbranding=1&iv_load_policy=3`;
         };
         directVideo.src = mp4Url;
         directVideo.play().catch(() => {});
       } else {
-        directVideo.style.display = 'none';
+        directBox.style.display = 'none';
         iframePlayer.style.display = 'block';
         iframePlayer.src = `https://www.youtube-nocookie.com/embed/${videoKey}?autoplay=1&rel=0&modestbranding=1&iv_load_policy=3`;
       }
@@ -3150,6 +3323,7 @@
       if (!currentMovie) return;
       const playerWrap = document.getElementById('cinePlayerWrap');
       const player = document.getElementById('cineVideoPlayer');
+      const directBox = document.getElementById('directVideoBox');
       const directVideo = document.getElementById('cineDirectVideo');
       const statusMsg = document.getElementById('trailerStatusMsg');
       const qualityBar = document.getElementById('qualitySwitchBar');
@@ -3162,7 +3336,6 @@
       playerWrap.style.display = 'block';
       playerWrap.scrollIntoView({ behavior: 'smooth' });
 
-      // ১. শিটে দেওয়া কাস্টম ট্রেলার লিংক (O কলাম)
       if (currentMovie.trailerUrl && /^https?:\/\//i.test(currentMovie.trailerUrl.trim())) {
         const tUrl = currentMovie.trailerUrl.trim();
         if (tUrl.includes('youtube') || tUrl.includes('youtu.be')) {
@@ -3177,7 +3350,6 @@
         }
       }
 
-      // ২. মুভির আসল নাম ও সাল দিয়ে সঠিক TMDB মুভি/সিরিজ খুঁজে নেওয়া
       const cleanedTitle = cleanTitleForSearch(currentMovie.title) || currentMovie.title;
       const yearMatch = currentMovie.title.match(/\b(19\d{2}|20\d{2})\b/);
       const extractedYear = yearMatch ? yearMatch[1] : (currentMovie.year || '');
@@ -3199,11 +3371,10 @@
         } catch (e) {}
       }
 
-      // ৩. হুবহু নাম মিললে অ্যাড-ফ্রি iTunes ট্রেলার (.m4v) চেষ্টা করা
       const exactItunesUrl = await tryItunesExactTrailer(cleanedTitle, extractedYear);
       if (exactItunesUrl) {
         player.style.display = 'none';
-        directVideo.style.display = 'block';
+        directBox.style.display = 'block';
         directVideo.onerror = null;
         directVideo.src = exactItunesUrl;
         directVideo.play().catch(() => {});
@@ -3211,7 +3382,6 @@
         return;
       }
 
-      // ৪. TMDB থেকে শুধু এই নির্দিষ্ট মুভিরই ট্রেলার বের করা
       if (tmdbId) {
         try {
           const res = await fetch(`https://api.themoviedb.org/3/${type}/${tmdbId}/videos?api_key=${TMDB_API_KEY}&include_video_language=hi,bn,en,ta,te,ml,kn,ko,ja,null`);
@@ -3232,7 +3402,6 @@
         } catch (e) {}
       }
 
-      // ৫. এই মুভির কোনো ট্রেলার না পাওয়া গেলে অন্য মুভি বা গান চালাবে না
       player.style.display = 'none';
       statusMsg.innerText = `⚠️ দুঃখিত! "${currentMovie.title}" মুভিটির ট্রেলার পাওয়া যায়নি। তবে নিচ থেকে ফুল মুভি দেখতে পারবেন।`;
     }
@@ -3373,4 +3542,4 @@
   <!-- Social Bar Ad (Loads after main content for smooth UX) -->
   <script data-cfasync="false" src="https://bancadeltempoidea.org/14/3c12a21d984165afb2e8c2dc456ef1d8"></script>
 </body>
-  </html>
+        </html>
