@@ -170,11 +170,12 @@
       border-radius: 12px;
       box-shadow: 0 10px 25px rgba(0,0,0,0.85);
       z-index: 1000;
-      width: 165px;
-      overflow: hidden;
+      width: 195px;
+      max-height: 68vh;
+      overflow-y: auto;
     }
     .dropdown-menu div {
-      padding: 11px 14px;
+      padding: 10px 14px;
       font-size: 13px;
       color: #f1f5f9;
       cursor: pointer;
@@ -205,7 +206,7 @@
     .search-box { position: relative; flex-grow: 1; }
     .search-box input {
       width: 100%;
-      padding: 9px 36px 9px 14px;
+      padding: 9px 62px 9px 14px;
       border-radius: 999px;
       border: 1px solid var(--glass-border);
       background: #16161e;
@@ -214,6 +215,24 @@
       outline: none;
     }
     .search-box input:focus { border-color: var(--primary); }
+    .clear-search-btn {
+      position: absolute;
+      right: 34px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.16);
+      border: none;
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 800;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
     .voice-btn {
       position: absolute;
       right: 10px;
@@ -545,6 +564,8 @@
       z-index: 3;
     }
     .series-badge { background: linear-gradient(135deg, #a855f7, #6366f1) !important; }
+    .featured-badge { background: linear-gradient(135deg, #e11d48, #f97316) !important; }
+    .adult-badge { background: linear-gradient(135deg, #dc2626, #991b1b) !important; }
     .tmdb-part-badge { background: linear-gradient(135deg, #0284c7, #2563eb) !important; }
     .current-part-badge { background: #e11d48 !important; }
 
@@ -1346,10 +1367,32 @@
         <div onclick="selectCategory('All', event)">🌐 All Movies</div>
         <div onclick="selectCategory('Series', event)">📺 Web Series</div>
         <div onclick="selectCategory('Trending', event)">🔥 Trending</div>
+        <div onclick="selectCategory('18+ Adult', event)">🔞 18+ Adult</div>
+        <div onclick="selectCategory('Action', event)">💥 Action</div>
+        <div onclick="selectCategory('Action &amp; Adventure', event)">⚔️ Action &amp; Adventure</div>
+        <div onclick="selectCategory('Adventure', event)">🧭 Adventure</div>
+        <div onclick="selectCategory('Animation', event)">🎨 Animation</div>
         <div onclick="selectCategory('Bangla', event)">🇧🇩 Bangla</div>
-        <div onclick="selectCategory('Hindi', event)">🇮🇳 Hindi</div>
+        <div onclick="selectCategory('Bangla Dubbed', event)">🎙️ Bangla Dubbed</div>
         <div onclick="selectCategory('Bollywood', event)">⚡ Bollywood</div>
-        <div onclick="selectCategory('Hollywood', event)">🎬 Hollywood</div>
+        <div onclick="selectCategory('Comedy', event)">😂 Comedy</div>
+        <div onclick="selectCategory('Crime', event)">🕵️ Crime</div>
+        <div onclick="selectCategory('Drama', event)">🎭 Drama</div>
+        <div onclick="selectCategory('Family', event)">👨‍👩‍👧 Family</div>
+        <div onclick="selectCategory('Fantasy', event)">🪄 Fantasy</div>
+        <div onclick="selectCategory('History', event)">📜 History</div>
+        <div onclick="selectCategory('Horror', event)">👻 Horror</div>
+        <div onclick="selectCategory('Ramayanal', event)">🏹 Ramayanal</div>
+        <div onclick="selectCategory('Music', event)">🎵 Music</div>
+        <div onclick="selectCategory('chelor F', event)">🎬 chelor F</div>
+        <div onclick="selectCategory('Mystery', event)">🔍 Mystery</div>
+        <div onclick="selectCategory('Reality', event)">📺 Reality</div>
+        <div onclick="selectCategory('Romance', event)">❤️ Romance</div>
+        <div onclick="selectCategory('Sci-Fi &amp; Fantasy', event)">🛸 Sci-Fi &amp; Fantasy</div>
+        <div onclick="selectCategory('Science Fiction', event)">🚀 Science Fiction</div>
+        <div onclick="selectCategory('South Indian', event)">🔥 South Indian</div>
+        <div onclick="selectCategory('Thriller', event)">🔪 Thriller</div>
+        <div onclick="selectCategory('War', event)">🎖️ War</div>
       </div>
     </div>
   </header>
@@ -1358,7 +1401,8 @@
   <div class="search-bar-panel" id="searchBarPanel">
     <div class="search-wrapper">
       <div class="search-box">
-        <input type="text" id="searchInput" placeholder="যেকোনো মুভির নাম লিখুন..." onkeyup="handleSearch()">
+        <input type="text" id="searchInput" placeholder="যেকোনো মুভির নাম লিখুন..." oninput="toggleClearBtn(); handleSearch();" onkeyup="toggleClearBtn()">
+        <button class="clear-search-btn" id="clearSearchBtn" onclick="clearSearchInput()" title="মুছে ফেলুন">✕</button>
         <button class="voice-btn" onclick="startVoiceSearch()" title="Voice Search">🎙️</button>
       </div>
       <button class="user-search-stats-btn" onclick="openUserSearchesModal()" title="সবচেয়ে বেশি সার্চ করা মুভি">
@@ -1419,13 +1463,26 @@
       <div class="horizontal-scroll-row" id="trendingList"></div>
     </div>
 
-    <!-- Pinned Movies Horizontal Carousel -->
-    <div id="pinnedSectionBlock" style="display: none;">
+    <!-- Recently Added 3-Column Grid (Below Trending Now) -->
+    <div id="recentSectionBlock">
       <div class="section-header">
-        <span class="section-title">📌 Pinned Movies</span>
-        <button class="see-all-btn" onclick="openSeeAll('pinned')">SEE ALL ➔</button>
+        <span class="section-title">🆕 Recently Added</span>
       </div>
-      <div class="horizontal-scroll-row" id="pinnedMoviesGrid"></div>
+      <div class="movies-grid" id="recentMoviesGrid">
+        <div style="grid-column: span 3; text-align: center; padding: 40px 10px; color: #a1a1aa; font-size: 14px;">
+          মুভি লোড হচ্ছে... অনুগ্রহ করে অপেক্ষা করুন ⏳
+        </div>
+      </div>
+      <div class="pagination-bar" id="homePaginationBar" style="display: none;"></div>
+    </div>
+
+    <!-- Web Series Horizontal Carousel (Replaced Pinned Movies) -->
+    <div id="seriesSectionBlock" style="display: none;">
+      <div class="section-header">
+        <span class="section-title">📺 Web Series</span>
+        <button class="see-all-btn" onclick="openSeeAll('series')">SEE ALL ➔</button>
+      </div>
+      <div class="horizontal-scroll-row" id="seriesMoviesGrid"></div>
     </div>
 
     <!-- Bangla Movies Horizontal Carousel -->
@@ -1437,17 +1494,13 @@
       <div class="horizontal-scroll-row" id="banglaMoviesGrid"></div>
     </div>
 
-    <!-- Recently Added 3-Column Grid -->
-    <div id="recentSectionBlock">
+    <!-- 18+ Adult Horizontal Carousel -->
+    <div id="adultSectionBlock" style="display: none;">
       <div class="section-header">
-        <span class="section-title">🆕 Recently Added</span>
+        <span class="section-title">🔞 18+ Adult</span>
+        <button class="see-all-btn" onclick="openSeeAll('adult')">SEE ALL ➔</button>
       </div>
-      <div class="movies-grid" id="recentMoviesGrid">
-        <div style="grid-column: span 3; text-align: center; padding: 40px 10px; color: #a1a1aa; font-size: 14px;">
-          মুভি লোড হচ্ছে... অনুগ্রহ করে অপেক্ষা করুন ⏳
-        </div>
-      </div>
-      <div class="pagination-bar" id="homePaginationBar" style="display: none;"></div>
+      <div class="horizontal-scroll-row" id="adultMoviesGrid"></div>
     </div>
   </div>
 
@@ -1696,7 +1749,7 @@
       99: "Documentary", 18: "Drama", 10751: "Family", 14: "Fantasy", 36: "History",
       27: "Horror", 10402: "Music", 9648: "Mystery", 10749: "Romance", 878: "Sci-Fi",
       10770: "TV Movie", 53: "Thriller", 10752: "War", 37: "Western",
-      10759: "Action & Adventure", 10762: "Kids", 10765: "Sci-Fi & Fantasy"
+      10759: "Action & Adventure", 10762: "Kids", 10764: "Reality", 10765: "Sci-Fi & Fantasy"
     };
 
     const ACCURATE_LANG_MAP = {
@@ -1707,8 +1760,9 @@
     };
 
     let allMovies = [];
-    let pinnedMovies = [];
+    let seriesMovies = [];
     let banglaMovies = [];
+    let adultMovies = [];
     let heroMovies = [];
     let currentHeroIndex = 0;
     let heroAutoTimer = null;
@@ -1746,6 +1800,64 @@
       if (panel.classList.contains('open')) {
         setTimeout(() => document.getElementById('searchInput').focus(), 100);
       }
+    }
+
+    function toggleClearBtn() {
+      const input = document.getElementById('searchInput');
+      const btn = document.getElementById('clearSearchBtn');
+      if (btn) btn.style.display = input.value.length > 0 ? 'flex' : 'none';
+    }
+
+    function clearSearchInput() {
+      const input = document.getElementById('searchInput');
+      input.value = '';
+      toggleClearBtn();
+      goHome();
+    }
+
+    function isAdultMovie(m) {
+      if (!m) return false;
+      const b = (m.badge || '').toLowerCase();
+      const c = (m.category || '').toLowerCase();
+      return b.includes('18+') || b.includes('adult') || c.includes('18+') || c.includes('adult');
+    }
+
+    function applyCustomSortOrder(list) {
+      const fixedItems = [];
+      const normalItems = [];
+
+      list.forEach(m => {
+        if (m.sortOrder && m.sortOrder >= 1) {
+          fixedItems.push(m);
+        } else {
+          normalItems.push(m);
+        }
+      });
+
+      if (fixedItems.length === 0) return list;
+
+      fixedItems.sort((a, b) => a.sortOrder - b.sortOrder);
+      const result = new Array(list.length).fill(null);
+
+      fixedItems.forEach(item => {
+        let idx = Math.min(Math.max(item.sortOrder - 1, 0), result.length - 1);
+        while (idx < result.length && result[idx] !== null) {
+          idx++;
+        }
+        if (idx >= result.length) {
+          idx = result.indexOf(null);
+        }
+        if (idx !== -1) result[idx] = item;
+      });
+
+      let nIdx = 0;
+      for (let i = 0; i < result.length; i++) {
+        if (result[i] === null && nIdx < normalItems.length) {
+          result[i] = normalItems[nIdx++];
+        }
+      }
+
+      return result.filter(Boolean);
     }
 
     function monitorSocialBarAd() {
@@ -1844,6 +1956,7 @@
             closeUserSearchesModal();
             document.getElementById('searchBarPanel').classList.add('open');
             document.getElementById('searchInput').value = query;
+            toggleClearBtn();
             handleSearch();
           };
           item.innerHTML = `
@@ -2045,14 +2158,19 @@
       return movie;
     }
 
+    function updateMovieBuckets() {
+      seriesMovies = allMovies.filter(m => m.isSeries && !isAdultMovie(m));
+      banglaMovies = allMovies.filter(m => !isAdultMovie(m) && (m.category.toLowerCase().includes('bangla') || m.details?.toLowerCase().includes('bengali')));
+      adultMovies = allMovies.filter(m => isAdultMovie(m));
+    }
+
     function fetchMoviesFromSheet() {
-      const cached = localStorage.getItem('cine_movies_cache_v5');
+      const cached = localStorage.getItem('cine_movies_cache_v6');
       if (cached) {
         try {
           allMovies = JSON.parse(cached);
-          pinnedMovies = allMovies.filter(m => m.pinned);
-          banglaMovies = allMovies.filter(m => m.category.toLowerCase().includes('bangla') || m.details?.toLowerCase().includes('bengali'));
-          initHeroSlider(allMovies);
+          updateMovieBuckets();
+          initHeroSlider(allMovies.filter(m => !isAdultMovie(m)));
           renderContinueWatching();
           renderTrendingSlider(allMovies);
           renderHomeSections();
@@ -2112,6 +2230,10 @@
             const allParsedLinks = [...linksG, ...linksH, ...linksI, ...linksJ, ...linksM];
 
             const badgeTag = getCellVal(c, 10) || (isSeries ? 'SERIES' : '1080p');
+            const rawSortOrder = getCellVal(c, 11);
+            const parsedSortOrder = parseInt(rawSortOrder, 10);
+            const sortOrder = (!isNaN(parsedSortOrder) && parsedSortOrder > 0) ? parsedSortOrder : null;
+
             const castNames = getCellVal(c, 13);
             const trailerLink = getCellVal(c, 14);
             const customWatchLink = getCellVal(c, 15);
@@ -2129,6 +2251,7 @@
               ad1: ad1,
               ad2: ad2,
               badge: badgeTag,
+              sortOrder: sortOrder,
               details: '',
               links: allParsedLinks,
               pinned: isPinned,
@@ -2144,18 +2267,18 @@
           }
 
           rawMovies.reverse();
+          rawMovies = applyCustomSortOrder(rawMovies);
 
           for (let m of rawMovies) {
             await completeSheetMovieDetails(m);
           }
 
           allMovies = rawMovies;
-          pinnedMovies = allMovies.filter(m => m.pinned);
-          banglaMovies = allMovies.filter(m => m.category.toLowerCase().includes('bangla') || m.details?.toLowerCase().includes('bengali'));
+          updateMovieBuckets();
 
-          localStorage.setItem('cine_movies_cache_v5', JSON.stringify(allMovies));
+          localStorage.setItem('cine_movies_cache_v6', JSON.stringify(allMovies));
 
-          initHeroSlider(allMovies);
+          initHeroSlider(allMovies.filter(m => !isAdultMovie(m)));
           renderContinueWatching();
           renderTrendingSlider(allMovies);
           renderHomeSections();
@@ -2279,9 +2402,18 @@
       }).join('');
     }
 
-    function createMovieCardHTML(m) {
+    function createMovieCardHTML(m, forceBadge = null) {
       const pinTag = m.pinned ? '<div class="pin-badge">📌</div>' : '';
-      const seriesBadgeClass = m.isSeries ? 'series-badge' : '';
+      const displayBadge = forceBadge !== null ? forceBadge : m.badge;
+      let badgeClass = '';
+      if (forceBadge === 'FEATURED') {
+        badgeClass = 'featured-badge';
+      } else if (isAdultMovie(m)) {
+        badgeClass = 'adult-badge';
+      } else if (m.isSeries) {
+        badgeClass = 'series-badge';
+      }
+
       const posterSrc = m.image ? m.image : 'https://via.placeholder.com/300x450/12131a/e11d48?text=' + encodeURIComponent(m.title);
       const cleanRate = String(m.rating || '7.5').replace(/[⭐★]/g, '').trim();
       const yearStr = m.year || '2026';
@@ -2291,7 +2423,7 @@
           ${pinTag}
           <div class="movie-poster-wrap">
             <div class="card-rating-badge"><span>★</span> ${cleanRate}</div>
-            ${m.badge ? `<span class="quality-badge ${seriesBadgeClass}">${m.badge}</span>` : ''}
+            ${displayBadge ? `<span class="quality-badge ${badgeClass}">${displayBadge}</span>` : ''}
             <img src="${posterSrc}" alt="${m.title}" loading="lazy" onerror="handleImageError(this)">
           </div>
           <div class="movie-info">
@@ -2303,22 +2435,31 @@
     }
 
     function renderHomeSections() {
-      const pinnedBlock = document.getElementById('pinnedSectionBlock');
-      const pinnedGrid = document.getElementById('pinnedMoviesGrid');
-      if (pinnedMovies.length > 0) {
-        pinnedBlock.style.display = 'block';
-        pinnedGrid.innerHTML = pinnedMovies.slice(0, 10).map(createMovieCardHTML).join('');
+      const seriesBlock = document.getElementById('seriesSectionBlock');
+      const seriesGrid = document.getElementById('seriesMoviesGrid');
+      if (seriesMovies.length > 0) {
+        seriesBlock.style.display = 'block';
+        seriesGrid.innerHTML = seriesMovies.slice(0, 10).map(m => createMovieCardHTML(m)).join('');
       } else {
-        pinnedBlock.style.display = 'none';
+        seriesBlock.style.display = 'none';
       }
 
       const banglaBlock = document.getElementById('banglaSectionBlock');
       const banglaGrid = document.getElementById('banglaMoviesGrid');
       if (banglaMovies.length > 0) {
         banglaBlock.style.display = 'block';
-        banglaGrid.innerHTML = banglaMovies.slice(0, 10).map(createMovieCardHTML).join('');
+        banglaGrid.innerHTML = banglaMovies.slice(0, 10).map(m => createMovieCardHTML(m)).join('');
       } else {
         banglaBlock.style.display = 'none';
+      }
+
+      const adultBlock = document.getElementById('adultSectionBlock');
+      const adultGrid = document.getElementById('adultMoviesGrid');
+      if (adultMovies.length > 0) {
+        adultBlock.style.display = 'block';
+        adultGrid.innerHTML = adultMovies.slice(0, 10).map(m => createMovieCardHTML(m)).join('');
+      } else {
+        adultBlock.style.display = 'none';
       }
 
       renderRecentMovies();
@@ -2326,15 +2467,17 @@
 
     function renderRecentMovies() {
       const recentGrid = document.getElementById('recentMoviesGrid');
-      const pinnedBlock = document.getElementById('pinnedSectionBlock');
+      const seriesBlock = document.getElementById('seriesSectionBlock');
       const banglaBlock = document.getElementById('banglaSectionBlock');
+      const adultBlock = document.getElementById('adultSectionBlock');
       const trendingSec = document.getElementById('trendingSection');
       const heroSec = document.getElementById('heroBannerSection');
       const cwBlock = document.getElementById('continueWatchingBlock');
 
       if (homePage > 1) {
-        if (pinnedBlock) pinnedBlock.style.display = 'none';
+        if (seriesBlock) seriesBlock.style.display = 'none';
         if (banglaBlock) banglaBlock.style.display = 'none';
+        if (adultBlock) adultBlock.style.display = 'none';
         if (trendingSec) trendingSec.style.display = 'none';
         if (heroSec) heroSec.style.display = 'none';
         if (cwBlock) cwBlock.style.display = 'none';
@@ -2343,18 +2486,20 @@
         if (heroSec) heroSec.style.display = 'block';
         document.getElementById('homeSectionsContainer').style.paddingTop = '0';
         renderContinueWatching();
-        if (pinnedMovies.length > 0) pinnedBlock.style.display = 'block';
+        if (seriesMovies.length > 0) seriesBlock.style.display = 'block';
         if (banglaMovies.length > 0) banglaBlock.style.display = 'block';
-        if (allMovies.some(m => m.trending || m.pinned)) trendingSec.style.display = 'block';
+        if (adultMovies.length > 0) adultBlock.style.display = 'block';
+        if (allMovies.some(m => (m.trending || m.pinned) && !isAdultMovie(m))) trendingSec.style.display = 'block';
       }
 
+      const recentSource = allMovies.filter(m => !isAdultMovie(m));
       const start = (homePage - 1) * itemsPerPage;
       const end = start + itemsPerPage;
-      const paged = allMovies.slice(start, end);
+      const paged = recentSource.slice(start, end);
 
-      recentGrid.innerHTML = paged.map(createMovieCardHTML).join('');
+      recentGrid.innerHTML = paged.map(m => createMovieCardHTML(m)).join('');
 
-      renderPagination(allMovies.length, homePage, 'homePaginationBar', (p) => {
+      renderPagination(recentSource.length, homePage, 'homePaginationBar', (p) => {
         homePage = p;
         localStorage.setItem('cine_current_page', p);
         const newUrl = window.location.pathname + '?page=' + p;
@@ -2371,22 +2516,25 @@
       document.getElementById('fullListViewBlock').style.display = 'block';
       fullListPage = 1;
 
-      if (type === 'pinned') {
-        document.getElementById('fullViewTitle').innerText = '📌 Pinned Collections';
-        fullListCurrentMovies = [...pinnedMovies];
+      if (type === 'series') {
+        document.getElementById('fullViewTitle').innerText = '📺 Web Series Collections';
+        fullListCurrentMovies = [...seriesMovies];
       } else if (type === 'bangla') {
         document.getElementById('fullViewTitle').innerText = '🇧🇩 Bangla Collections';
         fullListCurrentMovies = [...banglaMovies];
+      } else if (type === 'adult') {
+        document.getElementById('fullViewTitle').innerText = '🔞 18+ Adult Collections';
+        fullListCurrentMovies = [...adultMovies];
       } else if (type === 'trending') {
         document.getElementById('fullViewTitle').innerText = '🔥 Trending & Featured';
-        fullListCurrentMovies = allMovies.filter(m => m.trending || m.pinned);
+        fullListCurrentMovies = allMovies.filter(m => (m.trending || m.pinned) && !isAdultMovie(m));
       }
 
-      renderFullListPage();
+      renderFullListPage(type === 'trending' ? 'FEATURED' : null);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function renderFullListPage() {
+    function renderFullListPage(forceBadge = null) {
       const grid = document.getElementById('fullListGrid');
       grid.innerHTML = '';
 
@@ -2400,11 +2548,11 @@
       const end = start + itemsPerPage;
       const paged = fullListCurrentMovies.slice(start, end);
 
-      grid.innerHTML = paged.map(createMovieCardHTML).join('');
+      grid.innerHTML = paged.map(m => createMovieCardHTML(m, forceBadge)).join('');
 
       renderPagination(fullListCurrentMovies.length, fullListPage, 'fullListPaginationBar', (p) => {
         fullListPage = p;
-        renderFullListPage();
+        renderFullListPage(forceBadge);
         window.scrollTo({ top: 0, behavior: 'smooth' });
       });
     }
@@ -2420,6 +2568,7 @@
       window.history.replaceState({}, '', window.location.pathname);
       renderRecentMovies();
       document.getElementById('searchInput').value = '';
+      toggleClearBtn();
       selectCategoryPill('All');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -2462,7 +2611,7 @@
     function renderTrendingSlider(list) {
       const container = document.getElementById('trendingList');
       const section = document.getElementById('trendingSection');
-      const trendingItems = list.filter(m => m.trending || m.pinned);
+      const trendingItems = list.filter(m => (m.trending || m.pinned) && !isAdultMovie(m));
 
       if (trendingItems.length === 0) {
         section.style.display = 'none';
@@ -2470,7 +2619,7 @@
       }
 
       section.style.display = 'block';
-      container.innerHTML = trendingItems.map(createMovieCardHTML).join('');
+      container.innerHTML = trendingItems.map(m => createMovieCardHTML(m, 'FEATURED')).join('');
     }
 
     function buildExternalMovieObj(item, fallbackYear) {
@@ -2502,6 +2651,92 @@
         isSeries: isTv,
         isFromSheet: false
       };
+    }
+
+    async function fetchTmdbForCategory(cat) {
+      const c = cat.toLowerCase();
+      let urls = [];
+
+      if (c === '18+ adult') {
+        urls.push(`https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&with_genres=10749,53&sort_by=popularity.desc&certification_country=US&certification=R`);
+      } else if (c === 'action') {
+        urls.push(`https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&with_genres=28&sort_by=popularity.desc`);
+      } else if (c === 'action & adventure') {
+        urls.push(`https://api.themoviedb.org/3/discover/tv?api_key=${TMDB_API_KEY}&with_genres=10759&sort_by=popularity.desc`);
+        urls.push(`https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&with_genres=28,12&sort_by=popularity.desc`);
+      } else if (c === 'adventure') {
+        urls.push(`https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&with_genres=12&sort_by=popularity.desc`);
+      } else if (c === 'animation') {
+        urls.push(`https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&with_genres=16&sort_by=popularity.desc`);
+      } else if (c === 'bangla' || c === 'bangla dubbed') {
+        urls.push(`https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&with_original_language=bn&sort_by=popularity.desc`);
+      } else if (c === 'bollywood' || c === 'hindi') {
+        urls.push(`https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&with_original_language=hi&sort_by=popularity.desc`);
+      } else if (c === 'hollywood') {
+        urls.push(`https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&with_original_language=en&sort_by=popularity.desc`);
+      } else if (c === 'comedy') {
+        urls.push(`https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&with_genres=35&sort_by=popularity.desc`);
+      } else if (c === 'crime') {
+        urls.push(`https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&with_genres=80&sort_by=popularity.desc`);
+      } else if (c === 'drama') {
+        urls.push(`https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&with_genres=18&sort_by=popularity.desc`);
+      } else if (c === 'family') {
+        urls.push(`https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&with_genres=10751&sort_by=popularity.desc`);
+      } else if (c === 'fantasy') {
+        urls.push(`https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&with_genres=14&sort_by=popularity.desc`);
+      } else if (c === 'history') {
+        urls.push(`https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&with_genres=36&sort_by=popularity.desc`);
+      } else if (c === 'horror') {
+        urls.push(`https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&with_genres=27&sort_by=popularity.desc`);
+      } else if (c === 'ramayanal') {
+        urls.push(`https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&query=Ramayan`);
+      } else if (c === 'music') {
+        urls.push(`https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&with_genres=10402&sort_by=popularity.desc`);
+      } else if (c === 'chelor f') {
+        urls.push(`https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&query=Bachelor`);
+      } else if (c === 'mystery') {
+        urls.push(`https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&with_genres=9648&sort_by=popularity.desc`);
+      } else if (c === 'reality') {
+        urls.push(`https://api.themoviedb.org/3/discover/tv?api_key=${TMDB_API_KEY}&with_genres=10764&sort_by=popularity.desc`);
+      } else if (c === 'romance') {
+        urls.push(`https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&with_genres=10749&sort_by=popularity.desc`);
+      } else if (c === 'sci-fi & fantasy') {
+        urls.push(`https://api.themoviedb.org/3/discover/tv?api_key=${TMDB_API_KEY}&with_genres=10765&sort_by=popularity.desc`);
+        urls.push(`https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&with_genres=878,14&sort_by=popularity.desc`);
+      } else if (c === 'science fiction') {
+        urls.push(`https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&with_genres=878&sort_by=popularity.desc`);
+      } else if (c === 'south indian') {
+        urls.push(`https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&with_original_language=ta|te|ml|kn&sort_by=popularity.desc`);
+      } else if (c === 'thriller') {
+        urls.push(`https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&with_genres=53&sort_by=popularity.desc`);
+      } else if (c === 'war') {
+        urls.push(`https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&with_genres=10752&sort_by=popularity.desc`);
+      } else if (c === 'series') {
+        urls.push(`https://api.themoviedb.org/3/discover/tv?api_key=${TMDB_API_KEY}&sort_by=popularity.desc`);
+      } else if (c === 'trending') {
+        urls.push(`https://api.themoviedb.org/3/trending/all/week?api_key=${TMDB_API_KEY}`);
+      } else {
+        urls.push(`https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(cat)}`);
+      }
+
+      let combined = [];
+      for (const u of urls) {
+        try {
+          const res = await fetch(u);
+          const data = await res.json();
+          const items = (data.results || [])
+            .filter(item => item.poster_path && item.media_type !== 'person')
+            .map(item => {
+              const isTvEndpoint = u.includes('/discover/tv');
+              const enriched = { ...item, media_type: item.media_type || (isTvEndpoint ? 'tv' : 'movie') };
+              const obj = buildExternalMovieObj(enriched, '');
+              if (c === '18+ adult') obj.badge = '18+ Adult';
+              return obj;
+            });
+          combined = combined.concat(items);
+        } catch (e) {}
+      }
+      return combined;
     }
 
     let searchDebounce;
@@ -2677,7 +2912,6 @@
       const baseTitle = extractBaseFranchiseTitle(movie.title);
       const baseNorm = normStr(baseTitle);
 
-      // ১. প্রথমে Google Sheet-এ থাকা সব পার্ট খুঁজে আনা
       if (baseNorm.length >= 3) {
         allMovies.forEach(m => {
           const mBase = normStr(extractBaseFranchiseTitle(m.title));
@@ -2687,7 +2921,6 @@
         });
       }
 
-      // ২. TMDB Collection থেকে সব পার্ট আনা (শিটে থাকলে শিট, না থাকলে বাইরেরটা)
       let tmdbId = movie.tmdbId;
       if (!tmdbId && !movie.isSeries) {
         try {
@@ -2715,7 +2948,6 @@
         } catch (e) {}
       }
 
-      // ৩. যদি নতুন পার্ট বা কালেকশন মিসিং থাকে, মূল নাম দিয়ে TMDB-তে বাকি পার্ট খোঁজা
       if (baseNorm.length >= 3 && partsMap.size <= 1) {
         try {
           const searchEndpoint = movie.isSeries ? 'tv' : 'movie';
@@ -3212,7 +3444,6 @@
 
       resetPlayerElements();
 
-      // ১. YouTube লিংক
       if (url.includes('youtube.com') || url.includes('youtu.be')) {
         const ytMatch = url.match(/(?:youtu\.be\/|watch\?v=|embed\/|shorts\/|v=)([\w-]{11})/);
         if (ytMatch) {
@@ -3222,7 +3453,6 @@
         }
       }
 
-      // ২. Google Drive লিংক
       if (url.includes('drive.google.com')) {
         const gdMatch = url.match(/\/file\/d\/([^\/?#]+)|[?&]id=([^&]+)/);
         if (gdMatch) {
@@ -3233,7 +3463,6 @@
         }
       }
 
-      // ৩. সরাসরি ভিডিও ফাইল ও Cloudflare R2 (r2.dev / .mkv / .mp4) — ৩-ডট ছাড়া কাস্টম প্লেয়ারে প্লে হবে
       const isKnownEmbed = /embed|player|vidsrc|autoembed|multiembed|smashystream|streamtape|dood|mixdrop|filemoon|voe\.sx|ok\.ru|dailymotion|vimeo/i.test(url);
       const isDirectVideoHost = /\.(mp4|m4v|webm|ogg|mkv|mov)(\?.*)?$/i.test(url) ||
                                 /r2\.dev|r2\.cloudflarestorage\.com|workers\.dev|firebasestorage|digitaloceanspaces|b-cdn\.net|backblazeb2/i.test(url);
@@ -3241,7 +3470,7 @@
       if (isDirectVideoHost && !isKnownEmbed) {
         iframePlayer.style.display = 'none';
         directBox.style.display = 'block';
-        if (externalBar) externalBar.style.display = 'none'; // সরাসরি ডাউনলোড লিংক গোপন থাকবে
+        if (externalBar) externalBar.style.display = 'none';
         directVideo.onerror = () => {
           directVideo.onerror = null;
           if (statusMsg) {
@@ -3254,7 +3483,6 @@
         return;
       }
 
-      // ৪. অন্যান্য ওয়েব/এমবেড লিংক
       if (externalBar && externalBtn) {
         externalBar.style.display = 'block';
         externalBtn.onclick = () => openSafeUrl(url);
@@ -3497,7 +3725,7 @@
       document.getElementById('downloadSectionBox').scrollIntoView({ behavior: 'smooth' });
     }
 
-    function selectCategory(cat, event) {
+    async function selectCategory(cat, event) {
       if (event) event.stopPropagation();
       activeCategory = cat;
       document.getElementById('dropdownMenu').style.display = 'none';
@@ -3505,19 +3733,64 @@
 
       if (cat === 'All') {
         goHome();
+        return;
+      }
+
+      document.getElementById('heroBannerSection').style.display = 'none';
+      document.getElementById('homeSectionsContainer').style.display = 'none';
+      document.getElementById('fullListViewBlock').style.display = 'block';
+      document.getElementById('fullViewTitle').innerText = `${cat} Collections`;
+      fullListPage = 1;
+
+      const cLower = cat.toLowerCase();
+      let localMatches = [];
+
+      if (cLower === 'trending') {
+        localMatches = allMovies.filter(m => (m.trending || m.pinned) && !isAdultMovie(m));
+      } else if (cLower === 'series') {
+        localMatches = allMovies.filter(m => m.isSeries && !isAdultMovie(m));
+      } else if (cLower === '18+ adult') {
+        localMatches = allMovies.filter(m => isAdultMovie(m));
       } else {
-        document.getElementById('heroBannerSection').style.display = 'none';
-        document.getElementById('homeSectionsContainer').style.display = 'none';
-        document.getElementById('fullListViewBlock').style.display = 'block';
-        document.getElementById('fullViewTitle').innerText = `${cat} Collections`;
-        fullListPage = 1;
+        localMatches = allMovies.filter(m => {
+          if (isAdultMovie(m)) return false;
+          const hay = `${m.category} ${m.genreText || ''} ${m.details || ''} ${m.badge || ''} ${m.title}`.toLowerCase();
+          return hay.includes(cLower);
+        });
+      }
 
-        if (cat === 'Trending') fullListCurrentMovies = allMovies.filter(m => m.trending || m.pinned);
-        else if (cat === 'Series') fullListCurrentMovies = allMovies.filter(m => m.isSeries);
-        else fullListCurrentMovies = allMovies.filter(m => m.category.toLowerCase().includes(cat.toLowerCase()) || m.details?.toLowerCase().includes(cat.toLowerCase()));
+      const forceBadge = (cLower === 'trending') ? 'FEATURED' : null;
+      fullListCurrentMovies = [...localMatches];
 
-        renderFullListPage();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (fullListCurrentMovies.length > 0) {
+        renderFullListPage(forceBadge);
+      } else {
+        document.getElementById('fullListGrid').innerHTML = '<p style="grid-column: span 3; text-align: center; color: #94a3b8; padding: 40px;">লোড হচ্ছে... ⏳</p>';
+        document.getElementById('fullListPaginationBar').style.display = 'none';
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      if (localMatches.length < itemsPerPage) {
+        const externalItems = await fetchTmdbForCategory(cat);
+        if (activeCategory.toLowerCase() !== cLower) return;
+
+        const existingKeys = new Set(
+          localMatches.map(m => m.tmdbId ? `tmdb_${m.tmdbId}` : `t_${normStr(cleanTitleForSearch(m.title))}`)
+        );
+
+        const uniqueExternal = [];
+        for (const ext of externalItems) {
+          const k1 = ext.tmdbId ? `tmdb_${ext.tmdbId}` : '';
+          const k2 = `t_${normStr(cleanTitleForSearch(ext.title))}`;
+          if ((k1 && existingKeys.has(k1)) || existingKeys.has(k2)) continue;
+          if (k1) existingKeys.add(k1);
+          existingKeys.add(k2);
+          uniqueExternal.push(ext);
+        }
+
+        fullListCurrentMovies = [...localMatches, ...uniqueExternal];
+        renderFullListPage(forceBadge);
       }
     }
 
@@ -3570,6 +3843,7 @@
       input.placeholder = "Listening... 🎙️";
       recognition.onresult = function(event) {
         input.value = event.results[0][0].transcript;
+        toggleClearBtn();
         handleSearch();
       };
     }
